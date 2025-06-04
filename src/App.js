@@ -3,6 +3,8 @@ import './App.css';
 
 import { recipes } from './data/SampleData';
 
+
+import SearchBar from "./components/SearchBar";
 import RecipeList from "./components/RecipeList";
 import IntroSection from "./components/IntroSection";
 
@@ -19,7 +21,8 @@ return (
   <h2 className="green fw-bold mt-5">Great suggestions</h2>
   <RecipeList recipes={recipes.slice(0, 3)} />
   
- 
+  <SearchBar />
+  <RecipeList recipes={recipes.slice(3)} />
   
   <footer className="text-center mt-5 text-muted">
   <p className="mb-0">RecipeManager</p>
