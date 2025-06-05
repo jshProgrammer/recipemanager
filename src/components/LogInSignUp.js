@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../features/auth/firebase.js';
 import './LogInSignUp.css';
 
 //TODO: bei mobile soll statt pop up neue page geöffnet werden/ notfalls pop up mittig
 
+//TODO: add logout/ login icon
 const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
@@ -11,6 +13,14 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
     email: '',
     password: ''
   });
+
+  const {
+    signUpWithEmail,
+    signInWithEmail,
+    signInWithGoogle,
+    signInWithGithub,
+    error
+  } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -45,21 +55,36 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin();
-    onClose();
-    setFormData({ firstName: '', lastName: '', email: '', password: '' });
+    const { email, password, firstName, lastName } = formData;
+
+    let result;
+    if (isSignUp) {
+      result = await signUpWithEmail(email, password, firstName, lastName);
+    } else {
+      result = await signInWithEmail(email, password);
+    }
+
+    if (result.success) {
+      onClose();
+      setFormData({ firstName: '', lastName: '', email: '', password: '' });
+    }
   };
 
-  const handleGitHubLogin = () => {
-    onLogin();
-    onClose();
+  
+  const handleGitHubLogin = async () => {
+    const result = await signInWithGithub();
+    if (result.success) {
+      onClose();
+    }
   };
 
-  const handleGoogleLogin = () => {
-    onLogin();
-    onClose();
+  const handleGoogleLogin = async () => {
+    const result = await signInWithGoogle();
+    if (result.success) {
+      onClose();
+    }
   };
 
   const handleBackdropClick = (e) => {
@@ -117,6 +142,12 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
           </div>            
     
           <div className="p-4">
+            {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            )}
+            
             <h2 className="text-center fw-bold mb-4">
               {isSignUp ? 'Sign up' : 'Log in'}
             </h2>
