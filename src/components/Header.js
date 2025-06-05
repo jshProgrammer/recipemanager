@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../features/auth/firebase.js';
-import './Header.css';
+import '../styles/Header.css';
 import logo from '../assets/logo.png';
-import LogInSignUp from "./LogInSignUp";
+import LogInSignUp from "./LogInSignUp.js";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -121,7 +121,14 @@ const Header = () => {
                 </a>
               ) : (
                 <div className="d-flex align-items-center gap-3">
-                  <i className="bi bi-person-circle profile-img" style={{ fontSize: '2rem' }}></i>
+                  <i
+                    className="bi bi-person-circle profile-img"
+                    style={{ fontSize: '2rem', cursor: 'pointer' }}
+                    onClick={() => {
+                      //TODO: Routing zu SettingsPage
+                    }}
+                    title="Settings"
+                  ></i>
                   <button 
                     onClick={confirmLogout}
                     className="btn borderGreen">
