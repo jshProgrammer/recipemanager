@@ -1,0 +1,79 @@
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2e7d32 !important;
+}
+.navbar-brand span {
+    color: #66bb6a;
+}
+.navbar-nav .nav-link {
+    font-weight: 500;
+    color: #333 !important;
+    transition: color 0.3s;
+}
+.navbar-nav .nav-link:hover {
+    color: #66bb6a !important;
+}
+.btn-login {
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+.btn-login:hover {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+.btn-signup {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+.btn-signup:hover {
+    background-color: #1b5e20;
+    color: white;
+}
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+.navbar-toggler-icon {
+    background-image: none;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.hamburger-line {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 3px auto;
+    background-color: #333;
+    transition: all 0.3s;
+}
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}

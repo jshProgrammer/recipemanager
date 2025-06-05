@@ -1,3 +1,12 @@
+:root {
+  --green-accent-color: #5da91a;
+  
+}
+
+body {
+  padding-top: 30px;
+}
+
 .App {
   text-align: center;
 }
@@ -9,12 +18,19 @@
 
 
 .green {
-  color: #5cbb09;
+  color: var(--green-accent-color);
+}
+
+.borderGreen {
+  border-color: var(--green-accent-color) !important;
 }
 
 .backgroundGreen {
-  background-color: #5cbb09;
-  
+  background-color: var(--green-accent-color);
+}
+
+.bgLightGreen {
+  background-color: color-mix(in srgb, var(--green-accent-color) 10%, transparent);
 }
 
 .recipe-card {

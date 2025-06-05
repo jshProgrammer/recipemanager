@@ -8,7 +8,7 @@ export default function IntroSection() {
         <div>
             <h2 className="green fw-bold mt-5">Welcome to <br />RecipeManager</h2>
             <p>Find the most exciting recipes based on your preferences.<br />Easy. Healthy. Fast.</p>
-             <a href="#suggestions">
+            <a href="#suggestions">
                 <button class="btn mb-4 backgroundGreen py-3 rounded">Browse recipes</button>
             </a>
             <img

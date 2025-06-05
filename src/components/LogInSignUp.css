@@ -1,0 +1,52 @@
+.segmented-control {
+  display: inline-flex;
+  justify-content: center;      
+  align-items: center;             
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;      
+  gap: 8px;        
+}
+
+.segmented-option {
+    flex: 1;
+    padding: 12px 24px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    position: relative;
+    z-index: 2;
+    min-width: 140px;
+    
+}
+
+.segmented-option.active {
+    background-color: var(--green-accent-color);
+    color: #fff;
+}
+
+.segmented-option:not(.active) {
+    color: #6c757d;
+    background-color: transparent;
+}
+
+.segmented-option:hover:not(.active) {
+    color: #495057;
+}
+
+.backgroundGreen {
+  background-color: var(--green-accent-color) !important;
+  
+}
+
+
+ @media (max-width: 576px) {
+    .segmented-option {
+        padding: 10px 20px;
+        font-size: 14px;
+        min-width: 70px;
+    }
+}

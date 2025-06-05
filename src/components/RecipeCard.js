@@ -27,7 +27,7 @@ return (
             </div>
             <div className="d-flex flex-wrap gap-2">
                 {tags.map((tag, index) => (
-                <span key={index} className="badge border border-success text-success">
+                <span key={index} className="badge border borderGreen text-black">
                 {tag}
                 </span>
                 ))}
