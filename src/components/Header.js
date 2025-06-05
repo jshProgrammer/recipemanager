@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../features/auth/firebase.js';
+import { useAuth } from '../features/authentication.js';
 import '../styles/Header.css';
 import logo from '../assets/logo.png';
 import LogInSignUp from "./LogInSignUp.js";

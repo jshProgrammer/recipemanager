@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../features/auth/firebase.js';
+import { useAuth } from '../features/authentication.js';
 import '../styles/LogInSignUp.css';
 
 //TODO: bei mobile soll statt pop up neue page geöffnet werden/ notfalls pop up mittig
