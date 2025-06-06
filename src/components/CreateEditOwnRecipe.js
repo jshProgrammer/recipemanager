@@ -1,7 +1,7 @@
 // all attributes are optional to use this interface for editing as well as creating a user's own personal recipes
 import { useState } from "react";
-import {uploadImage} from '../features/imageStorage.js'
-import {saveRecipe} from '../features/storage.js'
+import {uploadImage} from '../features/databaseStorage/imageStorage.js'
+import {saveRecipe} from '../features/databaseStorage/recipeStorage.js'
 import ImagePicker from "./ImagePicker.js";
 
 export default function CreateEditOwnRecipe({ recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null }) {

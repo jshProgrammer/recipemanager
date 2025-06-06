@@ -1,5 +1,5 @@
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../firebase";
 
 export const saveRecipe = async (recipe) => {
   try {

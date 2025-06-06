@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import {showImageFromUrl} from '../features/imageStorage.js';
+import {showImageFromUrl} from '../features/databaseStorage/imageStorage.js';
 
 export default function ImagePicker({ 
   image, 

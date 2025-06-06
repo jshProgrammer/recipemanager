@@ -1,13 +1,25 @@
+import { useEffect, useState } from "react";
 import '../styles/Settings.css'
+import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../features/databaseStorage/customSettingsStorage';
 
 export default function Settings({user}) {
+    const [formState, setFormState] = useState({
+        dietaryPreference: 'none',
+        lactoseIntolerance: false,
+        glutenIntolerance: false,
+        nutAllergy: false,
+        caffeineSensitivity: false,
+        eggIntolerance: false,
+        chocolateSensitivity: false,
+    });
+
     const dietaryOptions = [
         { id: 'noPreferences', default: 'none', label: 'None'},
         { id: 'vegetarian', value: 'vegetarian', label: 'Vegetarian' },
         { id: 'vegan', value: 'vegan', label: 'Vegan'}
     ];
 
-    const nutritialIntolerances = [
+    const nutritionalIntolerances = [
         { id: 'lactoseIntolerance', value: 'lactoseIntolerance', label: 'Lactose Intolerance'},
         { id: 'glutenIntolerance', value: 'glutenIntolerance', label: 'Gluten Intolerance'},
         { id: 'nutAllergy', value: 'nutAllergy', label: 'Nut allergy'},
@@ -15,6 +27,48 @@ export default function Settings({user}) {
         { id: 'eggIntolerance', value: 'eggIntolerance', label: 'Egg Intolerance'},
         { id: 'chocolateSensitivity', value: 'chocolateSensitivity', label: 'Chocolate Sensitivity'},
     ];
+
+    const [settings, setSettings] = useState(null);
+
+    useEffect(() => {
+        if (user?.uid) {
+            readCustomSettingsFromDB({ userid: user.uid }).then(data => {
+                setSettings(data);
+            });
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (settings) {
+            setFormState({
+            dietaryPreference: settings.dietaryPreference || 'none',
+            lactoseIntolerance: settings.lactoseIntolerance || false,
+            glutenIntolerance: settings.glutenIntolerance || false,
+            nutAllergy: settings.nutAllergy || false,
+            caffeineSensitivity: settings.caffeineSensitivity || false,
+            eggIntolerance: settings.eggIntolerance || false,
+            chocolateSensitivity: settings.chocolateSensitivity || false,
+            });
+        }
+    }, [settings]);
+
+    async function storeInDB() {
+        const dietaryPreference = document.querySelector('input[name="dietaryPreferences"]:checked')?.value || 'none';
+
+        const intolerances = {};
+        nutritionalIntolerances.forEach(option => {
+            const checked = document.getElementById(option.id)?.checked || false;
+            intolerances[option.value] = checked;
+        });
+
+        await writeCustomSettingsToDB({
+            userid: user.uid,
+            settings: {
+            dietaryPreference,
+            ...intolerances
+            }
+        });
+    }
 
     return (
         <div>
@@ -33,8 +87,8 @@ export default function Settings({user}) {
                         id={option.id}
                         name="dietaryPreferences"
                         value={option.value}
-                        defaultChecked={option.value === 'none'}
-                    />
+                        checked={formState.dietaryPreference === option.value}
+                        onChange={() => setFormState(fs => ({ ...fs, dietaryPreference: option.value }))}/>
                     <label className="form-check-label" htmlFor={option.id}>
                         {option.label}
                     </label>
@@ -50,9 +104,15 @@ export default function Settings({user}) {
                 </p>
                 <div style={{ flex: 1 }}>
 
-                {nutritialIntolerances.map(option => (
+                {nutritionalIntolerances.map(option => (
                     <div className="form-check">
-                        <input className="form-check-input" type="checkbox" id={option.id} name="nutritialIntolerances" value={option.value} />
+                        <input className="form-check-input" 
+                        type="checkbox" 
+                        id={option.id} 
+                        name="nutritialIntolerances" 
+                        value={option.value}
+                        checked={formState[option.value]}
+                        onChange={e => setFormState(fs => ({ ...fs, [option.value]: e.target.checked }))}/>
                         <label className="form-check-label" htmlFor={option.id}>{option.label}</label>
                     </div>
                 ))}
@@ -60,7 +120,7 @@ export default function Settings({user}) {
 
             </div>
 
-            <button className="btn mt-4 backgroundGreen" type="submit">Save</button>
+            <button className="btn mt-4 backgroundGreen" type="submit" onClick={storeInDB}>Save</button>
 
            
         </div>

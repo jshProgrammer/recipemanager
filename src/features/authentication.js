@@ -1,6 +1,6 @@
 import './firebase.js'
 import { useState, useEffect } from 'react';
-import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import {auth} from './firebase.js'
 
 const googleProvider = new GoogleAuthProvider();
@@ -24,7 +24,9 @@ export const useAuth = () => {
     try {
       setError(null);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      //Todo: vorname/ nachname wird noch nicht gespeichert
+      await updateProfile(userCredential.user, {
+        displayName: `${firstName} ${lastName}`
+      });
       return { success: true, user: userCredential.user };
     } catch (error) {
       setError(error.message);
