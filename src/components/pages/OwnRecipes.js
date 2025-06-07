@@ -5,14 +5,17 @@ import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsS
 import AddNewCollectionPopup from "./AddNewCollectionPopup.js";
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 
-//TODO: always close navbar when clicking on sth
 export default function OwnRecipes({user}) {
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
 
+
+    const [collectionMessage, setCollectionMessage] = useState(null);
+    const [collectionMessageType, setCollectionMessageType] = useState(null);
+
     const [isNewCollectionMenuOpen, setIsNewCollectionMenuOpen] = useState(false);
 
-    useEffect(() => {
+    const fetchCollections = () => {
         if (user?.uid) {
             setLoading(true);
             loadCollectionsOfUser(user.uid).then(data => {
@@ -20,6 +23,10 @@ export default function OwnRecipes({user}) {
                 setLoading(false);
             });
         }
+    };
+
+    useEffect(() => {
+        fetchCollections();
     }, [user]);
 
     const switchPopupVisibility = () => {
@@ -44,9 +51,21 @@ export default function OwnRecipes({user}) {
                     New collection
                 </button>
             </div>
+
+            {collectionMessage && (
+                <div className={`alert ${collectionMessageType === "success" ? "alert-success" : "alert-danger"} mt-2 w-100 text-center`} role="alert">
+                {collectionMessage}
+                </div>
+            )}
+
             <CollectionList collections={collections}/>
 
-            <AddNewCollectionPopup user={user} isOpen={isNewCollectionMenuOpen} onClose={() => setIsNewCollectionMenuOpen(false)}/>
+            <AddNewCollectionPopup user={user} 
+            isOpen={isNewCollectionMenuOpen} 
+            onClose={() => setIsNewCollectionMenuOpen(false)}
+            setParentMessage={setCollectionMessage}
+            setParentMessageType={setCollectionMessageType}
+            reloadCollections={fetchCollections}/>
         </div>
     )
 }

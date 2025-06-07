@@ -3,10 +3,11 @@ import ImagePicker from "../subcomponents/ImagePicker";
 import {storeCollectionInDB} from '../../features/databaseStorage/collectionsStorage.js'
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 
-//TODO: show success or error message
-const AddNewCollectionPopup = ({user, isOpen, onClose}) => {
+const AddNewCollectionPopup = ({user, isOpen, onClose,  setParentMessage, setParentMessageType, reloadCollections}) => {
     const [collectionName, setCollectionName] = useState();
     const [image, setImage] = useState();
+
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -40,19 +41,38 @@ const AddNewCollectionPopup = ({user, isOpen, onClose}) => {
 
     const storeCollection = async (e) => {
         e.preventDefault();
-        var imageURL = await uploadImage(image);
-        console.log(imageURL);
-        
-        await storeCollectionInDB({userID: user.uid, customCollection: {
-            imageURL: imageURL,
-            collectionName: collectionName
-        }});
-        onClose();
+        setParentMessage(null);
+        setParentMessageType(null);
+        setIsLoading(true);
+        try {
+          var imageURL = await uploadImage(image);
+          console.log(imageURL);
+          
+          await storeCollectionInDB({userID: user.uid, customCollection: {
+              imageURL: imageURL,
+              collectionName: collectionName
+          }});
+          onClose();
+
+          reloadCollections();
+          setParentMessage("Collection " + collectionName + " stored successfully!");
+          setParentMessageType("success");
+          setTimeout(() => {
+              setParentMessage(null);
+              setParentMessageType(null);
+              onClose();
+          }, 5000);
+        } catch(err) {
+          setParentMessage("Error when storing collection: " + err.message);
+          setParentMessageType("error");
+        }
+        setIsLoading(false);
     }
     
     if (!isOpen) return null;
 
     return (
+      
      <div
       className="position-fixed h-100 w-100 d-flex align-items-center justify-content-end"
       style={{
@@ -62,6 +82,7 @@ const AddNewCollectionPopup = ({user, isOpen, onClose}) => {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
       }}
       onClick={handleBackdropClick}>
+        
         <div className="bg-white rounded-5 shadow-lg position-relative"
         style={{
           zIndex: 10000,
@@ -80,7 +101,7 @@ const AddNewCollectionPopup = ({user, isOpen, onClose}) => {
         onClick={e => e.stopPropagation()}>
             <div className="p-4 d-flex flex-column align-items-center justify-content-center">
                 <h2 className="green">Add new collection</h2>
-                
+
                 <div style={{ width: "100%" }}>
                     <div className="d-flex justify-content-center mb-3">
                         <ImagePicker image={image} onImageChange={setImage}/>
@@ -97,8 +118,16 @@ const AddNewCollectionPopup = ({user, isOpen, onClose}) => {
                             onChange={e => {setCollectionName(e.target.value)}}
                             placeholder="Enter your new collection name"
                             className="form-control"/>
+
+                            {isLoading ? (
+                              <div className="d-flex justify-content-center mt-3">
+                                <div className="spinner-border text-success" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </div>
+                              </div>
+                            ) : (
                             <button type="submit"
-                                className="btn mt-3 backgroundGreen py-3 fw-medium w-100">Save</button>
+                                className="btn mt-3 backgroundGreen py-3 fw-medium w-100">Save</button>)}
                         </div>
                     </form>
                 </div>
