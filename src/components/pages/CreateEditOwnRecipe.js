@@ -1,10 +1,10 @@
 // all attributes are optional to use this interface for editing as well as creating a user's own personal recipes
 import { useState } from "react";
-import {uploadImage} from '../features/databaseStorage/imageStorage.js'
-import {saveRecipe} from '../features/databaseStorage/recipeStorage.js'
-import ImagePicker from "./ImagePicker.js";
+import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
+import {saveRecipe} from '../../features/databaseStorage/recipeStorage.js'
+import ImagePicker from "../subcomponents/ImagePicker.js";
 
-export default function CreateEditOwnRecipe({ recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null }) {
+export default function CreateEditOwnRecipe({user, recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null }) {
     const [name, setName] = useState(recipeName ?? "");
     const [price, setPrice] = useState(estimatedPrice ?? "");
     const [time, setTime] = useState(estimatedTime ?? "");
@@ -16,7 +16,9 @@ export default function CreateEditOwnRecipe({ recipeName = null, imageURL=null, 
         if (!finalImageURL && image) {
             finalImageURL = await uploadImage(image);
         }
-        await saveRecipe({
+        await saveRecipe(
+            user.uid,
+            {
             name,
             imageURL: finalImageURL,
             price,
@@ -25,7 +27,7 @@ export default function CreateEditOwnRecipe({ recipeName = null, imageURL=null, 
     }   
 
     return (
-        <div>
+        <div className="main-content">
             <h2 className="green">Create your own recipe</h2>
 
             <div className="row">

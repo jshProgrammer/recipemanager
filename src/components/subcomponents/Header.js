@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from '../features/authentication.js';
-import '../styles/Header.css';
-import logo from '../assets/logo.png';
-import LogInSignUp from "./LogInSignUp.js";
+import { useAuth } from '../../features/authentication.js';
+import '../../styles/Header.css';
+import logo from '../../assets/logo.png';
+import LogInSignUpPopup from "../pages/LogInSignUpPopup.js";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +21,7 @@ const Header = () => {
     setIsPopupOpen(prev => !prev);
   };
 
-   const handleLogout = async () => {
+  const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
       setIsMenuOpen(false);
@@ -67,7 +68,6 @@ const Header = () => {
       <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
         <div className="container-fluid px-4 px-lg-5">
           
-          
           <a className="navbar-brand" href="#">
             <img src={logo} alt="RecipeManager Logo" width="60"/>
           </a>
@@ -92,14 +92,27 @@ const Header = () => {
           <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
             <ul className="navbar-nav mx-auto">
               <li className="nav-item">
-                <a className="nav-link" href="#">Home</a>
+                <Link className="nav-link" to="/">Home</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">Recipes</a>
+                <Link className="nav-link" to="/">Recipes</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#search">Search</a>
+                <Link className="nav-link" to="/search">Search</Link>
               </li>
+              {isAuthenticated && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/favorites">Favorites</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/ownRecipes">Own Recipes</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/settings">Settings</Link>
+                  </li>
+                </>
+              )}
             </ul>
 
             <div className="d-lg-none w-100">
@@ -115,23 +128,17 @@ const Header = () => {
                     e.preventDefault();
                     switchPopupVisibility();
                   }}
-                  className="btn borderGreen"
-                >
+                  className="btn borderGreen">
+                  <i className="bi bi-person-circle" style={{ fontSize: '1rem', marginRight: 5 }}></i>
                   Your Account
                 </a>
               ) : (
                 <div className="d-flex align-items-center gap-3">
-                  <i
-                    className="bi bi-person-circle profile-img"
-                    style={{ fontSize: '2rem', cursor: 'pointer' }}
-                    onClick={() => {
-                      //TODO: Routing zu SettingsPage
-                    }}
-                    title="Settings"
-                  ></i>
+                  
                   <button 
                     onClick={confirmLogout}
                     className="btn borderGreen">
+                    <i className="bi bi-box-arrow-right" style={{ fontSize: '1rem',  marginRight: 5 }}></i>
                     Logout
                   </button>
 
@@ -172,7 +179,7 @@ const Header = () => {
         </div>
       </nav>
 
-      <LogInSignUp
+      <LogInSignUpPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
       />

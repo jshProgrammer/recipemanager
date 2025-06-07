@@ -12,8 +12,7 @@ function extractPublicId(url) {
   return match ? match[1] : null;
 }
 
-//TODO: mix of logic and view !=!
-export function showImageFromUrl(imageUrl) {
+export function showImageFromUrl(imageUrl, width=500) {
   const publicId = extractPublicId(imageUrl);
   if (!publicId) return <div>Image not found</div>;
 
@@ -24,7 +23,7 @@ export function showImageFromUrl(imageUrl) {
     .quality('auto')
     .resize(auto().gravity(autoGravity()).width(500).height(500));
 
-  return <AdvancedImage cldImg={img} />;
+    return <AdvancedImage className="card-img-top" cldImg={img} style={{ width: width , height: "100%", objectFit: "cover", display: "block"}} />;
 }
 
 export async function uploadImage(image) {

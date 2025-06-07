@@ -1,5 +1,4 @@
-import React from "react";
-import RecipeCard from "./RecipeCard";
+import RecipeCard from "../cards/RecipeCard";
 
 export default function RecipeList({ recipes }) {
 return (

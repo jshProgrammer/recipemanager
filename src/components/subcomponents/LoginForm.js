@@ -1,13 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../features/authentication.js';
-import '../styles/LogInSignUp.css';
+import { useState } from 'react';
+import { useAuth } from '../../features/authentication.js';
 
-//TODO: bei mobile soll statt pop up neue page geöffnet werden/ notfalls pop up mittig
-
-//TODO: add logout/ login icon
-const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [formData, setFormData] = useState({
+export default function LoginForm({ isSignUp, setIsSignUp, onSuccess }) {
+    const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -15,40 +10,14 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
   });
 
   const {
-    signUpWithEmail,
-    signInWithEmail,
-    signInWithGoogle,
-    signInWithGithub,
-    error
-  } = useAuth();
+      signUpWithEmail,
+      signInWithEmail,
+      signInWithGoogle,
+      signInWithGithub,
+      error
+    } = useAuth();
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleEsc = (event) => {
-      if (event.keyCode === 27) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleEsc);
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [onClose]);
-
-  if (!isOpen) return null;
-
-  const handleInputChange = (e) => {
+    const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -67,81 +36,27 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
     }
 
     if (result.success) {
-      onClose();
+      onSuccess();
       setFormData({ firstName: '', lastName: '', email: '', password: '' });
     }
   };
 
-  
   const handleGitHubLogin = async () => {
     const result = await signInWithGithub();
     if (result.success) {
-      onClose();
+      onSuccess();
     }
   };
 
   const handleGoogleLogin = async () => {
     const result = await signInWithGoogle();
     if (result.success) {
-      onClose();
-    }
-  };
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
+      onSuccess();
     }
   };
 
   return (
-     <div
-      className="position-fixed h-100 w-100 d-flex align-items-center justify-content-end"
-      style={{
-        zIndex: 9999,
-        top: 0,
-        left: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        
-      }}
-      onClick={handleBackdropClick}
-    >
-      <div
-        className="bg-white rounded-5 shadow-lg position-relative"
-        style={{
-          zIndex: 10000,
-          maxWidth: '480px',
-          width: '100%',
-          marginRight: "50px",
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-          borderTopLeftRadius: '2rem',
-          borderBottomLeftRadius: '2rem',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-          
-          <div class="mt-4 ml-4 mr-4 d-flex justify-content-center segmented-control" >
-              <button
-              className={`segmented-option ${!isSignUp ? 'active' : ''}`}
-              onClick={() => setIsSignUp(false)}
-            >
-              Log in
-            </button>
-
-            <button
-              className={`segmented-option ${isSignUp ? 'active' : ''}`}
-              onClick={() => setIsSignUp(true)}
-            >
-              Sign up
-            </button>
-          </div>            
-    
-          <div className="p-4">
+        <div className="p-4">
             {error && (
               <div className="alert alert-danger" role="alert">
                 {error}
@@ -248,10 +163,7 @@ const LogInSignUp = ({ isOpen, onClose, onLogin }) => {
             </div>
             </form>
           </div>
-        </div>
-    </div>
-    
+        
   );
-};
 
-export default LogInSignUp;
+}

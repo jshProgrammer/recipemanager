@@ -1,5 +1,5 @@
 import React from "react";
-import '../styles/App.css'
+import '../../styles/App.css'
 
 function RecipeCard({ imageUrl, title, time, tags }) {
    
@@ -8,7 +8,7 @@ return (
         <div className="position-relative">
             <img src={imageUrl} className="card-img-top" alt={title} />
             <div className="position-absolute top-0 end-0 m-2 bg-white rounded-circle p-1 shadow-sm d-flex align-items-center justify-content-center" style={{ width: "36px", height: "36px", padding: 0 }}>
-            <i className="bi bi-heart" style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}></i>
+                <i className="bi bi-heart" style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}></i>
             </div>
 
             <div className="card-body"

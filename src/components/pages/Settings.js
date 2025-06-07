@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import '../styles/Settings.css'
-import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../features/databaseStorage/customSettingsStorage';
+import '../../styles/Settings.css'
+import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/customSettingsStorage';
 
 export default function Settings({user}) {
     const [formState, setFormState] = useState({
@@ -32,7 +32,7 @@ export default function Settings({user}) {
 
     useEffect(() => {
         if (user?.uid) {
-            readCustomSettingsFromDB({ userid: user.uid }).then(data => {
+            readCustomSettingsFromDB({ userID: user.uid }).then(data => {
                 setSettings(data);
             });
         }
@@ -62,7 +62,7 @@ export default function Settings({user}) {
         });
 
         await writeCustomSettingsToDB({
-            userid: user.uid,
+            userID: user.uid,
             settings: {
             dietaryPreference,
             ...intolerances
@@ -71,8 +71,8 @@ export default function Settings({user}) {
     }
 
     return (
-        <div>
-            <h2>Your profile</h2>
+        <div className="main-content">
+            <h2 className="green fw-bold mt-5">Your profile</h2>
             
            <div className="d-flex flex-column flex-md-row align-items-start mb-4">
                 <p className="fw-bold mb-0 me-4" style={{ minWidth: 0, whiteSpace: "nowrap" }}>

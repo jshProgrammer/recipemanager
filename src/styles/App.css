@@ -3,8 +3,8 @@
   
 }
 
-body {
-  padding-top: 30px;
+body, .main-content {
+  padding-top: 30px !important;
 }
 
 .App {
@@ -33,7 +33,7 @@ body {
   background-color: color-mix(in srgb, var(--green-accent-color) 10%, transparent);
 }
 
-.recipe-card {
+.recipe-card, .collection-card {
   min-width: 300px;
   aspect-ratio: 1/1;
   width: 25%;
