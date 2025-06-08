@@ -16,6 +16,8 @@ import OwnRecipes from './components/pages/OwnRecipes.js';
 import CustomCollection from './components/pages/CustomCollection.js';
 import CreateEditOwnRecipe from './components/pages/CreateEditOwnRecipe.js';
 
+import RecipeSearch from "./components/RecipeSearch";
+
 function CustomCollectionWrapper({ user }) {
   const { collectionName } = useParams();
   return <CustomCollection user={user} collectionName={collectionName} />;
@@ -43,7 +45,7 @@ function App() {
               <RecipeList recipes={recipes.slice(0, 3)} />
               
               <div class="bgLightGreen p-4 rounded-4 mt-4">
-                <SearchBar id="search" />
+                <RecipeSearch />
                 <RecipeList recipes={recipes.slice(3)} />
               </div>
             </div>
