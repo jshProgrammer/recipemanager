@@ -1,6 +1,6 @@
 export const detailedRecipes = [
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "Cheese Noodles",
         time: "70min",
         price: "4.99",
@@ -18,21 +18,21 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Boil the Spätzle in salted water until tender.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Fry the onions until golden and crispy.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Mix the Spätzle with cheese and top with onions.",
             },
         ],
     },
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "High Protein Chocolate Cake",
         time: "30min",
         price: "3.49",
@@ -50,17 +50,17 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Mix all ingredients into a batter.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Pour into baking form and bake for 20 minutes.",
             },
         ],
     },
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "Caesar Salad",
         time: "25min",
         price: "2.99",
@@ -78,17 +78,17 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Chop the lettuce and place in a bowl.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Add dressing, parmesan, and croutons.",
             },
         ],
     },
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "Avocado Toast",
         time: "5min",
         price: "1.49",
@@ -106,17 +106,17 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Toast the bread slices.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Mash avocado and spread over toast.",
             },
         ],
     },
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "Healthy Bowl",
         time: "40min",
         price: "5.49",
@@ -134,17 +134,17 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Cook quinoa and prepare toppings.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Assemble everything in a bowl.",
             },
         ],
     },
     {
-        imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+        imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
         title: "Breaded Veal Cutlet",
         time: "25min",
         price: "6.99",
@@ -162,11 +162,11 @@ export const detailedRecipes = [
         },
         steps: [
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Coat the veal cutlet in egg and breadcrumbs.",
             },
             {
-                imageUrl: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
+                imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
                 description: "Fry in hot oil until golden brown.",
             },
         ],

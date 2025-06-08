@@ -1,23 +1,47 @@
 import RecipeList from "../lists/RecipeList";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { loadRecipesOfCollection } from "../../features/databaseStorage/collectionsStorage";
 import LoadingIndicator from "../subcomponents/LoadingIndicator";
 
+//TODO: link funktioniert nicht
 const CustomCollection = ({user, collectionName}) => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
+
     const navigate = useNavigate(); 
+    const location = useLocation();
 
     useEffect(() => {
+        setLoading(true);
         const fetchRecipes = async () => {
-            setLoading(true);
             const data = await loadRecipesOfCollection({userID: user.uid, collectionName: collectionName});
+            console.log(data);
             setRecipes(data);
             setLoading(false);
         };
         fetchRecipes();
     }, [user, collectionName]);
+
+    useEffect(() => {
+        if (location.state?.message) {
+        setMessage({
+            text: location.state.message,
+            type: location.state.type || 'info'
+        });
+        
+        const timer = setTimeout(() => {
+            setMessage(null);
+        }, 5000);
+
+        window.history.replaceState({}, document.title);
+        
+        return () => clearTimeout(timer);
+        }
+    }, [location.state]);
 
     if (loading) {
         return (
@@ -25,12 +49,27 @@ const CustomCollection = ({user, collectionName}) => {
         );
     }
 
-    //TODO: RecipeCard should have optional option to edit recipe for custom ones
-    //TODO: CreateEditOwnRecipe should display in which collection
-    //TODO: update storing recipe with connection to collection
-    //TODO: show error/success message when storing recipe and navigate back
+    if (error) {
+        return (
+        <div className="main-content">
+            <div className="alert alert-danger" role="alert">
+            {error}
+            </div>
+        </div>
+        );
+    }
+
     return (
         <div className="main-content">
+            {message && (
+                <div className={`alert alert-${message.type === 'success' ? 'success' : 'info'} alert-dismissible fade show d-flex align-items-center`} role="alert">
+                <i className={`bi ${message.type === 'success' ? 'bi-check-circle' : 'bi-info-circle'} me-2`}></i>
+                {message.text}
+                    <button type="button" className="btn-close" 
+                        onClick={() => setMessage(null)} aria-label="Close"></button>
+                </div>
+            )}
+
             <div className="d-flex align-items-center justify-content-between mb-4">
                 <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
                 <button className="btn backgroundGreen d-flex align-items-center" onClick={() => {
@@ -42,7 +81,10 @@ const CustomCollection = ({user, collectionName}) => {
             </div>
 
             <h2 className="green">{collectionName}</h2>
-            <RecipeList recipes={recipes} />
+            {recipes && recipes.length > 0 ? (
+                <RecipeList recipes={recipes} />)
+                : <p>This collection is empty yet. Just create a new recipe and you are ready to go :)</p>
+            }
         </div>
     );
 }

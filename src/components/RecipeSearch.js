@@ -29,7 +29,7 @@ function RecipeSearch() {
   return (
     <div>
         <div className="mb-4">
-            <h3>Search recepies</h3>
+            <h3>Search recipes</h3>
             <div className="mb-3 position-relative">
                 <InputGroup style={{  }}>
                     <Form.Control

@@ -15,6 +15,9 @@ import Settings from './components/pages/Settings.js'
 import OwnRecipes from './components/pages/OwnRecipes.js';
 import CustomCollection from './components/pages/CustomCollection.js';
 import CreateEditOwnRecipe from './components/pages/CreateEditOwnRecipe.js';
+import RecipeDetail from './components/pages/RecipeDetail.js';
+
+import { detailedRecipes } from './data/DetailedSampleData';
 
 import RecipeSearch from "./components/RecipeSearch";
 
@@ -26,6 +29,12 @@ function CustomCollectionWrapper({ user }) {
 function CreateEditOwnRecipeWrapper({ user }) {
   const { collectionName } = useParams();
   return <CreateEditOwnRecipe user={user} collectionName={collectionName} />;
+}
+
+function RecipeDetailWrapper() {
+  const { recipeName } = useParams();
+  const recipe = detailedRecipes.find(r => r.title === recipeName);
+  return <RecipeDetail recipe={recipe} />;
 }
 
 function App() {

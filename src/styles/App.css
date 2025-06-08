@@ -34,9 +34,9 @@ body, .main-content {
 }
 
 .recipe-card, .collection-card {
-  min-width: 300px;
+  width: 300px;
   aspect-ratio: 1/1;
-  width: 25%;
+  
 }
 
 @media (prefers-reduced-motion: no-preference) {

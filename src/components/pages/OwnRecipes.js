@@ -9,7 +9,6 @@ export default function OwnRecipes({user}) {
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
 
-
     const [collectionMessage, setCollectionMessage] = useState(null);
     const [collectionMessageType, setCollectionMessageType] = useState(null);
 

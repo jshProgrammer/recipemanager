@@ -1,9 +1,12 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
-export const saveRecipe = async (userID, recipe) => {
+export const saveRecipe = async (userID, recipe, collectionName=null) => {
   try {
-    await addDoc(collection(db, "users", userID, "recipes"), recipe);
+    const recipeRef = await addDoc(collection(db, "users", userID, "recipes"), recipe);
+    if(collectionName != null) {
+      await addDoc(collection(db, "users", userID, "collections", collectionName, "recipes"), {recipeId: recipeRef.id});
+    }
     console.log("Rezept gespeichert!");
   } catch (e) {
     console.error("Fehler beim Speichern:", e);

@@ -1,29 +1,59 @@
 // all attributes are optional to use this interface for editing as well as creating a user's own personal recipes
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 import {saveRecipe} from '../../features/databaseStorage/recipeStorage.js'
 import ImagePicker from "../subcomponents/ImagePicker.js";
+import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js'
 
-export default function CreateEditOwnRecipe({user, recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null }) {
-    const [name, setName] = useState(recipeName ?? "");
+export default function CreateEditOwnRecipe({user, collectionName, recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null}) {
+    const [title, setTitle] = useState(recipeName ?? "");
     const [price, setPrice] = useState(estimatedPrice ?? "");
     const [time, setTime] = useState(estimatedTime ?? "");
     const [image, setImage] = useState(imageURL);
-   
+
+    const [collections, setCollections] = useState([]);
+    const [selectedCollection, setSelectedCollection] = useState(collectionName || "");
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadCollectionsOfUser(user.uid).then(data => {
+                setCollections(Array.isArray(data) ? data : []);
+            });
+        }
+    }, [user, collectionName]);
     
     const saveCustomRecipeInDB = async () => {
-        let finalImageURL = imageURL;
-        if (!finalImageURL && image) {
-            finalImageURL = await uploadImage(image);
+        let finalimageURL = imageURL;
+        if (!finalimageURL && image) {
+            finalimageURL = await uploadImage(image);
         }
         await saveRecipe(
             user.uid,
             {
-            name,
-            imageURL: finalImageURL,
+            title,
+            imageURL: finalimageURL,
             price,
             time
-        });
+        }, selectedCollection === "" ? null : selectedCollection);
+
+        if (selectedCollection) {
+            navigate(`/collections/${encodeURIComponent(selectedCollection)}`, {
+                state: { 
+                    message: `Recipe "${title}" was saved successfully!`,
+                    type: 'success'
+                }
+            });
+        } else {
+            navigate('/ownRecipes', {
+                state: { 
+                    message: `Recipe "${title}" was saved successfully!`,
+                    type: 'success'
+                }
+            });
+        }
     }   
 
     return (
@@ -40,14 +70,30 @@ export default function CreateEditOwnRecipe({user, recipeName = null, imageURL=n
 
                 <div className="col-md-6">
                     <div className="mb-3">
+                        <label htmlFor="collectionSelect" className="form-label green fw-bold">Collection</label>
+                        <select
+                            id="collectionSelect"
+                            className="form-select"
+                            value={selectedCollection}
+                            onChange={e => setSelectedCollection(e.target.value)}
+                        >
+                            <option value="">None</option>
+                            {collections.map(col => (
+                                <option key={col.collectionName} value={col.collectionName}>
+                                    {col.collectionName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="mb-3">
                         
                         <label htmlFor="recipeName" className="form-label green fw-bold">Recipe name</label>
                         <input
                             type="text"
                             className="form-control"
                             id="recipeName"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
                             placeholder="Enter your recipe's name"
                         />
                     </div>

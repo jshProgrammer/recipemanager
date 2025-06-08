@@ -12,8 +12,8 @@ function extractPublicId(url) {
   return match ? match[1] : null;
 }
 
-export function showImageFromUrl(imageUrl, width=500) {
-  const publicId = extractPublicId(imageUrl);
+export function showImageFromUrl(imageURL, width=500) {
+  const publicId = extractPublicId(imageURL);
   if (!publicId) return <div>Image not found</div>;
 
   const cld = new Cloudinary({ cloud: { cloudName: CLOUD_NAME } });

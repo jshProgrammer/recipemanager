@@ -19,12 +19,31 @@ export const loadCollectionsOfUser = async (userID) => {
   return result;
 };
 
-export const loadRecipesOfCollection = async ({userID, collectionName}) => {
-  if (!userID || !collectionName) throw new Error("userID oder collectionName fehlt!");
-  const docRef = doc(db, "users", userID, "collections", collectionName);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docSnap.data().recipes || [];
+export const loadRecipesOfCollection = async ({ userID, collectionName }) => {
+  if (!userID || !collectionName) {
+    throw new Error("userID oder collectionName fehlt!");
   }
-  return [];
-}
+  
+  try {
+    const collectionRef = collection(db, "users", userID, "collections", collectionName, "recipes");
+    const querySnapshot = await getDocs(collectionRef);
+    
+    const recipeIds = [];
+    querySnapshot.docs.forEach(doc => {
+      recipeIds.push(doc.data().recipeId);
+    });
+    
+    const recipes = [];
+    for (const recipeId of recipeIds) {
+      const recipeDoc = await getDoc(doc(db, "users", userID, "recipes", recipeId));
+      if (recipeDoc.exists()) {
+        recipes.push({ id: recipeDoc.id, ...recipeDoc.data() });
+      }
+    }
+    
+    return recipes;
+  } catch (e) {
+    console.error("Fehler beim Laden der Collection:", e);
+    return [];
+  }
+};

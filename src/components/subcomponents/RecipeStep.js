@@ -1,20 +1,19 @@
-import React from 'react';
-import "../styles/RecipeStep.css"
+import "../../styles/RecipeStep.css"
 
-const RecipeStep = ({ stepNumber, description, imageUrl }) => {
+const RecipeStep = ({ stepNumber, description, imageURL }) => {
     return (
         <div className="card mb-3 shadow-sm">
             <div className="row g-0">
-                {imageUrl && (
+                {imageURL && (
                     <div className="col-md-4">
                         <img
-                            src={imageUrl}
+                            src={imageURL}
                             className="img-fluid rounded shadow"
                             alt={`Step ${stepNumber}`}
                         />
                     </div>
                 )}
-                <div className={imageUrl ? "col-md-8" : "col-md-12"}>
+                <div className={imageURL ? "col-md-8" : "col-md-12"}>
                     <div className="card-body">
                         <h3 className="card-title text-success fw-bold text-shadow">
                             {stepNumber}

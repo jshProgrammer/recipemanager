@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import '../../styles/Settings.css'
+import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/customSettingsStorage';
 
 export default function Settings({user}) {
@@ -13,6 +14,10 @@ export default function Settings({user}) {
         chocolateSensitivity: false,
     });
 
+    const [loading, setLoading] = useState(true);
+    const [storeMessage, setStoreMessage] = useState(null);
+    const [storeMessageType, setStoreMessageType] = useState(null);
+    
     const dietaryOptions = [
         { id: 'noPreferences', default: 'none', label: 'None'},
         { id: 'vegetarian', value: 'vegetarian', label: 'Vegetarian' },
@@ -34,6 +39,7 @@ export default function Settings({user}) {
         if (user?.uid) {
             readCustomSettingsFromDB({ userID: user.uid }).then(data => {
                 setSettings(data);
+                setLoading(false);
             });
         }
     }, [user]);
@@ -61,19 +67,43 @@ export default function Settings({user}) {
             intolerances[option.value] = checked;
         });
 
-        await writeCustomSettingsToDB({
-            userID: user.uid,
-            settings: {
-            dietaryPreference,
-            ...intolerances
-            }
-        });
+        try {
+            await writeCustomSettingsToDB({
+                userID: user.uid,
+                settings: {
+                dietaryPreference,
+                ...intolerances
+                }
+            }).then( () => {
+                setStoreMessage("Settings stored successfully");
+                setStoreMessageType("success");
+                setTimeout(() => {
+                    setStoreMessage(null);
+                    setStoreMessageType(null);
+                }, 5000);
+            })
+        } catch(err) {
+            setStoreMessage("Error when storing settings: " + err.message);
+            setStoreMessageType("error");
+        }
+    }
+
+    if(loading) {
+        return (
+            <LoadingIndicator heading="Your profile"/>
+        );
     }
 
     return (
         <div className="main-content">
             <h2 className="green fw-bold mt-5">Your profile</h2>
-            
+
+            {storeMessage && (
+                <div className={`alert ${storeMessageType === "success" ? "alert-success" : "alert-danger"} mt-2 w-100 text-center`} role="alert">
+                {storeMessage}
+                </div>
+            )}
+
            <div className="d-flex flex-column flex-md-row align-items-start mb-4">
                 <p className="fw-bold mb-0 me-4" style={{ minWidth: 0, whiteSpace: "nowrap" }}>
                     Your dietary preferences

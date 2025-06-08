@@ -1,6 +1,5 @@
-import React from "react";
-import RecipeStep from "./RecipeStep";
-import "../styles/RecipeDetail.css";
+import RecipeStep from "../subcomponents/RecipeStep";
+import "../../styles/RecipeDetail.css";
 
 function RecipeDetail({ recipe }) {
     if (!recipe) {
@@ -12,7 +11,7 @@ function RecipeDetail({ recipe }) {
 
             <div className="row">
                 <div className="col-md-6">
-                    <img src={recipe.imageUrl} alt={recipe.title} className="img-fluid rounded" />
+                    <img src={recipe.imageURL} alt={recipe.title} className="img-fluid rounded" />
                 </div>
                 <div className="col-md-6">
                     <h2 className="text-success fw-bold">{recipe.title}</h2>
@@ -79,7 +78,7 @@ function RecipeDetail({ recipe }) {
                     key={i}
                     stepNumber={i + 1}
                     description={step.description}
-                    imageUrl={step.imageUrl}
+                    imageURL={step.imageURL}
                 />
             ))}
         </div>
