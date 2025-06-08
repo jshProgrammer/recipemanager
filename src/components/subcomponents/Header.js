@@ -3,7 +3,7 @@ import { useAuth } from '../../features/authentication.js';
 import '../../styles/Header.css';
 import logo from '../../assets/logo.png';
 import LogInSignUpPopup from "../pages/LogInSignUpPopup.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +12,7 @@ const Header = () => {
 
   const { user, isAuthenticated, logout, isLoading } = useAuth();
 
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -25,7 +26,9 @@ const Header = () => {
     const result = await logout();
     if (result.success) {
       setIsMenuOpen(false);
+      navigate("/")
     }
+
   };
 
   const confirmLogout = () => {
@@ -92,24 +95,24 @@ const Header = () => {
           <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
             <ul className="navbar-nav mx-auto">
               <li className="nav-item">
-                <Link className="nav-link" to="/">Home</Link>
+                <Link className="nav-link" to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/">Recipes</Link>
+                <Link className="nav-link" to="/" onClick={() => setIsMenuOpen(false)}>Recipes</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/search">Search</Link>
+                <Link className="nav-link" to="/search" onClick={() => setIsMenuOpen(false)}>Search</Link>
               </li>
               {isAuthenticated && (
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/favorites">Favorites</Link>
+                    <Link className="nav-link" to="/favorites" onClick={() => setIsMenuOpen(false)}>Favorites</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/ownRecipes">Own Recipes</Link>
+                    <Link className="nav-link" to="/ownRecipes" onClick={() => setIsMenuOpen(false)}>Own Recipes</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/settings">Settings</Link>
+                    <Link className="nav-link" to="/settings" onClick={() => setIsMenuOpen(false)}>Settings</Link>
                   </li>
                 </>
               )}
