@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export const saveRecipe = async (userID, recipe, collectionName=null) => {
@@ -20,4 +20,20 @@ export const loadRecipes = async (userID) => {
     result.push({ id: doc.id, ...doc.data() });
   });
   return result;
+};
+
+export const loadRecipeById = async (userID, recipeId) => {
+  try {
+    const docRef = doc(db, "users", userID, "recipes", recipeId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      return null;
+    }
+  } catch (e) {
+    console.error("Error while loading own recipe:", e);
+    return null;
+  }
 };

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { loadRecipesOfCollection } from "../../features/databaseStorage/collectionsStorage";
 import LoadingIndicator from "../subcomponents/LoadingIndicator";
 
-//TODO: link funktioniert nicht
 const CustomCollection = ({user, collectionName}) => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -82,7 +81,7 @@ const CustomCollection = ({user, collectionName}) => {
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} />)
+                <RecipeList recipes={recipes} isOwnRecipe="true" />)
                 : <p>This collection is empty yet. Just create a new recipe and you are ready to go :)</p>
             }
         </div>
