@@ -3,3 +3,17 @@
     border-width: 2px;
     border-color: #cacaca;
 }
+
+.text-green{
+    color: #16a24a;
+}
+
+.tag-border{
+    border-style: solid;
+    border-width: 2px;
+    border-color: lightgreen;
+}
+
+.tag-text {
+    color: #504c56;
+}

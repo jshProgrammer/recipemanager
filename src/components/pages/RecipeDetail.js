@@ -14,11 +14,11 @@ function RecipeDetail({ recipe }) {
                     <img src={recipe.imageURL} alt={recipe.title} className="img-fluid rounded" />
                 </div>
                 <div className="col-md-6">
-                    <h2 className="text-success fw-bold">{recipe.title}</h2>
+                    <h2 className="text-green fw-bold ">{recipe.title}</h2>
 
                     <div className="mb-3">
                         {(recipe.tags || ["Simple", "Recommended", "Dessert"]).map((tag, i) => (
-                            <span key={i} className="badge bg-light text-success border me-2">{tag}</span>
+                            <span key={i} className="badge tag-text tag-border me-2">{tag}</span>
                         ))}
                     </div>
 
@@ -39,7 +39,7 @@ function RecipeDetail({ recipe }) {
 
             <div className="row mt-5">
                 <div className="col-md-6">
-                    <h4 className="text-success fw-bold">Ingredients</h4>
+                    <h4 className="text-green fw-bold">Ingredients</h4>
                     <table className="table table-sm border-table">
                         <thead>
                         <tr>
@@ -58,7 +58,7 @@ function RecipeDetail({ recipe }) {
                     </table>
                 </div>
                 <div className="col-md-6">
-                    <h4 className="text-success fw-bold">Nutritional Information</h4>
+                    <h4 className="text-green fw-bold">Nutritional Information</h4>
                     <table className="table table-sm border-table">
                         <tbody>
                         <tr><td>Calories</td><td>{recipe.nutrition?.calories || "562kcal"}</td></tr>
@@ -72,7 +72,7 @@ function RecipeDetail({ recipe }) {
             </div>
 
 
-            <h4 className="mt-5 text-success fw-bold">StepByStep-Guide</h4>
+            <h4 className="mt-5 text-green fw-bold">StepByStep-Guide</h4>
             {(recipe.steps || []).map((step, i) => (
                 <RecipeStep
                     key={i}
