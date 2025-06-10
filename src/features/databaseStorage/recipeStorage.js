@@ -1,5 +1,6 @@
-import { collection, addDoc, getDocs, getDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { removeRecipeFromAllCollections } from "./collectionsStorage";
 
 export const saveRecipe = async (userID, recipe, collectionName=null) => {
   try {
@@ -7,11 +8,27 @@ export const saveRecipe = async (userID, recipe, collectionName=null) => {
     if(collectionName != null) {
       await addDoc(collection(db, "users", userID, "collections", collectionName, "recipes"), {recipeId: recipeRef.id});
     }
-    console.log("Rezept gespeichert!");
+    console.log("Recipe stored successfully");
   } catch (e) {
-    console.error("Fehler beim Speichern:", e);
+    console.error("Error while storing recipe:", e);
   }
 };
+
+export const updateRecipe = async (recipeID, userID, recipe, collectionName=null) => {
+  try {
+    const docRef = doc(db, "users", userID, "recipes", recipeID);
+    await updateDoc(docRef, recipe);
+    await removeRecipeFromAllCollections(userID, recipeID);
+    if (collectionName != null) {
+      await addDoc(collection(db, "users", userID, "collections", collectionName, "recipes"), {
+        recipeId: recipeID
+      });
+    }
+    console.log("Recipe updated successfully");
+  } catch(e) {
+    console.error("Error while updating recipe: ", e)
+  }
+}
 
 export const loadRecipes = async (userID) => {
   const querySnapshot = await getDocs(collection(db, "users", userID, "recipes"));

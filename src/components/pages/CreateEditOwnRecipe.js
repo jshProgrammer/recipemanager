@@ -2,20 +2,51 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
-import {saveRecipe} from '../../features/databaseStorage/recipeStorage.js'
+import {saveRecipe, updateRecipe, loadRecipeById} from '../../features/databaseStorage/recipeStorage.js'
 import ImagePicker from "../subcomponents/ImagePicker.js";
 import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js'
+import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
+import ErrorIndicator from "../subcomponents/ErrorIndicator.js";
 
-export default function CreateEditOwnRecipe({user, collectionName, recipeName = null, imageURL=null, estimatedPrice=null, estimatedTime=null}) {
-    const [title, setTitle] = useState(recipeName ?? "");
-    const [price, setPrice] = useState(estimatedPrice ?? "");
-    const [time, setTime] = useState(estimatedTime ?? "");
-    const [image, setImage] = useState(imageURL);
+export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
+    const [title, setTitle] = useState("");
+    const [price, setPrice] = useState("");
+    const [time, setTime] = useState("");
+    const [image, setImage] = useState(null);
 
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState(collectionName || "");
 
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (recipeID && user?.uid) {
+            const fetchRecipe = async () => {
+                try {
+                    setLoading(true);
+                    const recipe = await loadRecipeById(user.uid, recipeID);
+                    
+                    setTitle(recipe.title || "");
+                    setPrice(recipe.price || "");
+                    setTime(recipe.time || "");
+                    setImage(recipe.imageURL || null);
+                    setSelectedCollection(recipe.collection || collectionName || "");
+                    
+                    setError(null);
+                } catch (err) {
+                    console.error('Error fetching recipe:', err);
+                    setError('Failed to load recipe data');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchRecipe();
+        }
+    }, [recipeID, user?.uid, collectionName]);
 
     useEffect(() => {
         if (user?.uid) {
@@ -26,18 +57,24 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
     }, [user, collectionName]);
     
     const saveCustomRecipeInDB = async () => {
-        let finalimageURL = imageURL;
-        if (!finalimageURL && image) {
-            finalimageURL = await uploadImage(image);
+        setSaving(true);
+        let finalImageURL = image;
+            
+        if (image && typeof image !== 'string') {
+            finalImageURL = await uploadImage(image);
         }
-        await saveRecipe(
-            user.uid,
-            {
-            title,
-            imageURL: finalimageURL,
-            price,
-            time
-        }, selectedCollection === "" ? null : selectedCollection);
+
+        if(recipeID != null) {
+            await updateRecipe(recipeID, 
+                user.uid,
+                { title, imageURL: finalImageURL, price, time }, 
+                selectedCollection === "" ? null : selectedCollection);
+        } else {
+            await saveRecipe(
+                user.uid,
+                { title, imageURL: finalImageURL, price, time }, 
+                selectedCollection === "" ? null : selectedCollection);
+        }
 
         if (selectedCollection) {
             navigate(`/collections/${encodeURIComponent(selectedCollection)}`, {
@@ -54,11 +91,20 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
                 }
             });
         }
+        setSaving(false);
     }   
+
+     if (loading) {
+        return <LoadingIndicator />;
+    }
+
+    if (error) {
+        return <ErrorIndicator error={error}/>;
+    }
 
     return (
         <div className="main-content">
-            <h2 className="green">Create your own recipe</h2>
+            <h2 className="green mb-0 fw-bold mt-5">{recipeID ? 'Edit your recipe' : 'Create your own recipe'}</h2>
 
             <div className="row">
 
@@ -75,8 +121,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
                             id="collectionSelect"
                             className="form-select"
                             value={selectedCollection}
-                            onChange={e => setSelectedCollection(e.target.value)}
-                        >
+                            onChange={e => setSelectedCollection(e.target.value)}>
                             <option value="">None</option>
                             {collections.map(col => (
                                 <option key={col.collectionName} value={col.collectionName}>
@@ -86,16 +131,13 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
                         </select>
                     </div>
                     <div className="mb-3">
-                        
                         <label htmlFor="recipeName" className="form-label green fw-bold">Recipe name</label>
-                        <input
-                            type="text"
+                        <input type="text"
                             className="form-control"
                             id="recipeName"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            placeholder="Enter your recipe's name"
-                        />
+                            placeholder="Enter your recipe's name"/>
                     </div>
                     <div className="mb-3">
                         <label htmlFor="estimatedPrice" className="form-label green fw-bold">Estimated cost (€)</label>
@@ -106,7 +148,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
                             <input type="number"
                                 className="form-control"
                                 id="estimatedPrice"
-                                value={estimatedPrice}
+                                value={price}
                                 onChange={e => setPrice(e.target.value)}
                                 placeholder="0.00€"
                                 step="0.01"
@@ -122,7 +164,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
                             <input type="number"
                                 className="form-control"
                                 id="estimatedTime"
-                                value={estimatedTime}
+                                value={time}
                                 onChange={e => setTime(e.target.value)}
                                 placeholder="30min"
                                 min="1"/>
@@ -138,7 +180,14 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeName = 
             <h4 className="green">Step-by-step guide</h4>
             {/*TODO: use RecipeStep-component by Sebastian */}
 
-            <button className="btn backgroundGreen" type="submit" onClick={() => saveCustomRecipeInDB()}>Save</button>        
+            <button className="btn backgroundGreen" type="submit" onClick={() => saveCustomRecipeInDB()}>
+                {saving ? (
+                    <div className="d-flex align-items-center">
+                        <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                        Saving...
+                    </div>
+                ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
+            </button>        
         </div>
     )
 }

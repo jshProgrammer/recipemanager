@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { loadRecipesOfCollection } from "../../features/databaseStorage/collectionsStorage";
 import LoadingIndicator from "../subcomponents/LoadingIndicator";
+import ErrorIndicator from "../subcomponents/ErrorIndicator";
 
 const CustomCollection = ({user, collectionName}) => {
     const [recipes, setRecipes] = useState([]);
@@ -44,18 +45,12 @@ const CustomCollection = ({user, collectionName}) => {
 
     if (loading) {
         return (
-            <LoadingIndicator heading={collectionName}/>
+            <LoadingIndicator heading={"Your personal recipes"}/>
         );
     }
 
     if (error) {
-        return (
-        <div className="main-content">
-            <div className="alert alert-danger" role="alert">
-            {error}
-            </div>
-        </div>
-        );
+        return <ErrorIndicator error={error}/>;
     }
 
     return (
@@ -81,7 +76,7 @@ const CustomCollection = ({user, collectionName}) => {
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} isOwnRecipe="true" />)
+                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe="true" />)
                 : <p>This collection is empty yet. Just create a new recipe and you are ready to go :)</p>
             }
         </div>

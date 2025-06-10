@@ -7,9 +7,9 @@ const SETTINGS_DOC_ID = "main";
 export const writeCustomSettingsToDB = async ({userID, settings}) => {
     try{
         await setDoc(doc(db, "users", userID, "settings", SETTINGS_DOC_ID), settings);
-        console.log("Settings gespeichert!");
+        console.log("Settings stored successfully");
     } catch(e) {
-        console.error("Fehler beim Speichern:", e);
+        console.error("Error while storing settings:", e);
     }
 }
 

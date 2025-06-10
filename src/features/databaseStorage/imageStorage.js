@@ -64,11 +64,11 @@ export async function uploadImage(image) {
         }
 
         const data = await res.json();
-        console.log('Upload erfolgreich:', data);
+        console.log('Upload of image successful:', data);
         return data.secure_url;
         
     } catch (err) {
-        console.error('Upload fehlgeschlagen:', err);
+        console.error('Upload of image failed', err);
         throw err;
     }
 }

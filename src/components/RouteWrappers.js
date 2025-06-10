@@ -14,8 +14,8 @@ export function CustomCollectionWrapper({ user }) {
 }
 
 export function CreateEditOwnRecipeWrapper({ user }) {
-  const { collectionName } = useParams();
-  return <CreateEditOwnRecipe user={user} collectionName={collectionName} />;
+  const { collectionName, recipeID } = useParams();
+  return <CreateEditOwnRecipe user={user} collectionName={collectionName} recipeID={recipeID} />;
 }
 
 export function RecipeDetailWrapper() {

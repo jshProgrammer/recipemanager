@@ -1,5 +1,6 @@
 import CollectionList from "../lists/CollectionList";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js';
 import AddNewCollectionPopup from "./AddNewCollectionPopup.js";
@@ -13,6 +14,8 @@ export default function OwnRecipes({user}) {
     const [collectionMessageType, setCollectionMessageType] = useState(null);
 
     const [isNewCollectionMenuOpen, setIsNewCollectionMenuOpen] = useState(false);
+
+    const navigate = useNavigate();
 
     const fetchCollections = () => {
         if (user?.uid) {
@@ -42,6 +45,15 @@ export default function OwnRecipes({user}) {
         <div className="main-content">
             <div className="d-flex align-items-center justify-content-between mb-4">
                 <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
+                <div className="d-flex gap-4">
+                <button className="btn backgroundGreen d-flex align-items-center" onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/own-recipes/create`)
+                  }}>
+                    <i className="bi bi-book me-2"></i>
+                    New recipe
+                </button>
+
                 <button className="btn backgroundGreen d-flex align-items-center" onClick={(e) => {
                     e.preventDefault();
                     switchPopupVisibility();
@@ -49,6 +61,7 @@ export default function OwnRecipes({user}) {
                     <i className="bi bi-collection me-2"></i>
                     New collection
                 </button>
+                </div>
             </div>
 
             {collectionMessage && (

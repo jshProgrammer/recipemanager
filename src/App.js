@@ -46,17 +46,21 @@ function App() {
 
       {/* TODO <Route path="/favorites" element={..} /> */}
 
+      {/* TODO: PRÜFEN, OB WIRKLICH IMMER NOCH ALLE ROUTEN GENUTZT */}
       <Route path="/login" element={<LoginSignupMobile/>} />
 
       <Route path="/ownRecipes" element={<OwnRecipes user={user}/>} />
+      <Route path="/ownRecipes/:recipeID" element={<OwnRecipeDetailWrapper user={user}/>} />
 
-      <Route path="/own-recipes/:recipeID" element={<OwnRecipeDetailWrapper user={user} />}/>
+      {/*separate routes for recipes inside collection and the ones assigned to None */}
+      <Route path="/own-recipes/create" element={<CreateEditOwnRecipeWrapper user={user} />}/>
+      <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper user={user} />}/>
 
-      <Route path="/collections/:collectionName"
-        element={<CustomCollectionWrapper user={user} />}/>
-
-      <Route path="/collections/:collectionName/create"
-        element={<CreateEditOwnRecipeWrapper user={user} />}/>
+      <Route path="/collections/:collectionName" element={<CustomCollectionWrapper user={user} />}/>
+      <Route path="/collections/:collectionName/:recipeID" element={<OwnRecipeDetailWrapper user={user} />}/>
+      <Route path="/collections/:collectionName/create" element={<CreateEditOwnRecipeWrapper user={user} />}/>
+      <Route path="/collections/:collectionName/edit/:recipeID" element={<CreateEditOwnRecipeWrapper user={user} />}/>
+      
 
       <Route path="/recipes/:recipeName"
         element={<RecipeDetailWrapper/>}/>
