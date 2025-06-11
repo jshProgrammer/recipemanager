@@ -8,6 +8,11 @@
     color: #16a24a;
 }
 
+.text-green-hover:hover {
+    color: #16a24a;
+    cursor: pointer;
+}
+
 .tag-border{
     border-style: solid;
     border-width: 2px;
