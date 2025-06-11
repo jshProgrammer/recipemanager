@@ -16,6 +16,7 @@ import OwnRecipes from './components/pages/OwnRecipes.js';
 import CustomCollection from './components/pages/CustomCollection.js';
 import CreateEditOwnRecipe from './components/pages/CreateEditOwnRecipe.js';
 import RecipeDetail from './components/pages/RecipeDetail.js';
+import Favorites from './components/pages/Favorites.js'
 
 import { detailedRecipes } from './data/DetailedSampleData';
 
@@ -60,9 +61,9 @@ function App() {
             </div>
           }/>
 
-      {/* TODO <Route path="/favorites" element={..} /> */}
-
       <Route path="/login" element={<LoginSignupMobile/>} />
+
+      <Route path="/favorites" element={<Favorites/>} />
 
       <Route path="/ownRecipes" element={<OwnRecipes user={user}/>} />
 
