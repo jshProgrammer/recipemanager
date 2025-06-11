@@ -33,8 +33,13 @@ function RecipeDetail({ recipe }) {
 
 
                     <div className="d-grid gap-2 col-8">
-                        <button className="btn btn-dark">Add to favorites</button>
-                        <button className="btn btn-secondary">Share with friends</button>
+                        <button className="btn btn-dark">
+                            <i className="bi bi-heart me-2"></i> Add to favorites
+                        </button>
+
+                        <button className="btn btn-secondary">
+                            <i className="bi bi-box-arrow-up me-2"></i> Share with friends
+                        </button>
                     </div>
                 </div>
             </div>
