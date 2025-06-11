@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../features/authentication.js';
+import ErrorIndicator from './ErrorIndicator.js';
 
 export default function LoginForm({ isSignUp, setIsSignUp, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -58,9 +59,7 @@ export default function LoginForm({ isSignUp, setIsSignUp, onSuccess }) {
   return (
         <div className="p-4">
             {error && (
-              <div className="alert alert-danger" role="alert">
-                {error}
-              </div>
+              <ErrorIndicator error={error}/>
             )}
             
             <h2 className="text-center fw-bold mb-4">

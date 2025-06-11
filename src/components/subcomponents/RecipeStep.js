@@ -15,7 +15,7 @@ const RecipeStep = ({ stepNumber, description, imageURL }) => {
                 )}
                 <div className={imageURL ? "col-md-8" : "col-md-12"}>
                     <div className="card-body">
-                        <h3 className="card-title text-success fw-bold text-shadow">
+                        <h3 className="card-title text-green fw-bold text-shadow fs-1">
                             {stepNumber}
                         </h3>
                         <p className="card-text">{description}</p>

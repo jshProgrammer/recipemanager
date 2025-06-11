@@ -1,12 +1,12 @@
-import { setDoc, doc, getDoc, getDocs, collection } from "firebase/firestore";
+import { setDoc, doc, getDoc, getDocs, collection, query, deleteDoc, where } from "firebase/firestore";
 import {db} from '../firebase.js';
 
 export const storeCollectionInDB = async ({userID, customCollection}) => {
     try{
         await setDoc(doc(db, "users", userID, "collections", customCollection.collectionName), customCollection);
-        console.log("Collection gespeichert!");
+        console.log("Collection stored successfully");
     } catch(e) {
-        console.error("Fehler beim Speichern:", e);
+        console.error("Error while storing collection:", e);
     }
 }
 
@@ -21,7 +21,7 @@ export const loadCollectionsOfUser = async (userID) => {
 
 export const loadRecipesOfCollection = async ({ userID, collectionName }) => {
   if (!userID || !collectionName) {
-    throw new Error("userID oder collectionName fehlt!");
+    throw new Error("userID or collectionName missing");
   }
   
   try {
@@ -43,7 +43,26 @@ export const loadRecipesOfCollection = async ({ userID, collectionName }) => {
     
     return recipes;
   } catch (e) {
-    console.error("Fehler beim Laden der Collection:", e);
+    console.error("Error while loading collection", e);
     return [];
+  }
+};
+
+export const removeRecipeFromAllCollections = async (userID, recipeId) => {
+  try {
+    const collectionsSnapshot = await getDocs(collection(db, "users", userID, "collections"));
+    
+    for (const collectionDoc of collectionsSnapshot.docs) {
+      const collectionName = collectionDoc.id;
+      const recipesRef = collection(db, "users", userID, "collections", collectionName, "recipes");
+      const recipesQuery = query(recipesRef, where("recipeId", "==", recipeId));
+      const recipesSnapshot = await getDocs(recipesQuery);
+      
+      for (const recipeDoc of recipesSnapshot.docs) {
+        await deleteDoc(recipeDoc.ref);
+      }
+    }
+  } catch (e) {
+    console.error("Error removing recipe from collections:", e);
   }
 };
