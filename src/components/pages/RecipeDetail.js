@@ -93,7 +93,7 @@ function RecipeDetail({ recipe }) {
 
 
             <h4 className="mt-5 text-green fw-bold">StepByStep-Guide</h4>
-            {(isShowMoreSteps ? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
+            {(isShowMoreSteps? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
                 <RecipeStep
                     key={i}
                     stepNumber={i + 1}
@@ -101,8 +101,15 @@ function RecipeDetail({ recipe }) {
                     imageURL={step.imageURL}
                 />
             ))}
-            {!isShowMoreSteps ? (<button className="text-green-hover btn p-0" onClick={showMoreSteps}>show more steps...</button>)
-            : (<button className="text-green-hover btn p-0 " onClick={showMoreSteps}>show less steps...</button>)}
+            {recipe.steps.length > 2 && (
+                <button
+                    className="text-green-hover btn p-0"
+                    onClick={showMoreSteps}
+                >
+                    {isShowMoreSteps ? "show less steps..." : "show more steps..."}
+                </button>
+            )}
+
         </div>
     );
 

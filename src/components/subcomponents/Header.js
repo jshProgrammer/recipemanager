@@ -4,6 +4,7 @@ import '../../styles/Header.css';
 import logo from '../../assets/logo.png';
 import LogInSignUpPopup from "../pages/LogInSignUpPopup.js";
 import { Link, useNavigate } from "react-router-dom";
+import HealthScore from "./HealthScore";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -124,6 +125,7 @@ const Header = () => {
 
             
             <div className="d-flex align-items-center">
+              <HealthScore/>
               {!isAuthenticated ? (
                <a 
                   href="#" 
