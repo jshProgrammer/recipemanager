@@ -7,12 +7,25 @@ import ImagePicker from "../subcomponents/ImagePicker.js";
 import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js'
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import ErrorIndicator from "../subcomponents/ErrorIndicator.js";
+import KeyValueTable from "../subcomponents/KeyValueTable.js";
+import RecipeStep from "../subcomponents/RecipeStep.js";
 
 export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
     const [title, setTitle] = useState("");
     const [price, setPrice] = useState("");
     const [time, setTime] = useState("");
     const [image, setImage] = useState(null);
+    const [ingredients, setIngredients] = useState([{ key: "", value: "" }]);
+
+    const defaultNutrition = [
+        { key: "Calories", value: "" },
+        { key: "Fat", value: "" },
+        { key: "Protein", value: "" },
+        { key: "Sugar", value: "" },
+    ];
+    const [nutrition, setNutrition] = useState(defaultNutrition);
+    
+    const [steps, setSteps] = useState([{ description: "", imageURL: "" },]);
 
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState(collectionName || "");
@@ -22,6 +35,17 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
     const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+
+    const updateStep = (index, updatedStep) => {
+        const newSteps = [...steps];
+        newSteps[index] = { ...newSteps[index], ...updatedStep };
+        setSteps(newSteps);
+    };
+
+    const removeStep = (indexToRemove) => {
+        const updatedSteps = steps.filter((_, i) => i !== indexToRemove);
+        setSteps(updatedSteps);
+    };
 
     useEffect(() => {
         if (recipeID && user?.uid) {
@@ -35,6 +59,8 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                     setTime(recipe.time || "");
                     setImage(recipe.imageURL || null);
                     setSelectedCollection(recipe.collection || collectionName || "");
+                    setIngredients(recipe.ingredients || [{ key: "", value: "" }]);
+                    setNutrition(recipe.nutrition || defaultNutrition);
                     
                     setError(null);
                 } catch (err) {
@@ -67,12 +93,16 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
         if(recipeID != null) {
             await updateRecipe(recipeID, 
                 user.uid,
-                { title, imageURL: finalImageURL, price, time }, 
+                { title, imageURL: finalImageURL, price, time, ingredients, nutrition }, 
                 selectedCollection === "" ? null : selectedCollection);
         } else {
+            const transformedIngredients = ingredients.map(({ key, value }) => ({
+                amount: key,
+                name: value
+                }));
             await saveRecipe(
                 user.uid,
-                { title, imageURL: finalImageURL, price, time }, 
+                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition }, 
                 selectedCollection === "" ? null : selectedCollection);
         }
 
@@ -174,20 +204,47 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
             </div>
 
             <h4 className="green">Ingredients</h4>
-            {/*TODO: ADD!!*/}
-            <h4 className="green">Nutritional Information</h4>
-            {/*TODO: use table-component by Sebastian */}
-            <h4 className="green">Step-by-step guide</h4>
-            {/*TODO: use RecipeStep-component by Sebastian */}
+            <KeyValueTable rows={ingredients}
+            headerLeft="Amount" 
+            headerRight="Ingredients" 
+            editable={true} 
+            onChange={setIngredients}/>
 
-            <button className="btn backgroundGreen" type="submit" onClick={() => saveCustomRecipeInDB()}>
-                {saving ? (
-                    <div className="d-flex align-items-center">
-                        <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-                        Saving...
-                    </div>
-                ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
-            </button>        
+            <h4 className="green">Nutritional Information</h4>
+            <KeyValueTable rows={nutrition}
+            editable={true} 
+            onChange={setNutrition}/>
+
+            <h4 className="green">Step-by-step guide</h4>
+            {steps.map((step, i) => (
+            <RecipeStep
+                key={i}
+                stepNumber={i + 1}
+                description={step.description}
+                imageURL={step.imageURL}
+                editable={true}
+                onChange={(updatedStep) => updateStep(i, updatedStep)}
+                onRemove={(stepToRemove) => removeStep(i, stepToRemove)}
+            />
+            ))}
+            <div className="mt-3">
+                <div className="mb-2">
+                    <button className="btn btn-sm btn-outline-success"
+                    style={{ width: "fit-content" }}
+                    onClick={() => setSteps([...steps, { description: "", imageURL: "" }])}>
+                    + Add Step
+                    </button>
+                </div>
+
+                <button className="btn backgroundGreen w-100 mt-4" type="submit" onClick={() => saveCustomRecipeInDB()}>
+                    {saving ? (
+                        <div className="d-flex align-items-center">
+                            <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                            Saving...
+                        </div>
+                    ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
+                </button> 
+            </div>       
         </div>
     )
 }

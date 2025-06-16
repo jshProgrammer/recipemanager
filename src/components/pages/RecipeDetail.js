@@ -1,5 +1,6 @@
 import RecipeStep from "../subcomponents/RecipeStep";
 import "../../styles/RecipeDetail.css";
+import KeyValueTable from "../subcomponents/KeyValueTable";
 
 function RecipeDetail({ recipe }) {
     if (!recipe) {
@@ -39,34 +40,21 @@ function RecipeDetail({ recipe }) {
 
             <div className="row mt-5">
                 <div className="col-md-6">
+                    
                     <h4 className="text-success fw-bold">Ingredients</h4>
-                    <table className="table table-sm border-table">
-                        <thead>
-                        <tr>
-                            <th>Amount</th>
-                            <th>Ingredient</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {(recipe.ingredients || []).map((ing, i) => (
-                            <tr key={i}>
-                                <td>{ing.amount}</td>
-                                <td>{ing.name}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                    <KeyValueTable 
+                    headerLeft="Amount"
+                    headerRight="Ingredients"
+                    rows={(recipe.ingredients || []).map((ing, index) => ({
+                        key: ing.amount,
+                        value: ing.name
+                    }))}/>
+                    
                 </div>
                 <div className="col-md-6">
                     <h4 className="text-success fw-bold">Nutritional Information</h4>
-                    <table className="table table-sm border-table">
-                        <tbody>
-                        <tr><td>Calories</td><td>{recipe.nutrition?.calories || "562kcal"}</td></tr>
-                        <tr><td>Fat</td><td>{recipe.nutrition?.fat || "26g"}</td></tr>
-                        <tr><td>Protein</td><td>{recipe.nutrition?.protein || "18g"}</td></tr>
-                        <tr><td>Sugar</td><td>{recipe.nutrition?.sugar || "25g"}</td></tr>
-                        </tbody>
-                    </table>
+                    <KeyValueTable 
+                    rows={Array.isArray(recipe.nutrition) ? recipe.nutrition : []}/>
                     <small className="text-muted">Show more specified information ▼</small>
                 </div>
             </div>

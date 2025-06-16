@@ -95,7 +95,7 @@ export default function ImagePicker({
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={!image ? openFileDialog : undefined}>
-                {!image && image !== "" ? (
+                {!image  ? (
                     <div className="d-flex flex-column align-items-center justify-content-center w-100 h-100 p-3">
                         <i className="bi bi-image" style={{ fontSize: "3rem", color: "#ccc" }}></i>
                         <p className="mb-2 text-muted">

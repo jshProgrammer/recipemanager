@@ -43,9 +43,13 @@ export const loadRecipeById = async (userID, recipeId) => {
   try {
     const docRef = doc(db, "users", userID, "recipes", recipeId);
     const docSnap = await getDoc(docRef);
+    console.log(docSnap.data());
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
+      const data = docSnap.data();
+      data.nutrition = normalizeNutrition(data.nutrition);
+      
+      return { id: docSnap.id, ...data };
     } else {
       return null;
     }
@@ -53,4 +57,16 @@ export const loadRecipeById = async (userID, recipeId) => {
     console.error("Error while loading own recipe:", e);
     return null;
   }
+};
+
+const normalizeNutrition = (nutrition) => {
+  if (Array.isArray(nutrition)) {
+    return nutrition;
+  } else if (nutrition && typeof nutrition === 'object') {
+    return Object.entries(nutrition).map(([key, value]) => ({
+      key,
+      value
+    }));
+  }
+  return [];
 };
