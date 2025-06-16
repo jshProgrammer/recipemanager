@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import '../../styles/Settings.css'
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
-import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/customSettingsStorage';
+import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/userStorage.js';
 
 export default function Settings({user}) {
     const [formState, setFormState] = useState({

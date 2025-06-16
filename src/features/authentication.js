@@ -2,6 +2,7 @@ import './firebase.js'
 import { useState, useEffect } from 'react';
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import {auth} from './firebase.js'
+import { initializeUserDocument } from './databaseStorage/userStorage.js';
 
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
@@ -27,6 +28,7 @@ export const useAuth = () => {
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`
       });
+      await initializeUserDocument(userCredential.user.uid);
       return { success: true, user: userCredential.user };
     } catch (error) {
       setError(error.message);
@@ -38,6 +40,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await initializeUserDocument(userCredential.user.uid);
       return { success: true, user: userCredential.user };
     } catch (error) {
       setError(error.message);
@@ -49,6 +52,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
+      await initializeUserDocument(result.user.uid);
       return { success: true, user: result.user };
     } catch (error) {
       setError(error.message);
@@ -60,6 +64,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, githubProvider);
+      await initializeUserDocument(result.user.uid);
       return { success: true, user: result.user };
     } catch (error) {
       setError(error.message);

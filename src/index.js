@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { HealthScoreRefreshProvider } from './features/providers/HealthScoreRefreshContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <HealthScoreRefreshProvider>
     <App />
+    </HealthScoreRefreshProvider>
   </React.StrictMode>
 );
 

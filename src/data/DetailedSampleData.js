@@ -16,6 +16,7 @@ export const detailedRecipes = [
             protein: "20g",
             sugar: "8g",
         },
+        healthScore: 20,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
@@ -48,6 +49,7 @@ export const detailedRecipes = [
             protein: "35g",
             sugar: "12g",
         },
+        healthScore: 65,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
@@ -76,6 +78,7 @@ export const detailedRecipes = [
             protein: "10g",
             sugar: "4g",
         },
+        healthScore: 96,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
@@ -104,6 +107,7 @@ export const detailedRecipes = [
             protein: "6g",
             sugar: "2g",
         },
+        healthScore: 87,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
@@ -132,6 +136,7 @@ export const detailedRecipes = [
             protein: "16g",
             sugar: "6g",
         },
+        healthScore: 99,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",
@@ -160,6 +165,7 @@ export const detailedRecipes = [
             protein: "25g",
             sugar: "1g",
         },
+        healthScore: 67,
         steps: [
             {
                 imageURL: "https://www.kuechengoetter.de/uploads/media/630x630/08/71718-kaesespaetzle-mit-knusperzwiebeln.jpg?v=3-33",

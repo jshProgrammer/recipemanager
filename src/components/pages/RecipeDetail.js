@@ -2,12 +2,25 @@ import RecipeStep from "../subcomponents/RecipeStep";
 import "../../styles/RecipeDetail.css";
 import KeyValueTable from "../subcomponents/KeyValueTable";
 import {useState} from "react";
+import { updateUserHealthScoreInDB } from "../../features/databaseStorage/userStorage";
+import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
+
 
 function RecipeDetail({ recipe }) {
     const [isShowMoreSteps, setIsShowMoreSteps] = useState(false);
+    const { triggerRefresh } = useHealthScoreRefresh();
+    
 
     if (!recipe) {
         return <p>Recipe not found!</p>;
+    }
+
+    const updateHealthScore = async () => {
+        //TODO: default value and userid just for testing => will be replaced with context API later
+        await updateUserHealthScoreInDB({
+            userID: "5CZej0NLLfT1s8flXLqWmNpTXKK2", 
+            healthScoreOfNewRecipe: recipe.healthScore ?? 100});
+        triggerRefresh();
     }
 
     return (
@@ -41,6 +54,11 @@ function RecipeDetail({ recipe }) {
                         <button className="btn btn-secondary">
                             <i className="bi bi-box-arrow-up me-2"></i> Share with friends
                         </button>
+
+                        {/* TODO: only show if recipe has a healthScore */}
+                        <button className="btn btn-secondary" onClick={updateHealthScore}>
+                            <i className="bi bi-check me-2"></i> Done cooking
+                        </button>
                     </div>
                 </div>
             </div>
@@ -67,9 +85,6 @@ function RecipeDetail({ recipe }) {
                 </div>
             </div>
 
-
-            {/*TODO: navbar ist seit merge zu hoch;
-             rec */}
             <h4 className="mt-5 text-green fw-bold">StepByStep-Guide</h4>
             { recipe.steps && (isShowMoreSteps? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
                 <RecipeStep

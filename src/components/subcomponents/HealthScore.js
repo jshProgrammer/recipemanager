@@ -1,9 +1,20 @@
-import React, {useState} from "react";
+import {useState, useEffect} from "react";
 import HealthScorePopup from "./HealthScorePopup";
+import { getUserHealthScore } from "../../features/databaseStorage/userStorage";
 
-function HealthScore(){
+function HealthScore({user, refreshKey}){
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const healthScore = 95;
+    const [healthScore, setHealthScore] = useState(null);
+
+    useEffect(() => {
+        async function fetchHealthScore() {
+        if (!user) return;
+        const score = await getUserHealthScore({ user });
+        setHealthScore(score);
+        }
+        fetchHealthScore();
+    }, [user, refreshKey]);
+
 
     return (
         <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -21,7 +32,7 @@ function HealthScore(){
                 }}
                 onClick={() => setIsPopupOpen(true)}
             >
-                {healthScore}
+                {healthScore !== null ? healthScore : "..."}
             </button>
 
             {isPopupOpen && <HealthScorePopup score={healthScore} onClose={() => setIsPopupOpen(false)}/>}

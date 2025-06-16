@@ -5,11 +5,14 @@ import logo from '../../assets/logo.png';
 import LogInSignUpPopup from "../pages/LogInSignUpPopup.js";
 import { Link, useNavigate } from "react-router-dom";
 import HealthScore from "./HealthScore";
+import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { refreshKey } = useHealthScoreRefresh();
 
   const { user, isAuthenticated, logout, isLoading } = useAuth();
 
@@ -125,7 +128,6 @@ const Header = () => {
 
             
             <div className="d-flex align-items-center">
-              <HealthScore/>
               {!isAuthenticated ? (
                <a 
                   href="#" 
@@ -139,7 +141,7 @@ const Header = () => {
                 </a>
               ) : (
                 <div className="d-flex align-items-center gap-3">
-                  
+                  <HealthScore user={user} refreshKey={refreshKey} />
                   <button 
                     onClick={confirmLogout}
                     className="btn borderGreen">
