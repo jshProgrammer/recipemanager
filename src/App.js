@@ -11,6 +11,13 @@ import IntroSection from "./components/subcomponents/IntroSection.js";
 import LoginSignupMobile from "./components/pages/LoginSignUpMobile.js"
 import Settings from './components/pages/Settings.js'
 import OwnRecipes from './components/pages/OwnRecipes.js';
+import CustomCollection from './components/pages/CustomCollection.js';
+import CreateEditOwnRecipe from './components/pages/CreateEditOwnRecipe.js';
+import RecipeDetail from './components/pages/RecipeDetail.js';
+import Favorites from './components/pages/Favorites.js'
+
+import { detailedRecipes } from './data/DetailedSampleData';
+
 import RecipeSearch from "./components/RecipeSearch";
 
 import {
@@ -44,10 +51,9 @@ function App() {
             </div>
           }/>
 
-      {/* TODO <Route path="/favorites" element={..} /> */}
-
-      {/* TODO: PRÜFEN, OB WIRKLICH IMMER NOCH ALLE ROUTEN GENUTZT */}
       <Route path="/login" element={<LoginSignupMobile/>} />
+
+      <Route path="/favorites" element={<Favorites/>} />
 
       <Route path="/ownRecipes" element={<OwnRecipes user={user}/>} />
       <Route path="/ownRecipes/:recipeID" element={<OwnRecipeDetailWrapper user={user}/>} />

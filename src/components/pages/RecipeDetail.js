@@ -1,8 +1,11 @@
 import RecipeStep from "../subcomponents/RecipeStep";
 import "../../styles/RecipeDetail.css";
 import KeyValueTable from "../subcomponents/KeyValueTable";
+import {useState} from "react";
 
 function RecipeDetail({ recipe }) {
+    const [isShowMoreSteps, setIsShowMoreSteps] = useState(false);
+
     if (!recipe) {
         return <p>Recipe not found!</p>;
     }
@@ -12,14 +15,14 @@ function RecipeDetail({ recipe }) {
 
             <div className="row">
                 <div className="col-md-6">
-                    <img src={recipe.imageURL} alt={recipe.title} className="img-fluid rounded" />
+                    <img src={recipe.imageURL} alt={recipe.title} className="img-fluid rounded"/>
                 </div>
                 <div className="col-md-6">
-                    <h2 className="text-success fw-bold">{recipe.title}</h2>
+                    <h2 className="text-green fw-bold ">{recipe.title}</h2>
 
                     <div className="mb-3">
                         {(recipe.tags || ["Simple", "Recommended", "Dessert"]).map((tag, i) => (
-                            <span key={i} className="badge bg-light text-success border me-2">{tag}</span>
+                            <span key={i} className="badge tag-text tag-border me-2">{tag}</span>
                         ))}
                     </div>
 
@@ -31,8 +34,13 @@ function RecipeDetail({ recipe }) {
 
 
                     <div className="d-grid gap-2 col-8">
-                        <button className="btn btn-dark">Add to favorites</button>
-                        <button className="btn btn-secondary">Share with friends</button>
+                        <button className="btn btn-dark">
+                            <i className="bi bi-heart me-2"></i> Add to favorites
+                        </button>
+
+                        <button className="btn btn-secondary">
+                            <i className="bi bi-box-arrow-up me-2"></i> Share with friends
+                        </button>
                     </div>
                 </div>
             </div>
@@ -60,8 +68,10 @@ function RecipeDetail({ recipe }) {
             </div>
 
 
-            <h4 className="mt-5 text-success fw-bold">StepByStep-Guide</h4>
-            {(recipe.steps || []).map((step, i) => (
+            {/*TODO: navbar ist seit merge zu hoch;
+             rec */}
+            <h4 className="mt-5 text-green fw-bold">StepByStep-Guide</h4>
+            { recipe.steps && (isShowMoreSteps? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
                 <RecipeStep
                     key={i}
                     stepNumber={i + 1}
@@ -69,8 +79,21 @@ function RecipeDetail({ recipe }) {
                     imageURL={step.imageURL}
                 />
             ))}
+            {recipe.steps && recipe.steps.length > 2 && (
+                <button
+                    className="text-green-hover btn p-0"
+                    onClick={showMoreSteps}
+                >
+                    {isShowMoreSteps ? "show less steps..." : "show more steps..."}
+                </button>
+            )}
+
         </div>
     );
+
+    function showMoreSteps() {
+        setIsShowMoreSteps(!isShowMoreSteps);
+    }
 }
 
 export default RecipeDetail;
