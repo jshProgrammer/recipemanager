@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useAuth } from '../../features/authentication.js';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../features/providers/AuthContext.js';
 import '../../styles/Header.css';
 import logo from '../../assets/logo.png';
 import LogInSignUpPopup from "../pages/LogInSignUpPopup.js";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import HealthScore from "./HealthScore";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
+import queryString from 'query-string';
 
 
 const Header = () => {
@@ -17,6 +18,7 @@ const Header = () => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -42,6 +44,17 @@ const Header = () => {
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
   };
+
+  useEffect(() => {
+    const query = queryString.parse(location.search);
+    if (query.login === 'true') {
+      setIsPopupOpen(true);
+
+      const newSearch = new URLSearchParams(location.search);
+      newSearch.delete('login');
+      navigate({ search: newSearch.toString() }, { replace: true });
+    }
+  }, [location.search, navigate]);
 
   if (isLoading) {
     return (
@@ -141,7 +154,7 @@ const Header = () => {
                 </a>
               ) : (
                 <div className="d-flex align-items-center gap-3">
-                  <HealthScore user={user} refreshKey={refreshKey} />
+                  <HealthScore refreshKey={refreshKey} />
                   <button 
                     onClick={confirmLogout}
                     className="btn borderGreen">
