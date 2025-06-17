@@ -10,8 +10,10 @@ import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import ErrorIndicator from "../subcomponents/ErrorIndicator.js";
 import KeyValueTable from "../subcomponents/KeyValueTable.js";
 import RecipeStep from "../subcomponents/RecipeStep.js";
+import {useAuth} from "../../features/providers/AuthContext";
 
-export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
+export default function CreateEditOwnRecipe({collectionName, recipeID}) {
+    const { user } = useAuth();
     const [title, setTitle] = useState("");
     const [price, setPrice] = useState("");
     const [time, setTime] = useState("");
@@ -25,7 +27,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
         { key: "Sugar", value: "" },
     ];
     const [nutrition, setNutrition] = useState(defaultNutrition);
-    
+
     const [steps, setSteps] = useState([{ id: uuidv4(), description: "", imageURL: "" },]);
 
     const [collections, setCollections] = useState([]);
@@ -54,7 +56,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                 try {
                     setLoading(true);
                     const recipe = await loadRecipeById(user.uid, recipeID);
-                    
+
                     setTitle(recipe.title || "");
                     setPrice(recipe.price || "");
                     setTime(recipe.time || "");
@@ -68,7 +70,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                     setSelectedCollection(recipe.collection || collectionName || "");
                     setIngredients(recipe.ingredients || [{ key: "", value: "" }]);
                     setNutrition(recipe.nutrition || defaultNutrition);
-                    
+
                     setError(null);
                 } catch (err) {
                     console.error('Error fetching recipe:', err);
@@ -88,19 +90,19 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
             });
         }
     }, [user, collectionName]);
-    
+
     const saveCustomRecipeInDB = async () => {
         setSaving(true);
         let finalImageURL = image;
-            
+
         if (image && typeof image !== 'string') {
             finalImageURL = await uploadImage(image);
         }
 
         if(recipeID != null) {
-            await updateRecipe(recipeID, 
+            await updateRecipe(recipeID,
                 user.uid,
-                { title, imageURL: finalImageURL, price, time, ingredients, nutrition, steps }, 
+                { title, imageURL: finalImageURL, price, time, ingredients, nutrition, steps },
                 selectedCollection === "" ? null : selectedCollection);
         } else {
             const transformedIngredients = ingredients.map(({ key, value }) => ({
@@ -109,27 +111,27 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                 }));
             await saveRecipe(
                 user.uid,
-                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition, steps }, 
+                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition, steps },
                 selectedCollection === "" ? null : selectedCollection);
         }
 
         if (selectedCollection) {
             navigate(`/collections/${encodeURIComponent(selectedCollection)}`, {
-                state: { 
+                state: {
                     message: `Recipe "${title}" was saved successfully!`,
                     type: 'success'
                 }
             });
         } else {
             navigate('/ownRecipes', {
-                state: { 
+                state: {
                     message: `Recipe "${title}" was saved successfully!`,
                     type: 'success'
                 }
             });
         }
         setSaving(false);
-    }   
+    }
 
      if (loading) {
         return <LoadingIndicator />;
@@ -212,14 +214,14 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
 
             <h4 className="green">Ingredients</h4>
             <KeyValueTable rows={ingredients}
-            headerLeft="Amount" 
-            headerRight="Ingredients" 
-            editable={true} 
+            headerLeft="Amount"
+            headerRight="Ingredients"
+            editable={true}
             onChange={setIngredients}/>
 
             <h4 className="green">Nutritional Information</h4>
             <KeyValueTable rows={nutrition}
-            editable={true} 
+            editable={true}
             onChange={setNutrition}/>
 
             <h4 className="green">Step-by-step guide</h4>
@@ -250,8 +252,8 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                             Saving...
                         </div>
                     ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
-                </button> 
-            </div>       
+                </button>
+            </div>
         </div>
     )
 }

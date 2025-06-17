@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js';
 import AddNewCollectionPopup from "./AddNewCollectionPopup.js";
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
+import {useAuth} from "../../features/providers/AuthContext";
 
-export default function OwnRecipes({user}) {
+export default function OwnRecipes() {
+    const { user } = useAuth();
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -72,7 +74,7 @@ export default function OwnRecipes({user}) {
 
             <CollectionList collections={collections}/>
 
-            <AddNewCollectionPopup user={user} 
+            <AddNewCollectionPopup
             isOpen={isNewCollectionMenuOpen} 
             onClose={() => setIsNewCollectionMenuOpen(false)}
             setParentMessage={setCollectionMessage}

@@ -1,8 +1,10 @@
 import {useState, useEffect} from "react";
 import HealthScorePopup from "./HealthScorePopup";
 import { getUserHealthScore } from "../../features/databaseStorage/userStorage";
+import {useAuth} from "../../features/providers/AuthContext";
 
-function HealthScore({user, refreshKey}){
+function HealthScore({refreshKey}){
+    const { user } = useAuth();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [healthScore, setHealthScore] = useState(null);
 

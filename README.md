@@ -73,7 +73,7 @@
 │   ├── data/
 │   ├── features/
 │   │   ├── databaseStorage/
-│   │   ├── authentication.js
+│   │   ├── AuthContext.js
 │   │   ├── firebase.js
 │   ├── styles/
 │   └── App.js

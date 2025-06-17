@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { loadRecipesOfCollection } from "../../features/databaseStorage/collectionsStorage";
 import LoadingIndicator from "../subcomponents/LoadingIndicator";
 import ErrorIndicator from "../subcomponents/ErrorIndicator";
+import {useAuth} from "../../features/providers/AuthContext";
 
-const CustomCollection = ({user, collectionName}) => {
+const CustomCollection = ({collectionName}) => {
+    const { user } = useAuth();
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
 

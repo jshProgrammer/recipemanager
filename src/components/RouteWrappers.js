@@ -7,15 +7,16 @@ import CreateEditOwnRecipe from './pages/CreateEditOwnRecipe.js';
 import RecipeDetail from './pages/RecipeDetail.js';
 import LoadingIndicator from './subcomponents/LoadingIndicator.js';
 import { detailedRecipes } from '../data/DetailedSampleData';
+import {useAuth} from "../features/providers/AuthContext";
 
-export function CustomCollectionWrapper({ user }) {
+export function CustomCollectionWrapper() {
   const { collectionName } = useParams();
-  return <CustomCollection user={user} collectionName={collectionName} />;
+  return <CustomCollection collectionName={collectionName} />;
 }
 
-export function CreateEditOwnRecipeWrapper({ user }) {
+export function CreateEditOwnRecipeWrapper() {
   const { collectionName, recipeID } = useParams();
-  return <CreateEditOwnRecipe user={user} collectionName={collectionName} recipeID={recipeID} />;
+  return <CreateEditOwnRecipe collectionName={collectionName} recipeID={recipeID} />;
 }
 
 export function RecipeDetailWrapper() {
@@ -25,7 +26,8 @@ export function RecipeDetailWrapper() {
   return <RecipeDetail recipe={recipe} />;
 }
 
-export function OwnRecipeDetailWrapper({ user }) {
+export function OwnRecipeDetailWrapper() {
+  const { user } = useAuth();
   const { recipeID } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);

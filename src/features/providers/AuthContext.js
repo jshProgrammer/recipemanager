@@ -1,13 +1,15 @@
-import './firebase.js'
-import { useState, useEffect } from 'react';
+import '../firebase.js'
+import { createContext, useContext, useState, useEffect } from 'react';
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import {auth} from './firebase.js'
-import { initializeUserDocument } from './databaseStorage/userStorage.js';
+import {auth} from '../firebase.js'
+import { initializeUserDocument } from '../databaseStorage/userStorage.js';
+
+const AuthContext = createContext();
 
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-export const useAuth = () => {
+export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -83,15 +85,18 @@ export const useAuth = () => {
     }
   };
 
-  return {
-    user,
-    isLoading,
-    error,
-    isAuthenticated: !!user,
-    signUpWithEmail,
-    signInWithEmail,
-    signInWithGoogle,
-    signInWithGithub,
-    logout
-  };
+  return (<AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        error,
+        isAuthenticated: !!user,
+        signUpWithEmail,
+        signInWithEmail,
+        signInWithGoogle,
+        signInWithGithub,
+        logout
+      }}>{children}</AuthContext.Provider>);
 };
+
+export const useAuth = () => useContext(AuthContext);

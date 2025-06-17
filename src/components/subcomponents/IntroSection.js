@@ -2,8 +2,10 @@ import React from "react";
 import '../../styles/App.css';
 
 import introImage from '../../assets/introImage.jpg'
+import {useAuth} from "../../features/providers/AuthContext";
 
-export default function IntroSection({user}) {
+export default function IntroSection() {
+    const { user } = useAuth();
     return (
         <div>
             {user && user.displayName

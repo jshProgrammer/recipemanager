@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import ImagePicker from "../subcomponents/ImagePicker";
 import {storeCollectionInDB} from '../../features/databaseStorage/collectionsStorage.js'
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
+import {useAuth} from "../../features/providers/AuthContext";
 
-const AddNewCollectionPopup = ({user, isOpen, onClose,  setParentMessage, setParentMessageType, reloadCollections}) => {
+const AddNewCollectionPopup = ({isOpen, onClose,  setParentMessage, setParentMessageType, reloadCollections}) => {
+    const { user } = useAuth();
     const [collectionName, setCollectionName] = useState();
     const [image, setImage] = useState();
 
