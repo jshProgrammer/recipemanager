@@ -15,14 +15,15 @@ const CustomCollection = ({user, collectionName}) => {
     const navigate = useNavigate(); 
     const location = useLocation();
 
-    useEffect(() => {
+    const fetchRecipes = async () => {
         setLoading(true);
-        const fetchRecipes = async () => {
-            const data = await loadRecipesOfCollection({userID: user.uid, collectionName: collectionName});
-            console.log(data);
-            setRecipes(data);
-            setLoading(false);
-        };
+        const data = await loadRecipesOfCollection({userID: user.uid, collectionName: collectionName});
+        console.log(data);
+        setRecipes(data);
+        setLoading(false);
+    };
+
+    useEffect(() => {
         fetchRecipes();
     }, [user, collectionName]);
 
@@ -36,6 +37,10 @@ const CustomCollection = ({user, collectionName}) => {
         const timer = setTimeout(() => {
             setMessage(null);
         }, 5000);
+
+        if (location.state.type === 'success') {
+            fetchRecipes();
+        }
 
         window.history.replaceState({}, document.title);
         
@@ -76,7 +81,7 @@ const CustomCollection = ({user, collectionName}) => {
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe="true" />)
+                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe="true" user={user} />)
                 : <p>This collection is empty yet. Just create a new recipe and you are ready to go :)</p>
             }
         </div>

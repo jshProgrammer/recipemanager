@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { removeRecipeFromAllCollections } from "./collectionsStorage";
 
@@ -56,6 +56,19 @@ export const loadRecipeById = async (userID, recipeId) => {
   } catch (e) {
     console.error("Error while loading own recipe:", e);
     return null;
+  }
+};
+
+export const deleteRecipe = async (userID, recipeID) => {
+  try {
+    await removeRecipeFromAllCollections(userID, recipeID);
+
+    const recipeDocRef = doc(db, "users", userID, "recipes", recipeID);
+    await deleteDoc(recipeDocRef);
+
+    console.log("Recipe deleted successfully");
+  } catch (e) {
+    console.error("Error while deleting recipe: ", e);
   }
 };
 

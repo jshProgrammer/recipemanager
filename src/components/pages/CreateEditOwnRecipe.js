@@ -1,5 +1,6 @@
 // all attributes are optional to use this interface for editing as well as creating a user's own personal recipes
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 import {saveRecipe, updateRecipe, loadRecipeById} from '../../features/databaseStorage/recipeStorage.js'
@@ -25,7 +26,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
     ];
     const [nutrition, setNutrition] = useState(defaultNutrition);
     
-    const [steps, setSteps] = useState([{ description: "", imageURL: "" },]);
+    const [steps, setSteps] = useState([{ id: uuidv4(), description: "", imageURL: "" },]);
 
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState(collectionName || "");
@@ -42,8 +43,8 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
         setSteps(newSteps);
     };
 
-    const removeStep = (indexToRemove) => {
-        const updatedSteps = steps.filter((_, i) => i !== indexToRemove);
+    const removeStep = (idToRemove) => {
+        const updatedSteps = steps.filter(step => step.id !== idToRemove);
         setSteps(updatedSteps);
     };
 
@@ -58,6 +59,12 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                     setPrice(recipe.price || "");
                     setTime(recipe.time || "");
                     setImage(recipe.imageURL || null);
+                    setSteps(
+                        (recipe.steps || [{ description: "", imageURL: "" }]).map(step => ({
+                            ...step,
+                            id: uuidv4()
+                        }))
+                    );
                     setSelectedCollection(recipe.collection || collectionName || "");
                     setIngredients(recipe.ingredients || [{ key: "", value: "" }]);
                     setNutrition(recipe.nutrition || defaultNutrition);
@@ -93,7 +100,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
         if(recipeID != null) {
             await updateRecipe(recipeID, 
                 user.uid,
-                { title, imageURL: finalImageURL, price, time, ingredients, nutrition }, 
+                { title, imageURL: finalImageURL, price, time, ingredients, nutrition, steps }, 
                 selectedCollection === "" ? null : selectedCollection);
         } else {
             const transformedIngredients = ingredients.map(({ key, value }) => ({
@@ -102,7 +109,7 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
                 }));
             await saveRecipe(
                 user.uid,
-                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition }, 
+                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition, steps }, 
                 selectedCollection === "" ? null : selectedCollection);
         }
 
@@ -218,20 +225,20 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
             <h4 className="green">Step-by-step guide</h4>
             {steps.map((step, i) => (
             <RecipeStep
-                key={i}
+                key={step.id}
                 stepNumber={i + 1}
                 description={step.description}
                 imageURL={step.imageURL}
                 editable={true}
                 onChange={(updatedStep) => updateStep(i, updatedStep)}
-                onRemove={(stepToRemove) => removeStep(i, stepToRemove)}
+                onRemove={() => removeStep(step.id)}
             />
             ))}
             <div className="mt-3">
                 <div className="mb-2">
                     <button className="btn btn-sm btn-outline-success"
                     style={{ width: "fit-content" }}
-                    onClick={() => setSteps([...steps, { description: "", imageURL: "" }])}>
+                    onClick={() => setSteps([...steps, { id: uuidv4(), description: "", imageURL: "" }])}>
                     + Add Step
                     </button>
                 </div>
