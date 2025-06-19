@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { loadRecipesOfCollection } from "../../features/databaseStorage/collectionsStorage";
 import LoadingIndicator from "../subcomponents/LoadingIndicator";
 import ErrorIndicator from "../subcomponents/ErrorIndicator";
+import {useAuth} from "../../features/providers/AuthContext";
 
-const CustomCollection = ({user, collectionName}) => {
+const CustomCollection = ({collectionName}) => {
+    const { user } = useAuth();
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -15,14 +17,15 @@ const CustomCollection = ({user, collectionName}) => {
     const navigate = useNavigate(); 
     const location = useLocation();
 
-    useEffect(() => {
+    const fetchRecipes = async () => {
         setLoading(true);
-        const fetchRecipes = async () => {
-            const data = await loadRecipesOfCollection({userID: user.uid, collectionName: collectionName});
-            console.log(data);
-            setRecipes(data);
-            setLoading(false);
-        };
+        const data = await loadRecipesOfCollection({userID: user.uid, collectionName: collectionName});
+        console.log(data);
+        setRecipes(data);
+        setLoading(false);
+    };
+
+    useEffect(() => {
         fetchRecipes();
     }, [user, collectionName]);
 
@@ -36,6 +39,10 @@ const CustomCollection = ({user, collectionName}) => {
         const timer = setTimeout(() => {
             setMessage(null);
         }, 5000);
+
+        if (location.state.type === 'success') {
+            fetchRecipes();
+        }
 
         window.history.replaceState({}, document.title);
         
@@ -76,7 +83,7 @@ const CustomCollection = ({user, collectionName}) => {
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe="true" />)
+                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe="true" user={user} />)
                 : <p>This collection is empty yet. Just create a new recipe and you are ready to go :)</p>
             }
         </div>

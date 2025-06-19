@@ -1,0 +1,19 @@
+.table-striped input.form-control {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #ced4da;
+    border-radius: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.table-striped input.form-control:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom: 2px solid var(--green-accent-color);
+    background-color: rgba(0,0,0,0.02);
+}
+
+.table-striped tbody tr:hover input.form-control {
+    background-color: rgba(0, 0, 0, 0.03);
+}

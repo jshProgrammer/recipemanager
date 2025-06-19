@@ -1,12 +1,15 @@
-import './firebase.js'
-import { useState, useEffect } from 'react';
+import '../firebase.js'
+import { createContext, useContext, useState, useEffect } from 'react';
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import {auth} from './firebase.js'
+import {auth} from '../firebase.js'
+import { initializeUserDocument } from '../databaseStorage/userStorage.js';
+
+const AuthContext = createContext();
 
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-export const useAuth = () => {
+export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +30,7 @@ export const useAuth = () => {
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`
       });
+      await initializeUserDocument(userCredential.user.uid);
       return { success: true, user: userCredential.user };
     } catch (error) {
       setError(error.message);
@@ -38,6 +42,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await initializeUserDocument(userCredential.user.uid);
       return { success: true, user: userCredential.user };
     } catch (error) {
       setError(error.message);
@@ -49,6 +54,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, googleProvider);
+      await initializeUserDocument(result.user.uid);
       return { success: true, user: result.user };
     } catch (error) {
       setError(error.message);
@@ -60,6 +66,7 @@ export const useAuth = () => {
     try {
       setError(null);
       const result = await signInWithPopup(auth, githubProvider);
+      await initializeUserDocument(result.user.uid);
       return { success: true, user: result.user };
     } catch (error) {
       setError(error.message);
@@ -78,15 +85,18 @@ export const useAuth = () => {
     }
   };
 
-  return {
-    user,
-    isLoading,
-    error,
-    isAuthenticated: !!user,
-    signUpWithEmail,
-    signInWithEmail,
-    signInWithGoogle,
-    signInWithGithub,
-    logout
-  };
+  return (<AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        error,
+        isAuthenticated: !!user,
+        signUpWithEmail,
+        signInWithEmail,
+        signInWithGoogle,
+        signInWithGithub,
+        logout
+      }}>{children}</AuthContext.Provider>);
 };
+
+export const useAuth = () => useContext(AuthContext);

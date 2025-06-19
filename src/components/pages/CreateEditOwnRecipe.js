@@ -1,5 +1,6 @@
 // all attributes are optional to use this interface for editing as well as creating a user's own personal recipes
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 import {saveRecipe, updateRecipe, loadRecipeById} from '../../features/databaseStorage/recipeStorage.js'
@@ -7,12 +8,27 @@ import ImagePicker from "../subcomponents/ImagePicker.js";
 import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js'
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import ErrorIndicator from "../subcomponents/ErrorIndicator.js";
+import KeyValueTable from "../subcomponents/KeyValueTable.js";
+import RecipeStep from "../subcomponents/RecipeStep.js";
+import {useAuth} from "../../features/providers/AuthContext";
 
-export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
+export default function CreateEditOwnRecipe({collectionName, recipeID}) {
+    const { user } = useAuth();
     const [title, setTitle] = useState("");
     const [price, setPrice] = useState("");
     const [time, setTime] = useState("");
     const [image, setImage] = useState(null);
+    const [ingredients, setIngredients] = useState([{ key: "", value: "" }]);
+
+    const defaultNutrition = [
+        { key: "Calories", value: "" },
+        { key: "Fat", value: "" },
+        { key: "Protein", value: "" },
+        { key: "Sugar", value: "" },
+    ];
+    const [nutrition, setNutrition] = useState(defaultNutrition);
+
+    const [steps, setSteps] = useState([{ id: uuidv4(), description: "", imageURL: "" },]);
 
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState(collectionName || "");
@@ -23,19 +39,38 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
 
     const navigate = useNavigate();
 
+    const updateStep = (index, updatedStep) => {
+        const newSteps = [...steps];
+        newSteps[index] = { ...newSteps[index], ...updatedStep };
+        setSteps(newSteps);
+    };
+
+    const removeStep = (idToRemove) => {
+        const updatedSteps = steps.filter(step => step.id !== idToRemove);
+        setSteps(updatedSteps);
+    };
+
     useEffect(() => {
         if (recipeID && user?.uid) {
             const fetchRecipe = async () => {
                 try {
                     setLoading(true);
                     const recipe = await loadRecipeById(user.uid, recipeID);
-                    
+
                     setTitle(recipe.title || "");
                     setPrice(recipe.price || "");
                     setTime(recipe.time || "");
                     setImage(recipe.imageURL || null);
+                    setSteps(
+                        (recipe.steps || [{ description: "", imageURL: "" }]).map(step => ({
+                            ...step,
+                            id: uuidv4()
+                        }))
+                    );
                     setSelectedCollection(recipe.collection || collectionName || "");
-                    
+                    setIngredients(recipe.ingredients || [{ key: "", value: "" }]);
+                    setNutrition(recipe.nutrition || defaultNutrition);
+
                     setError(null);
                 } catch (err) {
                     console.error('Error fetching recipe:', err);
@@ -55,44 +90,48 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
             });
         }
     }, [user, collectionName]);
-    
+
     const saveCustomRecipeInDB = async () => {
         setSaving(true);
         let finalImageURL = image;
-            
+
         if (image && typeof image !== 'string') {
             finalImageURL = await uploadImage(image);
         }
 
         if(recipeID != null) {
-            await updateRecipe(recipeID, 
+            await updateRecipe(recipeID,
                 user.uid,
-                { title, imageURL: finalImageURL, price, time }, 
+                { title, imageURL: finalImageURL, price, time, ingredients, nutrition, steps },
                 selectedCollection === "" ? null : selectedCollection);
         } else {
+            const transformedIngredients = ingredients.map(({ key, value }) => ({
+                amount: key,
+                name: value
+                }));
             await saveRecipe(
                 user.uid,
-                { title, imageURL: finalImageURL, price, time }, 
+                { title, imageURL: finalImageURL, price, time, ingredients: transformedIngredients, nutrition, steps },
                 selectedCollection === "" ? null : selectedCollection);
         }
 
         if (selectedCollection) {
             navigate(`/collections/${encodeURIComponent(selectedCollection)}`, {
-                state: { 
+                state: {
                     message: `Recipe "${title}" was saved successfully!`,
                     type: 'success'
                 }
             });
         } else {
             navigate('/ownRecipes', {
-                state: { 
+                state: {
                     message: `Recipe "${title}" was saved successfully!`,
                     type: 'success'
                 }
             });
         }
         setSaving(false);
-    }   
+    }
 
      if (loading) {
         return <LoadingIndicator />;
@@ -174,20 +213,47 @@ export default function CreateEditOwnRecipe({user, collectionName, recipeID}) {
             </div>
 
             <h4 className="green">Ingredients</h4>
-            {/*TODO: ADD!!*/}
-            <h4 className="green">Nutritional Information</h4>
-            {/*TODO: use table-component by Sebastian */}
-            <h4 className="green">Step-by-step guide</h4>
-            {/*TODO: use RecipeStep-component by Sebastian */}
+            <KeyValueTable rows={ingredients}
+            headerLeft="Amount"
+            headerRight="Ingredients"
+            editable={true}
+            onChange={setIngredients}/>
 
-            <button className="btn backgroundGreen" type="submit" onClick={() => saveCustomRecipeInDB()}>
-                {saving ? (
-                    <div className="d-flex align-items-center">
-                        <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-                        Saving...
-                    </div>
-                ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
-            </button>        
+            <h4 className="green">Nutritional Information</h4>
+            <KeyValueTable rows={nutrition}
+            editable={true}
+            onChange={setNutrition}/>
+
+            <h4 className="green">Step-by-step guide</h4>
+            {steps.map((step, i) => (
+            <RecipeStep
+                key={step.id}
+                stepNumber={i + 1}
+                description={step.description}
+                imageURL={step.imageURL}
+                editable={true}
+                onChange={(updatedStep) => updateStep(i, updatedStep)}
+                onRemove={() => removeStep(step.id)}
+            />
+            ))}
+            <div className="mt-3">
+                <div className="mb-2">
+                    <button className="btn btn-sm btn-outline-success"
+                    style={{ width: "fit-content" }}
+                    onClick={() => setSteps([...steps, { id: uuidv4(), description: "", imageURL: "" }])}>
+                    + Add Step
+                    </button>
+                </div>
+
+                <button className="btn backgroundGreen w-100 mt-4" type="submit" onClick={() => saveCustomRecipeInDB()}>
+                    {saving ? (
+                        <div className="d-flex align-items-center">
+                            <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                            Saving...
+                        </div>
+                    ) : (recipeID ? 'Update Recipe' : 'Save Recipe')}
+                </button>
+            </div>
         </div>
     )
 }

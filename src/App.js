@@ -1,7 +1,7 @@
 import './styles/App.css';
 
 import { recipes } from './data/SampleData';
-import { useAuth } from './features/authentication.js';
+import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -11,12 +11,8 @@ import IntroSection from "./components/subcomponents/IntroSection.js";
 import LoginSignupMobile from "./components/pages/LoginSignUpMobile.js"
 import Settings from './components/pages/Settings.js'
 import OwnRecipes from './components/pages/OwnRecipes.js';
-import CustomCollection from './components/pages/CustomCollection.js';
-import CreateEditOwnRecipe from './components/pages/CreateEditOwnRecipe.js';
-import RecipeDetail from './components/pages/RecipeDetail.js';
 import Favorites from './components/pages/Favorites.js'
-
-import { detailedRecipes } from './data/DetailedSampleData';
+import NoPage from "./components/pages/NoPage";
 
 import RecipeSearch from "./components/RecipeSearch";
 
@@ -26,61 +22,68 @@ import {
   RecipeDetailWrapper,
   OwnRecipeDetailWrapper
 } from './components/RouteWrappers.js';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
-  const { user, isLoading } = useAuth();
 
   return (
-    <Router>
-    <div className="container py-4">
-      <Header />
-      <Routes>
-          <Route path="/" element={
-            <div>
+      <AuthProvider>
+          <Router>
+          <div className="container py-4">
+            <Header />
+            <Routes>
+                <Route path="/" element={
+                  <div>
 
-              <IntroSection user={user}/>
+                    <IntroSection/>
 
-              <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
-              <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
-              
-              <div class="bgLightGreen p-4 rounded-4 mt-4">
-                <RecipeSearch />
-              </div>
-            </div>
-          }/>
+                    <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
+                    <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
 
-      <Route path="/login" element={<LoginSignupMobile/>} />
+                    <div class="bgLightGreen p-4 rounded-4 mt-4">
+                      <RecipeSearch />
+                          </div>
+                  </div>
+                }/>
 
-      <Route path="/favorites" element={<Favorites/>} />
+            <Route path="/login" element={<LoginSignupMobile/>} />
 
-      <Route path="/ownRecipes" element={<OwnRecipes user={user}/>} />
-      <Route path="/ownRecipes/:recipeID" element={<OwnRecipeDetailWrapper user={user}/>} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
 
-      {/*separate routes for recipes inside collection and the ones assigned to None */}
-      <Route path="/own-recipes/create" element={<CreateEditOwnRecipeWrapper user={user} />}/>
-      <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper user={user} />}/>
 
-      <Route path="/collections/:collectionName" element={<CustomCollectionWrapper user={user} />}/>
-      <Route path="/collections/:collectionName/:recipeID" element={<OwnRecipeDetailWrapper user={user} />}/>
-      <Route path="/collections/:collectionName/create" element={<CreateEditOwnRecipeWrapper user={user} />}/>
-      <Route path="/collections/:collectionName/edit/:recipeID" element={<CreateEditOwnRecipeWrapper user={user} />}/>
-      
+            <Route path="/ownRecipes" element={
+              <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />
+            <Route path="/ownRecipes/:recipeID" element={
+              <ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
 
-      <Route path="/recipes/:recipeName"
-        element={<RecipeDetailWrapper/>}/>
+            {/*separate routes for recipes inside collection and the ones assigned to None */}
+            <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+            <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
 
-      <Route path="/settings" element={<Settings user={user}/>} />
+            <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper /></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
 
-      </Routes>
 
-      <footer className="text-center mt-5 text-muted">
-        <p className="mb-0">RecipeManager</p>
-        <p className="small">Impressum • Your first steps with RecipeManager</p>
-      </footer>
+            <Route path="/recipes/:recipeName"
+              element={<RecipeDetailWrapper/>}/>
 
-    </div>
-  </Router>
+            <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
+
+            <Route path="*" element={<NoPage/>}/>
+
+            </Routes>
+
+            <footer className="text-center mt-5 text-muted">
+              <p className="mb-0">RecipeManager</p>
+              <p className="small">Impressum • Your first steps with RecipeManager</p>
+            </footer>
+
+          </div>
+        </Router>
+      </AuthProvider>
   );
   }
 

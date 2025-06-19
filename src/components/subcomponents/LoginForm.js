@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../features/authentication.js';
+import { useAuth } from '../../features/providers/AuthContext.js';
 import ErrorIndicator from './ErrorIndicator.js';
 
 export default function LoginForm({ isSignUp, setIsSignUp, onSuccess }) {

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import '../../styles/Settings.css'
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
-import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/customSettingsStorage';
+import { writeCustomSettingsToDB, readCustomSettingsFromDB } from '../../features/databaseStorage/userStorage.js';
+import {useAuth} from "../../features/providers/AuthContext";
 
-export default function Settings({user}) {
+export default function Settings() {
+    const { user } = useAuth();
+
     const [formState, setFormState] = useState({
         dietaryPreference: 'none',
         lactoseIntolerance: false,
