@@ -1,20 +1,186 @@
+import React, { useState, useEffect } from "react";
 import RecipeCard from "../cards/RecipeCard";
 import { Link } from "react-router-dom";
+import { getRandomRecipes, searchRecipesAdvanced } from "../../features/spoonacular";
 
-export default function RecipeList({ recipes, collectionName=null, isOwnRecipe=false }) {
-return (
-    <div className="d-flex flex-wrap gap-4 justify-content-center">
-        {recipes.map((recipe, index) => (
-            <div key={index}>
-                <Link to={isOwnRecipe
-                    ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(recipe.id)}` 
-                    : `/recipes/${encodeURIComponent(recipe.title)}`}
-                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
+export default function RecipeList({ 
+    recipes = null, 
+    collectionName = null, 
+    isOwnRecipe = false,
+    searchOptions = null,
+    useRandomRecipes = false,
+    numberOfRecipes = 10
+}) {
+    const [apiRecipes, setApiRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const transformSpoonacularRecipe = (spoonacularRecipe) => {
+        return {
+            id: spoonacularRecipe.id,
+            title: spoonacularRecipe.title,
+            imageURL: spoonacularRecipe.image,
+            time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "N/A",
+            tags: [
+                ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
+                ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
+                ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
+                ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
+                ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
+                ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
+                ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
+                ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
+            ].slice(0, 4), 
+            estimatedPrice: spoonacularRecipe.pricePerServing ? 
+                Math.round(spoonacularRecipe.pricePerServing / 100 * spoonacularRecipe.servings) : null
+        };
+    };
+
+    const fetchRecipes = async () => {
+        if (recipes) return; 
+        
+        setLoading(true);
+        setError(null);
+        
+        try {
+            let response;
+            
+            if (useRandomRecipes) {
+                response = await getRandomRecipes({ 
+                    number: numberOfRecipes 
+                });
+                setApiRecipes(response.recipes.map(transformSpoonacularRecipe));
+            } else if (searchOptions) {
+                response = await searchRecipesAdvanced({
+                    ...searchOptions,
+                    number: numberOfRecipes
+                });
+                
+                const recipesWithDetails = await Promise.all(
+                    response.results.map(async (recipe) => {
+                        try {
+                            return {
+                                id: recipe.id,
+                                title: recipe.title,
+                                imageURL: recipe.image,
+                                time: recipe.readyInMinutes ? `${recipe.readyInMinutes}min` : "N/A",
+                                tags: [
+                                    ...(recipe.vegetarian ? ["Vegetarian"] : []),
+                                    ...(recipe.vegan ? ["Vegan"] : []),
+                                    ...(recipe.glutenFree ? ["Gluten-Free"] : []),
+                                    ...(recipe.dairyFree ? ["Dairy-Free"] : []),
+                                    ...(recipe.veryHealthy ? ["Healthy"] : []),
+                                    ...(recipe.cheap ? ["Budget-Friendly"] : []),
+                                    ...(recipe.veryPopular ? ["Popular"] : []),
+                                    ...(recipe.readyInMinutes <= 30 ? ["Fast"] : [])
+                                ].slice(0, 4)
+                            };
+                        } catch (err) {
+                            console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
+                            return {
+                                id: recipe.id,
+                                title: recipe.title,
+                                imageURL: recipe.image,
+                                time: "N/A",
+                                tags: ["Recipe"]
+                            };
+                        }
+                    })
+                );
+                
+                setApiRecipes(recipesWithDetails);
+            } else {
+                response = await searchRecipesAdvanced({ 
+                    sort: 'popularity',
+                    number: numberOfRecipes
+                });
+                
+                const recipesWithDetails = response.results.map(recipe => ({
+                    id: recipe.id,
+                    title: recipe.title,
+                    imageURL: recipe.image,
+                    time: recipe.readyInMinutes ? `${recipe.readyInMinutes}min` : "N/A",
+                    tags: [
+                        ...(recipe.vegetarian ? ["Vegetarian"] : []),
+                        ...(recipe.vegan ? ["Vegan"] : []),
+                        ...(recipe.glutenFree ? ["Gluten-Free"] : []),
+                        ...(recipe.readyInMinutes <= 30 ? ["Fast"] : []),
+                        "Popular"
+                    ].slice(0, 4)
+                }));
+                
+                setApiRecipes(recipesWithDetails);
+            }
+        } catch (err) {
+            console.error("Error fetching recipes:", err);
+            setError("Failed to load recipes. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRecipes();
+    }, [searchOptions, useRandomRecipes, numberOfRecipes]);
+
+    const displayRecipes = recipes || apiRecipes;
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "200px" }}>
+                <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">Loading recipes...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-danger text-center" role="alert">
+                <i className="bi bi-exclamation-triangle me-2"></i>
+                {error}
+                <button 
+                    className="btn btn-outline-danger ms-3" 
+                    onClick={fetchRecipes}
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    if (!displayRecipes || displayRecipes.length === 0) {
+        return (
+            <div className="text-center text-muted py-5">
+                <i className="bi bi-search" style={{ fontSize: "3rem" }}></i>
+                <div className="mt-3">
+                    <h5>No recipes found</h5>
+                    <p>Try adjusting your search criteria or check back later.</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="d-flex flex-wrap gap-4 justify-content-center">
+            {displayRecipes.map((recipe, index) => (
+                <div key={recipe.id || index}>
+                    <Link 
+                        to={isOwnRecipe
+                            ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(recipe.id)}` 
+                            : `/recipes/${encodeURIComponent(recipe.id)}`} // Changed to use recipe.id instead of title
+                        style={{ textDecoration: "none", color: "inherit", display: "block" }}
                     >
-                    <RecipeCard id={recipe.id} {...recipe} isEditable={isOwnRecipe} collectionName={collectionName} />
-                </Link>
+                        <RecipeCard 
+                            id={recipe.id} 
+                            {...recipe} 
+                            isEditable={isOwnRecipe} 
+                            collectionName={collectionName} 
+                        />
+                    </Link>
+                </div>
+            ))}
         </div>
-        ))}
-    </div>
-);
+    );
 }

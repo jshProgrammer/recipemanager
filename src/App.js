@@ -42,11 +42,10 @@ function App() {
               <IntroSection user={user}/>
 
               <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
-              <RecipeList recipes={recipes.slice(0, 3)} />
+              <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
               
               <div class="bgLightGreen p-4 rounded-4 mt-4">
                 <RecipeSearch />
-                <RecipeList recipes={recipes.slice(3)} />
               </div>
             </div>
           }/>
