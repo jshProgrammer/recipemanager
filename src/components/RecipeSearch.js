@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch, availableDiets, availableIntolerances } from "../features/spoonacular";
 import { Form, Button, Row, Col, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
+import RecipeDetail from "./pages/RecipeDetail";
 
 function RecipeSearch() {
   const [query, setQuery] = useState("");
@@ -11,13 +12,14 @@ function RecipeSearch() {
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   
   const [selectedDiet, setSelectedDiet] = useState("");
   const [selectedIntolerances, setSelectedIntolerances] = useState("");
   const [maxPrice, setMaxPrice] = useState(""); //TODO: could be added to Fast Select?
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
-
+  //TODO:Details auch für random/auserhalb von Search
   const handleQueryChange = async (value) => {
     setQuery(value);
     
@@ -47,7 +49,6 @@ function RecipeSearch() {
       id: spoonacularRecipe.id,
       title: spoonacularRecipe.title,
       imageURL: spoonacularRecipe.image,
-      //TODO: Always displays N/A??
       time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "N/A",
       tags: [
         ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
@@ -63,6 +64,59 @@ function RecipeSearch() {
         Math.round(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)) : null
     };
   };
+
+  const transformRecipeForDetail = (spoonacularRecipe) => {
+    return {
+      id: spoonacularRecipe.id,
+      title: spoonacularRecipe.title,
+      imageURL: spoonacularRecipe.image,
+      time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "30min",
+      price: spoonacularRecipe.pricePerServing ? 
+        `$${(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)).toFixed(2)}` : "$2.49",
+      tags: [
+        ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
+        ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
+        ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
+        ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
+        ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
+        ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
+        ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
+        "Recommended"
+      ],
+      healthScore: spoonacularRecipe.healthScore,
+      ingredients: spoonacularRecipe.extendedIngredients?.map(ing => ({
+        amount: `${ing.amount} ${ing.unit}`,
+        name: ing.name
+      })) || [{ amount: "N/A", name: "Ingredients not available" }],
+      //TODO: zeigt nix an
+      nutrition: spoonacularRecipe.nutrition?.nutrients?.slice(0, 5).map(nutrient => ({
+        key: nutrient.name,
+        value: `${nutrient.amount}${nutrient.unit}`
+      })) || [],
+      steps: spoonacularRecipe.analyzedInstructions?.[0]?.steps?.map(step => ({
+        description: step.step,
+        imageURL: null
+      })) || []
+    };
+  };
+
+  const handleRecipeClick = async (recipeId) => {
+    try {
+      const detailedRecipe = await getRecipeInformation(recipeId);
+      const transformedRecipe = transformRecipeForDetail(detailedRecipe);
+      setSelectedRecipe(transformedRecipe);
+      setShowDetailModal(true);
+    } catch (err) {
+      console.error("Error loading recipe details:", err);
+      alert("Error loading recipe details: " + err.message);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRecipe(null);
+  };
+
 
   const handleSearch = async () => {
     setSelectedRecipe(null);
@@ -86,7 +140,6 @@ function RecipeSearch() {
       });
 
       const data = await searchRecipesAdvanced(searchOptions);
-      
       const recipesWithDetails = await Promise.all(
       data.results.map(async (recipe) => {
         try {
@@ -108,15 +161,6 @@ function RecipeSearch() {
   } finally {
     setIsLoading(false);
   }
-  };
-
-  const handleSelect = async (id) => {
-    try {
-      const data = await getRecipeInformation(id);
-      setSelectedRecipe(data);
-    } catch (err) {
-      alert(err.message);
-    }
   };
 
   const handleTagClick = (tag) => {
@@ -304,39 +348,35 @@ function RecipeSearch() {
               </div>
             </div>
           ) : (
-            <RecipeList recipes={results} />
+            <RecipeList recipes={results} 
+            onRecipeClick={handleRecipeClick} />
           )}
         </div>
       )}
-
-      {selectedRecipe && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-             style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
-             onClick={() => setSelectedRecipe(null)}>
-          <div className="bg-white rounded p-4 m-3" 
-               style={{ maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}
-               onClick={e => e.stopPropagation()}>
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <h3>{selectedRecipe.title}</h3>
-              <Button variant="close" onClick={() => setSelectedRecipe(null)}></Button>
+      {showDetailModal && selectedRecipe && (
+        <div 
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+          onClick={handleCloseModal}
+        >
+          <div 
+            className="bg-white rounded" 
+            style={{ 
+              maxWidth: '90vw', 
+              maxHeight: '90vh', 
+              overflowY: 'auto',
+              width: '100%'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="d-flex justify-content-end p-3 border-bottom">
+              <Button variant="close" onClick={handleCloseModal}></Button>
             </div>
-            {selectedRecipe.image && (
-              <img 
-                src={selectedRecipe.image} 
-                alt={selectedRecipe.title} 
-                className="img-fluid rounded mb-3"
-                style={{ maxHeight: '300px', width: '100%', objectFit: 'cover' }}
-              />
-            )}
-            {selectedRecipe.summary && (
-              <div className="mb-3">
-                <h5>Summary</h5>
-                <div dangerouslySetInnerHTML={{__html: selectedRecipe.summary}} />
-              </div>
-            )}
+            <RecipeDetail recipe={selectedRecipe} />
           </div>
         </div>
       )}
+
     </div>
   );
 }

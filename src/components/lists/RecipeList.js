@@ -9,7 +9,8 @@ export default function RecipeList({
     isOwnRecipe = false,
     searchOptions = null,
     useRandomRecipes = false,
-    numberOfRecipes = 10
+    numberOfRecipes = 10,
+    onRecipeClick = null
 }) {
     const [apiRecipes, setApiRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -166,6 +167,19 @@ export default function RecipeList({
         <div className="d-flex flex-wrap gap-4 justify-content-center">
             {displayRecipes.map((recipe, index) => (
                 <div key={recipe.id || index}>
+                    {onRecipeClick ? (
+                        <div 
+                            onClick={() => onRecipeClick(recipe.id)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <RecipeCard 
+                                id={recipe.id} 
+                                {...recipe} 
+                                isEditable={isOwnRecipe} 
+                                collectionName={collectionName} 
+                            />
+                        </div>
+                    ) : (
                     <Link 
                         to={isOwnRecipe
                             ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(recipe.id)}` 
@@ -179,6 +193,7 @@ export default function RecipeList({
                             collectionName={collectionName} 
                         />
                     </Link>
+                    )}
                 </div>
             ))}
         </div>
