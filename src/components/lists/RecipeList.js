@@ -3,9 +3,9 @@ import RecipeCard from "../cards/RecipeCard";
 import { Link } from "react-router-dom";
 import { getRandomRecipes, searchRecipesAdvanced } from "../../features/spoonacular";
 
-export default function RecipeList({ 
-    recipes = null, 
-    collectionName = null, 
+export default function RecipeList({
+    recipes = null,
+    collectionName = null,
     isOwnRecipe = false,
     searchOptions = null,
     useRandomRecipes = false,
@@ -31,24 +31,24 @@ export default function RecipeList({
                 ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
                 ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
                 ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-            ].slice(0, 4), 
-            estimatedPrice: spoonacularRecipe.pricePerServing ? 
+            ].slice(0, 4),
+            estimatedPrice: spoonacularRecipe.pricePerServing ?
                 Math.round(spoonacularRecipe.pricePerServing / 100 * spoonacularRecipe.servings) : null
         };
     };
 
     const fetchRecipes = async () => {
-        if (recipes) return; 
-        
+        if (recipes) return;
+
         setLoading(true);
         setError(null);
-        
+
         try {
             let response;
-            
+
             if (useRandomRecipes) {
-                response = await getRandomRecipes({ 
-                    number: numberOfRecipes 
+                response = await getRandomRecipes({
+                    number: numberOfRecipes
                 });
                 setApiRecipes(response.recipes.map(transformSpoonacularRecipe));
             } else if (searchOptions) {
@@ -56,7 +56,7 @@ export default function RecipeList({
                     ...searchOptions,
                     number: numberOfRecipes
                 });
-                
+
                 const recipesWithDetails = await Promise.all(
                     response.results.map(async (recipe) => {
                         try {
@@ -88,14 +88,14 @@ export default function RecipeList({
                         }
                     })
                 );
-                
+
                 setApiRecipes(recipesWithDetails);
             } else {
-                response = await searchRecipesAdvanced({ 
+                response = await searchRecipesAdvanced({
                     sort: 'popularity',
                     number: numberOfRecipes
                 });
-                
+
                 const recipesWithDetails = response.results.map(recipe => ({
                     id: recipe.id,
                     title: recipe.title,
@@ -109,7 +109,7 @@ export default function RecipeList({
                         "Popular"
                     ].slice(0, 4)
                 }));
-                
+
                 setApiRecipes(recipesWithDetails);
             }
         } catch (err) {
@@ -141,8 +141,8 @@ export default function RecipeList({
             <div className="alert alert-danger text-center" role="alert">
                 <i className="bi bi-exclamation-triangle me-2"></i>
                 {error}
-                <button 
-                    className="btn btn-outline-danger ms-3" 
+                <button
+                    className="btn btn-outline-danger ms-3"
                     onClick={fetchRecipes}
                 >
                     Retry
@@ -168,31 +168,26 @@ export default function RecipeList({
             {displayRecipes.map((recipe, index) => (
                 <div key={recipe.id || index}>
                     {onRecipeClick ? (
-                        <div 
+                        <div
                             onClick={() => onRecipeClick(recipe.id)}
                             style={{ cursor: "pointer" }}
                         >
-                            <RecipeCard 
-                                id={recipe.id} 
-                                {...recipe} 
-                                isEditable={isOwnRecipe} 
-                                collectionName={collectionName} 
+                            <RecipeCard
+                                id={recipe.id}
+                                {...(isOwnRecipe || useRandomRecipes ? recipe : transformSpoonacularRecipe(recipe))}
+                                isEditable={isOwnRecipe}
+                                collectionName={collectionName}
                             />
                         </div>
                     ) : (
-                    <Link 
-                        to={isOwnRecipe
-                            ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(recipe.id)}` 
-                            : `/recipes/${encodeURIComponent(recipe.id)}`} // Changed to use recipe.id instead of title
-                        style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                    >
-                        <RecipeCard 
-                            id={recipe.id} 
-                            {...recipe} 
-                            isEditable={isOwnRecipe} 
-                            collectionName={collectionName} 
-                        />
-                    </Link>
+
+                    <RecipeCard
+                        id={recipe.id}
+                        {...(isOwnRecipe || useRandomRecipes  ? recipe : transformSpoonacularRecipe(recipe))}
+                        isEditable={isOwnRecipe}
+                        collectionName={collectionName}
+                    />
+
                     )}
                 </div>
             ))}

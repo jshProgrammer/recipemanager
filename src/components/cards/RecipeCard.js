@@ -1,15 +1,28 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import '../../styles/App.css'
 import { useNavigate } from "react-router-dom";
 import { deleteRecipe } from "../../features/databaseStorage/recipeStorage";
+import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favoriteRecipesStorage";
+import {useAuth} from "../../features/providers/AuthContext";
+import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
 
-//TODO: take away default tag value => just for debugging
-function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=false, estimatedPrice = null, collectionName = null, user = null }) {
+function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estimatedPrice = null, collectionName = null}) {
+    const { user } = useAuth();
+    const { isFavorite, addToFavorites, removeFromFavorites, favoriteIds } = useFavorites();
+
     const hasImage = imageURL && imageURL !== null && imageURL !== "";
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showCollectionModal, setShowCollectionModal] = useState(false);
+    const [userCollections, setUserCollections] = useState([]);
+    const [selectedCollection, setSelectedCollection] = useState(null);
 
+    const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite(id.toString()));
+
+    useEffect(() => {
+        setLocalIsFavorite(isFavorite(id.toString()));
+    }, [favoriteIds]);
 
     const handleEditClick = (e) => {
         e.preventDefault();
@@ -23,12 +36,37 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
         }
     };
 
-    const handleHeartClick = (e) => {
+    const handleHeartClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
-        // TODO: Implement favorite functionality
-        console.log("Heart clicked for recipe:", title);
+
+        if (!user) return;
+
+        try {
+            if (isFavorite(id.toString())) {
+                await removeFromFavorites(id.toString());
+            } else {
+                const collections = await loadFavoriteCollectionsOfUser(user.uid);
+                setUserCollections(collections);
+                setShowCollectionModal(true);
+            }
+        } catch (error) {
+            console.error("Error handling favorite toggle:", error);
+        }
+    };
+
+    const confirmAddToFavorites = async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!selectedCollection) return;
+
+        try {
+            await addToFavorites(id.toString(), selectedCollection);
+            setShowCollectionModal(false);
+            setSelectedCollection(null);
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+        }
     };
 
     const handleDeleteClick = async (e) => {
@@ -64,11 +102,14 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
         e.preventDefault();
         setShowDeleteConfirm(false);
     };
-    
     return (
-        <div className="card rounded-4 shadow-sm overflow-hidden recipe-card position-relative">
+        <div className="card rounded-4 shadow-sm overflow-hidden recipe-card position-relative"
+             onClick={() => navigate(
+                 isEditable
+                     ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(id)}`
+                     : `/recipes/${encodeURIComponent(title)}`)}>
                 {hasImage ? (
-                <div 
+                <div
                     className="position-absolute top-0 start-0 w-100 h-100"
                     style={{
                         backgroundImage: `url(${imageURL})`,
@@ -77,7 +118,7 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
                         zIndex: 1
                     }}
                 />) : (
-                
+
                  <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-light"
                     style={{
                         backgroundColor: "#f8f9fa",
@@ -90,7 +131,7 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
                     </div>
                 </div>
                 )}
-                
+
 
                 <div className="position-absolute top-0 end-0 m-2 d-flex gap-2" style={{zIndex: 4}}>
                     {isEditable && (
@@ -98,16 +139,17 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
                         style={{ width: "36px", height: "36px", padding: 0 }} onClick={handleEditClick} >
                         <i className="bi bi-pencil" style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}></i>
                     </div>)}
-                    
+
                     <div className="bg-white rounded-circle p-1 shadow-sm d-flex align-items-center justify-content-center"
                         style={{ width: "36px", height: "36px", padding: 0 }} onClick={handleHeartClick}>
-                        <i className="bi bi-heart" style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}></i>
+                        <i className={localIsFavorite ? "bi bi-heart-fill green" : "bi bi-heart"}
+                        style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}></i>
                     </div>
 
                     {isEditable && (
                     <div className="bg-white rounded-circle p-1 shadow-sm d-flex align-items-center justify-content-center"
                         style={{ width: "36px", height: "36px", padding: 0 }}>
-                        <i className="bi bi-trash" 
+                        <i className="bi bi-trash"
                         style={{ fontSize: "1.2rem", fontWeight: "bold", WebkitTextStroke: "1px" }}
                         onClick={handleDeleteClick}></i>
                     </div>)}
@@ -133,6 +175,7 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
                         ))}
                     </div>
             </div>
+            {/* TODO: think about extracting confirm dialog */}
             {showDeleteConfirm && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-dialog-centered">
@@ -170,7 +213,42 @@ function RecipeCard({id, imageURL, title, time, tags=["veggie"], isEditable=fals
                 </div>
             )}
 
-        </div>        
+            {showCollectionModal && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Select a Collection</h5>
+                            </div>
+                            <div className="modal-body">
+                                {userCollections.length === 0 ? (
+                                    <p>No collections found. Please create one first.</p>
+                                ) : (
+                                    <select className="form-select"
+                                            onChange={(e) => setSelectedCollection(JSON.parse(e.target.value))}
+                                            onClick={(e) => e.stopPropagation()} >
+                                        <option value="">Choose collection</option>
+                                        {userCollections.map((coll) => (
+                                            <option key={coll.id} value={JSON.stringify(coll)}>{coll.collectionName}</option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowCollectionModal(false)}>
+                                    Cancel
+                                </button>
+                                <button className="btn backgroundGreen" disabled={!selectedCollection} onClick={confirmAddToFavorites}>
+                                    Add to Collection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+        </div>
     );
     }
 

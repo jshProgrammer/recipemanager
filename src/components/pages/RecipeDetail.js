@@ -4,9 +4,11 @@ import KeyValueTable from "../subcomponents/KeyValueTable";
 import {useState} from "react";
 import { updateUserHealthScoreInDB } from "../../features/databaseStorage/userStorage";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
+import {useAuth} from "../../features/providers/AuthContext";
 
 
 function RecipeDetail({ recipe }) {
+    const { user } = useAuth();
     const [isShowMoreSteps, setIsShowMoreSteps] = useState(false);
     const { triggerRefresh } = useHealthScoreRefresh();
     
@@ -16,10 +18,9 @@ function RecipeDetail({ recipe }) {
     }
 
     const updateHealthScore = async () => {
-        //TODO: default value and userid just for testing => will be replaced with context API later
         await updateUserHealthScoreInDB({
-            userID: "5CZej0NLLfT1s8flXLqWmNpTXKK2", 
-            healthScoreOfNewRecipe: recipe.healthScore ?? 100});
+            userID: user.uid,
+            healthScoreOfNewRecipe: recipe.healthScore ?? "N/A"});
         triggerRefresh();
     }
 

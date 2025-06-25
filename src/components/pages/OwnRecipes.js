@@ -2,7 +2,7 @@ import CollectionList from "../lists/CollectionList";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js';
+import {loadCollectionsOfUser} from '../../features/databaseStorage/ownCollectionsStorage.js';
 import AddNewCollectionPopup from "./AddNewCollectionPopup.js";
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import {useAuth} from "../../features/providers/AuthContext";
@@ -72,10 +72,11 @@ export default function OwnRecipes() {
                 </div>
             )}
 
-            <CollectionList collections={collections}/>
+            <CollectionList collections={collections} containsOwnRecipes={true}/>
 
             <AddNewCollectionPopup
-            isOpen={isNewCollectionMenuOpen} 
+            isOpen={isNewCollectionMenuOpen}
+            isOwnRecipe={true}
             onClose={() => setIsNewCollectionMenuOpen(false)}
             setParentMessage={setCollectionMessage}
             setParentMessageType={setCollectionMessageType}

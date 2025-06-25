@@ -9,9 +9,9 @@ import LoadingIndicator from './subcomponents/LoadingIndicator.js';
 import { detailedRecipes } from '../data/DetailedSampleData';
 import {useAuth} from "../features/providers/AuthContext";
 
-export function CustomCollectionWrapper() {
+export function CustomCollectionWrapper({isOwnRecipes}) {
   const { collectionName } = useParams();
-  return <CustomCollection collectionName={collectionName} />;
+  return <CustomCollection collectionName={collectionName} isOwnRecipes={isOwnRecipes} />;
 }
 
 export function CreateEditOwnRecipeWrapper() {

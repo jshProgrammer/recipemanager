@@ -23,68 +23,68 @@ import {
   OwnRecipeDetailWrapper
 } from './components/RouteWrappers.js';
 import ProtectedRoute from "./components/ProtectedRoute";
+import ScrollToTop from "./components/ScrollToTop";
 
 
 function App() {
 
   return (
-      <AuthProvider>
-          <Router>
-          <div className="container py-4">
-            <Header />
-            <Routes>
-                <Route path="/" element={
-                  <div>
+        <Router>
+        <ScrollToTop />
+        <div className="container py-4">
+          <Header />
+          <Routes>
+              <Route path="/" element={
+                <div>
 
-                    <IntroSection/>
+                  <IntroSection/>
 
-                    <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
-                    <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
+                  <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
+                  <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
 
-                    <div class="bgLightGreen p-4 rounded-4 mt-4">
-                      <RecipeSearch />
-                          </div>
+                  <div className="bgLightGreen p-4 rounded-4 mt-4">
+                    <RecipeSearch />
                   </div>
-                }/>
+                </div>
+              }/>
 
-            <Route path="/login" element={<LoginSignupMobile/>} />
+          <Route path="/login" element={<LoginSignupMobile/>} />
 
-            <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
+          <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false}/></ProtectedRoute>} />
+
+          <Route path="/ownRecipes" element={
+            <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />
+          <Route path="/ownRecipes/:recipeID" element={
+            <ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+
+          {/*separate routes for recipes inside collection and the ones assigned to None */}
+          <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+          <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
+
+          <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={true} /></ProtectedRoute>}/>
+          <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+          <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+          <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
 
 
-            <Route path="/ownRecipes" element={
-              <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />
-            <Route path="/ownRecipes/:recipeID" element={
-              <ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+          <Route path="/recipes/:recipeName"
+            element={<RecipeDetailWrapper/>}/>
 
-            {/*separate routes for recipes inside collection and the ones assigned to None */}
-            <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
-            <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
+          <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
 
-            <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper /></ProtectedRoute>}/>
-            <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
-            <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
-            <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+          <Route path="*" element={<NoPage/>}/>
 
+          </Routes>
 
-            <Route path="/recipes/:recipeName"
-              element={<RecipeDetailWrapper/>}/>
+          <footer className="text-center mt-5 text-muted">
+            <p className="mb-0">RecipeManager</p>
+            <p className="small">Impressum • Your first steps with RecipeManager</p>
+          </footer>
 
-            <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
-
-            <Route path="*" element={<NoPage/>}/>
-
-            </Routes>
-
-            <footer className="text-center mt-5 text-muted">
-              <p className="mb-0">RecipeManager</p>
-              <p className="small">Impressum • Your first steps with RecipeManager</p>
-            </footer>
-
-          </div>
-        </Router>
-      </AuthProvider>
+        </div>
+      </Router>
   );
-  }
+}
 
 export default App;

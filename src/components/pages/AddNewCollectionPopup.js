@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import ImagePicker from "../subcomponents/ImagePicker";
-import {storeCollectionInDB} from '../../features/databaseStorage/collectionsStorage.js'
+import {storeOwnCollectionInDB} from '../../features/databaseStorage/ownCollectionsStorage.js'
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 import {useAuth} from "../../features/providers/AuthContext";
+import {storeFavoriteCollectionInDB} from '../../features/databaseStorage/favoriteRecipesStorage'
 
-const AddNewCollectionPopup = ({isOpen, onClose,  setParentMessage, setParentMessageType, reloadCollections}) => {
+const AddNewCollectionPopup = ({isOpen, isOwnRecipe, onClose,  setParentMessage, setParentMessageType, reloadCollections}) => {
     const { user } = useAuth();
     const [collectionName, setCollectionName] = useState();
     const [image, setImage] = useState();
@@ -49,11 +50,14 @@ const AddNewCollectionPopup = ({isOpen, onClose,  setParentMessage, setParentMes
         try {
           var imageURL = await uploadImage(image);
           console.log(imageURL);
-          
-          await storeCollectionInDB({userID: user.uid, customCollection: {
+
+          if(isOwnRecipe) await storeOwnCollectionInDB({userID: user.uid, customCollection: {
               imageURL: imageURL,
               collectionName: collectionName
           }});
+          else await storeFavoriteCollectionInDB({userID: user.uid, customCollection: {
+                imageURL: imageURL, collectionName: collectionName
+            }});
           onClose();
 
           reloadCollections();

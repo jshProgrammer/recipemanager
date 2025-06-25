@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { removeRecipeFromAllCollections } from "./collectionsStorage";
+import { removeRecipeFromAllCollections } from "./ownCollectionsStorage";
 
 export const saveRecipe = async (userID, recipe, collectionName=null) => {
   try {

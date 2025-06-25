@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {uploadImage} from '../../features/databaseStorage/imageStorage.js'
 import {saveRecipe, updateRecipe, loadRecipeById} from '../../features/databaseStorage/recipeStorage.js'
 import ImagePicker from "../subcomponents/ImagePicker.js";
-import {loadCollectionsOfUser} from '../../features/databaseStorage/collectionsStorage.js'
+import {loadCollectionsOfUser} from '../../features/databaseStorage/ownCollectionsStorage.js'
 import LoadingIndicator from "../subcomponents/LoadingIndicator.js";
 import ErrorIndicator from "../subcomponents/ErrorIndicator.js";
 import KeyValueTable from "../subcomponents/KeyValueTable.js";

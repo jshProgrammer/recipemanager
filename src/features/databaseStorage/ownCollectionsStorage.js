@@ -1,7 +1,7 @@
 import { setDoc, doc, getDoc, getDocs, collection, query, deleteDoc, where } from "firebase/firestore";
 import {db} from '../firebase.js';
 
-export const storeCollectionInDB = async ({userID, customCollection}) => {
+export const storeOwnCollectionInDB = async ({userID, customCollection}) => {
     try{
         await setDoc(doc(db, "users", userID, "collections", customCollection.collectionName), customCollection);
         console.log("Collection stored successfully");

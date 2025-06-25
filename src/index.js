@@ -4,13 +4,20 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { HealthScoreRefreshProvider } from './features/providers/HealthScoreRefreshContext';
+import { FavoriteRecipesProvider } from "./features/providers/FavoriteRecipesContext";
+import {AuthProvider} from "./features/providers/AuthContext";
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <HealthScoreRefreshProvider>
-    <App />
-    </HealthScoreRefreshProvider>
+    <AuthProvider>
+        <HealthScoreRefreshProvider>
+            <FavoriteRecipesProvider>
+                <App />
+            </FavoriteRecipesProvider>
+        </HealthScoreRefreshProvider>
+      </AuthProvider>
   </React.StrictMode>
 );
 
