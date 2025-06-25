@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Header from './components/subcomponents/Header.js';
+import MobileTabBar from './components/subcomponents/MobileTabBar.js';
 import RecipeList from "./components/lists/RecipeList.js";
 import IntroSection from "./components/subcomponents/IntroSection.js";
 import LoginSignupMobile from "./components/pages/LoginSignUpMobile.js"
@@ -83,6 +84,7 @@ function App() {
           </footer>
 
         </div>
+        <MobileTabBar />
       </Router>
   );
 }
