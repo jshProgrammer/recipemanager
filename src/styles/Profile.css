@@ -26,6 +26,12 @@
   font-size: 1.5rem;
 }
 
+.profile-subtitle {
+  color: #666;
+  margin: 0.5rem 0 0 0;
+  font-size: 1rem;
+}
+
 .profile-menu {
   display: flex;
   flex-direction: column;
@@ -43,6 +49,10 @@
   color: #333;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  text-align: left;
 }
 
 .profile-menu-item:hover {
@@ -54,6 +64,35 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Special styling for login/signup items */
+.login-item {
+  border-color: var(--green-accent-color) !important;
+  background: color-mix(in srgb, var(--green-accent-color) 5%, white) !important;
+}
+
+.login-item:hover {
+  background: color-mix(in srgb, var(--green-accent-color) 10%, white) !important;
+}
+
+.signup-item {
+  border-color: #007bff !important;
+  background: color-mix(in srgb, #007bff 5%, white) !important;
+}
+
+.signup-item:hover {
+  background: color-mix(in srgb, #007bff 10%, white) !important;
+}
+
+/* Logout item styling */
+.logout-item {
+  border-color: #dc3545 !important;
+  background: color-mix(in srgb, #dc3545 5%, white) !important;
+}
+
+.logout-item:hover {
+  background: color-mix(in srgb, #dc3545 10%, white) !important;
+}
+
 .menu-item-icon {
   width: 48px;
   height: 48px;
@@ -63,11 +102,36 @@
   background: color-mix(in srgb, var(--green-accent-color) 10%, transparent);
   border-radius: 12px;
   margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.login-item .menu-item-icon {
+  background: color-mix(in srgb, var(--green-accent-color) 15%, transparent);
+}
+
+.signup-item .menu-item-icon {
+  background: color-mix(in srgb, #007bff 15%, transparent);
+}
+
+.logout-item .menu-item-icon {
+  background: color-mix(in srgb, #dc3545 15%, transparent);
 }
 
 .menu-item-icon i {
   font-size: 1.5rem;
   color: var(--green-accent-color);
+}
+
+.login-item .menu-item-icon i {
+  color: var(--green-accent-color);
+}
+
+.signup-item .menu-item-icon i {
+  color: #007bff;
+}
+
+.logout-item .menu-item-icon i {
+  color: #dc3545;
 }
 
 .menu-item-content {
@@ -97,6 +161,109 @@
   color: var(--green-accent-color);
 }
 
+/* Profile info section for non-authenticated users */
+.profile-info {
+  margin-top: 2rem;
+}
+
+.info-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h5 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.info-card li {
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Logout confirmation dialog */
+.logout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.logout-dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.logout-dialog h4 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.logout-dialog p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.logout-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.logout-buttons .btn {
+  flex: 1;
+  max-width: 120px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.logout-buttons .btn-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.logout-buttons .btn-danger:hover {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+.logout-buttons .btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.logout-buttons .btn-outline-secondary:hover {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .profile-container {
@@ -120,6 +287,19 @@
   
   .menu-item-icon i {
     font-size: 1.3rem;
+  }
+  
+  .logout-dialog {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .logout-buttons {
+    flex-direction: column;
+  }
+  
+  .logout-buttons .btn {
+    max-width: none;
   }
 }
 

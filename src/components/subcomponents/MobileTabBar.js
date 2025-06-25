@@ -26,12 +26,10 @@ const MobileTabBar = () => {
         <span>Search</span>
       </Link>
       
-      {isAuthenticated && (
-        <Link to="/profile" className={`tab-item ${isActive('/profile') ? 'active' : ''}`}>
-          <i className="bi bi-person-circle"></i>
-          <span>Profile</span>
-        </Link>
-      )}
+      <Link to="/profile" className={`tab-item ${isActive('/profile') ? 'active' : ''}`}>
+        <i className="bi bi-person-circle"></i>
+        <span>Profile</span>
+      </Link>
     </div>
   );
 };
