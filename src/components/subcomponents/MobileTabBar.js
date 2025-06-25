@@ -21,29 +21,17 @@ const MobileTabBar = () => {
         <span>Home</span>
       </Link>
       
-      <Link to="/" className={`tab-item ${location.pathname === '/' ? 'active' : ''}`}>
+      <Link to="/search" className={`tab-item ${isActive('/search') ? 'active' : ''}`}>
         <i className="bi bi-search"></i>
         <span>Search</span>
       </Link>
       
       {isAuthenticated && (
-        <Link to="/favorites" className={`tab-item ${isActive('/favorites') ? 'active' : ''}`}>
-          <i className="bi bi-heart"></i>
-          <span>Favorites</span>
+        <Link to="/profile" className={`tab-item ${isActive('/profile') ? 'active' : ''}`}>
+          <i className="bi bi-person-circle"></i>
+          <span>Profile</span>
         </Link>
       )}
-      
-      {isAuthenticated && (
-        <Link to="/ownRecipes" className={`tab-item ${isActive('/ownRecipes') ? 'active' : ''}`}>
-          <i className="bi bi-journal-text"></i>
-          <span>My Recipes</span>
-        </Link>
-      )}
-      
-      <Link to="/settings" className={`tab-item ${isActive('/settings') ? 'active' : ''}`}>
-        <i className="bi bi-gear"></i>
-        <span>Settings</span>
-      </Link>
     </div>
   );
 };

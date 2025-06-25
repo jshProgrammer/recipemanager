@@ -13,6 +13,7 @@ import LoginSignupMobile from "./components/pages/LoginSignUpMobile.js"
 import Settings from './components/pages/Settings.js'
 import OwnRecipes from './components/pages/OwnRecipes.js';
 import Favorites from './components/pages/Favorites.js'
+import Profile from './components/pages/Profile.js'
 import NoPage from "./components/pages/NoPage";
 
 import RecipeSearch from "./components/RecipeSearch";
@@ -51,6 +52,7 @@ function App() {
 
           <Route path="/login" element={<LoginSignupMobile/>} />
 
+          <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
           <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false}/></ProtectedRoute>} />
 

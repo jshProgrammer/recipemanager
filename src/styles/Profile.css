@@ -1,0 +1,131 @@
+.profile-container {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+.profile-avatar {
+  margin-bottom: 1rem;
+}
+
+.profile-avatar i {
+  font-size: 4rem;
+  color: var(--green-accent-color);
+}
+
+.profile-name {
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-menu-item:hover {
+  background: #f8f9fa;
+  border-color: var(--green-accent-color);
+  text-decoration: none;
+  color: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--green-accent-color) 10%, transparent);
+  border-radius: 12px;
+  margin-right: 1rem;
+}
+
+.menu-item-icon i {
+  font-size: 1.5rem;
+  color: var(--green-accent-color);
+}
+
+.menu-item-content {
+  flex: 1;
+  text-align: left;
+}
+
+.menu-item-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.menu-item-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.menu-item-arrow {
+  color: #ccc;
+  font-size: 1.2rem;
+}
+
+.profile-menu-item:hover .menu-item-arrow {
+  color: var(--green-accent-color);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+  
+  .profile-header {
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profile-menu-item {
+    padding: 0.875rem;
+  }
+  
+  .menu-item-icon {
+    width: 44px;
+    height: 44px;
+    margin-right: 0.875rem;
+  }
+  
+  .menu-item-icon i {
+    font-size: 1.3rem;
+  }
+}
+
+/* Hide profile page completely on desktop */
+@media (min-width: 769px) {
+  .profile-container {
+    display: none !important;
+  }
+} 
