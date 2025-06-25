@@ -162,7 +162,19 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
                     backdropFilter: "blur(10px)",
                     borderTop: "1px solid rgba(255, 255, 255, 0.2)"
                     }}>
-                    <h5 className="card-title fw-bold">{title}</h5>
+                    <h5 className="card-title fw-bold position-relative"
+                        title={title}
+                        style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            lineHeight: '1.3',
+                            maxHeight: 'calc(1.3em * 2)'
+                        }}>
+                        {title}
+                    </h5>
                     <div className="d-flex align-items-center text-muted mb-2">
                         <i className="bi bi-clock me-2 green"></i>
                         <span>{time}</span>

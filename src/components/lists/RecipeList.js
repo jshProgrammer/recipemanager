@@ -32,7 +32,7 @@ export default function RecipeList({
                 ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
                 ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
                 ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-            ].slice(0, 4),
+            ].slice(0, 3),
             estimatedPrice: spoonacularRecipe.pricePerServing ?
                 Math.round(spoonacularRecipe.pricePerServing / 100 * spoonacularRecipe.servings) : null
         };
