@@ -7,12 +7,14 @@ function HealthScore({refreshKey}){
     const { user } = useAuth();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [healthScore, setHealthScore] = useState(null);
+    const [amountOfRecipesCooked, setAmountOfRecipesCooked] = useState(null);
 
     useEffect(() => {
         async function fetchHealthScore() {
         if (!user) return;
-        const score = await getUserHealthScore({ user });
+        const [score, amountOfRecipesCooked] = await getUserHealthScore({ user });
         setHealthScore(score);
+        setAmountOfRecipesCooked(amountOfRecipesCooked);
         }
         fetchHealthScore();
     }, [user, refreshKey]);
@@ -37,7 +39,7 @@ function HealthScore({refreshKey}){
                 {healthScore !== null ? healthScore : "..."}
             </button>
 
-            {isPopupOpen && <HealthScorePopup score={healthScore} onClose={() => setIsPopupOpen(false)}/>}
+            {isPopupOpen && <HealthScorePopup score={healthScore} amountOfRecipes={amountOfRecipesCooked} onClose={() => setIsPopupOpen(false)}/>}
         </div>
     )
 }

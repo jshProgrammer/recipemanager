@@ -188,7 +188,6 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
                         ))}
                     </div>
             </div>
-            {/* TODO: think about extracting confirm dialog */}
 
             <ConfirmationDialog
                 show={showDeleteConfirm}

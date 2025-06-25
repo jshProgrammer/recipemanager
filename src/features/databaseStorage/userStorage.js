@@ -28,9 +28,9 @@ export const getUserHealthScore = async ({ user }) => {
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     const data = docSnap.data();
-    return data.healthScore ?? null;
+    return [data.healthScore ?? null, data.amountOfRecipes ?? null]
   } else {
-    return null;
+    return [null, null];
   }
 };
 
