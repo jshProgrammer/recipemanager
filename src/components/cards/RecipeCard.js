@@ -5,6 +5,7 @@ import { deleteRecipe } from "../../features/databaseStorage/recipeStorage";
 import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favoriteRecipesStorage";
 import {useAuth} from "../../features/providers/AuthContext";
 import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
+import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
 
 function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estimatedPrice = null, collectionName = null}) {
     const { user } = useAuth();
@@ -188,42 +189,18 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
                     </div>
             </div>
             {/* TODO: think about extracting confirm dialog */}
-            {showDeleteConfirm && (
-                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Delete Recipe</h5>
-                            </div>
-                            <div className="modal-body">
-                                <p>Are you sure you want to delete "<strong>{title}</strong>"?</p>
-                                <p className="text-muted small">This action cannot be undone.</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button"
-                                    className="btn btn-secondary"
-                                    onClick={cancelDelete}
-                                    disabled={isDeleting}>
-                                    Cancel
-                                </button>
-                                <button type="button"
-                                    className="btn btn-danger"
-                                    onClick={confirmDelete}
-                                    disabled={isDeleting}>
-                                    {isDeleting ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                                            Deleting...
-                                        </>
-                                    ) : (
-                                        'Delete Recipe'
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+
+            <ConfirmationDialog
+                show={showDeleteConfirm}
+                title="Delete Recipe"
+                message={<>Are you sure you want to delete "<strong>{title}</strong>"?</>}
+                subMessage="This action cannot be undone."
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                confirmText="Delete Recipe"
+                isLoading={isDeleting}
+                loadingText="Deleting..."/>
+
 
             {showCollectionModal && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={(e) => e.stopPropagation()}>
@@ -258,8 +235,6 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
                     </div>
                 </div>
             )}
-
-
         </div>
     );
     }
