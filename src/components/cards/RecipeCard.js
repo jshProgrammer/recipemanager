@@ -107,7 +107,7 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
              onClick={() => navigate(
                  isEditable
                      ? `/collections/${encodeURIComponent(collectionName)}/${encodeURIComponent(id)}`
-                     : `/recipes/${encodeURIComponent(title)}`)}>
+                     : `/recipes/${encodeURIComponent(id)}`)}>
                 {hasImage ? (
                 <div
                     className="position-absolute top-0 start-0 w-100 h-100"

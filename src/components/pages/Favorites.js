@@ -82,7 +82,7 @@ const FavoritesSection = () => {
           {isLoading && <p>Loading your favorites...</p>}
           {error && <p className="text-danger">{error}</p>}
           {!isLoading && !error && favoriteRecipes.length === 0 && <p className="green">You do not have any recipes marked as favorite yet.</p>}
-          {!isLoading && !error && favoriteRecipes.length > 0 && <RecipeList recipes={favoriteRecipes} />}
+          {!isLoading && !error && favoriteRecipes.length > 0 && <RecipeList recipes={favoriteRecipes} transformToSpoonacular={true}/>}
         </div>
 
         <div className="d-flex align-items-center justify-content-between mb-4">

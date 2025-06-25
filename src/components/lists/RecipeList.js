@@ -10,7 +10,8 @@ export default function RecipeList({
     searchOptions = null,
     useRandomRecipes = false,
     numberOfRecipes = 10,
-    onRecipeClick = null
+    onRecipeClick = null,
+    transformToSpoonacular = false
 }) {
     const [apiRecipes, setApiRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -174,7 +175,7 @@ export default function RecipeList({
                         >
                             <RecipeCard
                                 id={recipe.id}
-                                {...(isOwnRecipe || useRandomRecipes ? recipe : transformSpoonacularRecipe(recipe))}
+                                {...(transformToSpoonacular ? transformSpoonacularRecipe(recipe) : recipe)}
                                 isEditable={isOwnRecipe}
                                 collectionName={collectionName}
                             />
@@ -183,7 +184,7 @@ export default function RecipeList({
 
                     <RecipeCard
                         id={recipe.id}
-                        {...(isOwnRecipe || useRandomRecipes  ? recipe : transformSpoonacularRecipe(recipe))}
+                        {...(transformToSpoonacular ? transformSpoonacularRecipe(recipe) : recipe)}
                         isEditable={isOwnRecipe}
                         collectionName={collectionName}
                     />
