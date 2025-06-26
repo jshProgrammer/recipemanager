@@ -7,6 +7,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import HealthScore from "./HealthScore";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
 import queryString from 'query-string';
+import useIsMobile from "./useIsMobile";
 
 
 const Header = () => {
@@ -19,6 +20,7 @@ const Header = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -118,28 +120,56 @@ const Header = () => {
                 <Link className="nav-link" to="/" onClick={() => setIsMenuOpen(false)}>Recipes</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/search" onClick={() => setIsMenuOpen(false)}>Search</Link>
+                <a
+                    href="#"
+                    className="nav-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMenuOpen(false);
+
+                      if (isMobile) {
+                        navigate("/search");
+                      } else {
+                        if (location.pathname === "/") {
+                          const el = document.getElementById("search-section");
+                          if (el) el.scrollIntoView({behavior: "smooth"});
+                        } else {
+
+                          navigate("/", {replace: false});
+
+                          setTimeout(() => {
+                            const el = document.getElementById("search-section");
+                            if (el) el.scrollIntoView({behavior: "smooth"});
+                          }, 500);
+                        }
+                      }
+                    }}
+                >
+                  Search
+                </a>
               </li>
+
               {isAuthenticated && (
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/favorites" onClick={() => setIsMenuOpen(false)}>Favorites</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/ownRecipes" onClick={() => setIsMenuOpen(false)}>Own Recipes</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/settings" onClick={() => setIsMenuOpen(false)}>Settings</Link>
-                  </li>
-                </>
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/favorites" onClick={() => setIsMenuOpen(false)}>Favorites</Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/ownRecipes" onClick={() => setIsMenuOpen(false)}>Own
+                        Recipes</Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/settings" onClick={() => setIsMenuOpen(false)}>Settings</Link>
+                    </li>
+                  </>
               )}
             </ul>
 
             <div className="d-lg-none w-100">
-              <hr className="my-2" />
+              <hr className="my-2"/>
             </div>
 
-            
+
             <div className="d-flex align-items-center">
               {!isAuthenticated ? (
                <a 

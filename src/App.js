@@ -24,9 +24,11 @@ import {
 } from './components/RouteWrappers.js';
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
-
+import useIsMobile from "./components/subcomponents/useIsMobile";
+import SearchPage from "./components/pages/SearchPage";
 
 function App() {
+  const isMobile = useIsMobile();
 
   return (
         <Router>
@@ -42,15 +44,25 @@ function App() {
                   <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
                   <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
 
-                  <div className="bgLightGreen p-4 rounded-4 mt-4">
-                    <RecipeSearch />
-                  </div>
+
+                  {!isMobile &&
+                      <div className="bgLightGreen p-4 rounded-4 mt-4" id="search-section">
+                        <RecipeSearch/>
+                      </div>
+                  }
+
                 </div>
               }/>
 
-          <Route path="/login" element={<LoginSignupMobile/>} />
+            <Route path="/search" element={
+              <div className="container mt-5">
+                <SearchPage/>
+              </div>
+            }/>
 
-          <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
+            <Route path="/login" element={<LoginSignupMobile/>}/>
+
+            <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
           <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false}/></ProtectedRoute>} />
 
           <Route path="/ownRecipes" element={
