@@ -5,6 +5,7 @@ import {useState} from "react";
 import { updateUserHealthScoreInDB } from "../../features/databaseStorage/userStorage";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
 import {useAuth} from "../../features/providers/AuthContext";
+import Breadcrumbs from "../subcomponents/Breadcrumbs";
 
 
 function RecipeDetail({ recipe }) {
@@ -26,6 +27,7 @@ function RecipeDetail({ recipe }) {
 
     return (
         <div className="container mt-5">
+            <Breadcrumbs overrideNames={{ [recipe.id]: recipe.title }}/>
 
             <div className="row">
                 <div className="col-md-6">
@@ -82,6 +84,8 @@ function RecipeDetail({ recipe }) {
                     <h4 className="text-success fw-bold">Nutritional Information</h4>
                     <KeyValueTable 
                     rows={Array.isArray(recipe.nutrition) ? recipe.nutrition : []}/>
+
+                    {/*TODO: implement the display of more nutritional information*/}
                     <small className="text-muted">Show more specified information ▼</small>
                 </div>
             </div>

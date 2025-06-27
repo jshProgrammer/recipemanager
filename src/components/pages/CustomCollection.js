@@ -7,6 +7,7 @@ import ErrorIndicator from "../subcomponents/ErrorIndicator";
 import {useAuth} from "../../features/providers/AuthContext";
 import {loadRecipesOfFavoritesCollection} from "../../features/databaseStorage/favoriteRecipesStorage";
 import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
+import Breadcrumbs from "../subcomponents/Breadcrumbs";
 
 const CustomCollection = ({collectionName, isOwnRecipes}) => {
     const { user } = useAuth();
@@ -105,7 +106,7 @@ const CustomCollection = ({collectionName, isOwnRecipes}) => {
                         onClick={() => setMessage(null)} aria-label="Close"></button>
                 </div>
             )}
-
+            <Breadcrumbs />
             <div className="d-flex align-items-center justify-content-between mb-4">
                 <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
 

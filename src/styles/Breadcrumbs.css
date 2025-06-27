@@ -1,0 +1,10 @@
+.breadcrumb-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+    color: #16a24a;
+    text-decoration: none;
+}
