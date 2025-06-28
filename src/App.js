@@ -80,7 +80,7 @@ function App() {
           <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
 
 
-          <Route path="/recipes/:recipeName"
+          <Route path="/recipes/:id"
             element={<RecipeDetailWrapper/>}/>
 
           <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />

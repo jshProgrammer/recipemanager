@@ -2,24 +2,23 @@ import React, { useState, useEffect } from "react";
 import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch, availableDiets, availableIntolerances } from "../features/spoonacular";
 import { Form, Button, Row, Col, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
-import RecipeDetail from "./pages/RecipeDetail";
+import { useNavigate } from "react-router-dom";
 
 function RecipeSearch() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
   
   const [selectedDiet, setSelectedDiet] = useState("");
   const [selectedIntolerances, setSelectedIntolerances] = useState("");
   const [maxPrice, setMaxPrice] = useState(""); //TODO: could be added to Fast Select?
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
-  //TODO:Details auch für random/auserhalb von Search
+
   const handleQueryChange = async (value) => {
     setQuery(value);
     
@@ -65,61 +64,11 @@ function RecipeSearch() {
     };
   };
 
-  const transformRecipeForDetail = (spoonacularRecipe) => {
-    return {
-      id: spoonacularRecipe.id,
-      title: spoonacularRecipe.title,
-      imageURL: spoonacularRecipe.image,
-      time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "30min",
-      price: spoonacularRecipe.pricePerServing ? 
-        `$${(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)).toFixed(2)}` : "$2.49",
-      tags: [
-        ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-        ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-        ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-        ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-        ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-        ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-        ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-        "Recommended"
-      ],
-      healthScore: spoonacularRecipe.healthScore,
-      ingredients: spoonacularRecipe.extendedIngredients?.map(ing => ({
-        amount: `${ing.amount} ${ing.unit}`,
-        name: ing.name
-      })) || [{ amount: "N/A", name: "Ingredients not available" }],
-      //TODO: zeigt nix an
-      nutrition: spoonacularRecipe.nutrition?.nutrients?.slice(0, 5).map(nutrient => ({
-        key: nutrient.name,
-        value: `${nutrient.amount}${nutrient.unit}`
-      })) || [],
-      steps: spoonacularRecipe.analyzedInstructions?.[0]?.steps?.map(step => ({
-        description: step.step,
-        imageURL: null
-      })) || []
-    };
+  const handleRecipeClick = (recipeId) => {
+    navigate(`/recipes/${recipeId}`);
   };
-
-  const handleRecipeClick = async (recipeId) => {
-    try {
-      const detailedRecipe = await getRecipeInformation(recipeId);
-      const transformedRecipe = transformRecipeForDetail(detailedRecipe);
-      setSelectedRecipe(transformedRecipe);
-      setShowDetailModal(true);
-    } catch (err) {
-      console.error("Error loading recipe details:", err);
-      alert("Error loading recipe details: " + err.message);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setShowDetailModal(false);
-    setSelectedRecipe(null);
-  };
-
 
   const handleSearch = async () => {
-    setSelectedRecipe(null);
     setIsLoading(true);
     setHasSearched(true);
     
@@ -141,26 +90,26 @@ function RecipeSearch() {
 
       const data = await searchRecipesAdvanced(searchOptions);
       const recipesWithDetails = await Promise.all(
-      data.results.map(async (recipe) => {
-        try {
-          const detailedRecipe = await getRecipeInformation(recipe.id);
-          return transformRecipeForCard(detailedRecipe);
-        } catch (err) {
-          console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
-          return transformRecipeForCard(recipe);
-        }
-      })
-    );
-    
-    setResults(recipesWithDetails);
-    setShowAutocomplete(false);
-  } catch (err) {
-    console.error("Search error:", err);
-    alert("Error searching recipes: " + err.message);
-    setResults([]);
-  } finally {
-    setIsLoading(false);
-  }
+        data.results.map(async (recipe) => {
+          try {
+            const detailedRecipe = await getRecipeInformation(recipe.id);
+            return transformRecipeForCard(detailedRecipe);
+          } catch (err) {
+            console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
+            return transformRecipeForCard(recipe);
+          }
+        })
+      );
+      
+      setResults(recipesWithDetails);
+      setShowAutocomplete(false);
+    } catch (err) {
+      console.error("Search error:", err);
+      alert("Error searching recipes: " + err.message);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleTagClick = (tag) => {
@@ -353,30 +302,6 @@ function RecipeSearch() {
           )}
         </div>
       )}
-      {showDetailModal && selectedRecipe && (
-        <div 
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
-          onClick={handleCloseModal}
-        >
-          <div 
-            className="bg-white rounded" 
-            style={{ 
-              maxWidth: '90vw', 
-              maxHeight: '90vh', 
-              overflowY: 'auto',
-              width: '100%'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="d-flex justify-content-end p-3 border-bottom">
-              <Button variant="close" onClick={handleCloseModal}></Button>
-            </div>
-            <RecipeDetail recipe={selectedRecipe} />
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

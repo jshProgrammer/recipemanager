@@ -20,9 +20,8 @@ export function CreateEditOwnRecipeWrapper() {
 }
 
 export function RecipeDetailWrapper() {
-  const { recipeName } = useParams();
-  //TODO: replace with spoonacular data
-  const recipe = detailedRecipes.find(r => r.title === recipeName);
+  const { id } = useParams(); 
+  const recipe = detailedRecipes.find(r => r.id === parseInt(id)); 
   return <RecipeDetail recipe={recipe} />;
 }
 
