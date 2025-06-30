@@ -3,6 +3,9 @@ import RecipeCard from "../cards/RecipeCard";
 import { Link } from "react-router-dom";
 import { getRandomRecipes, searchRecipesAdvanced } from "../../features/spoonacular";
 
+let globalRandomRecipesCache = null;
+let globalRandomRecipesLoaded = false;
+
 export default function RecipeList({
     recipes = null,
     collectionName = null,
@@ -38,8 +41,13 @@ export default function RecipeList({
         };
     };
 
-    const fetchRecipes = async () => {
+    const fetchRecipes = async (forceRefresh = false) => {
         if (recipes) return;
+
+        if (useRandomRecipes && globalRandomRecipesLoaded && !forceRefresh) {
+            setApiRecipes(globalRandomRecipesCache || []);
+            return;
+        }
 
         setLoading(true);
         setError(null);
@@ -51,7 +59,10 @@ export default function RecipeList({
                 response = await getRandomRecipes({
                     number: numberOfRecipes
                 });
-                setApiRecipes(response.recipes.map(transformSpoonacularRecipe));
+                const transformedRecipes = response.recipes.map(transformSpoonacularRecipe);
+                setApiRecipes(transformedRecipes);
+                globalRandomRecipesCache = transformedRecipes;
+                globalRandomRecipesLoaded = true;
             } else if (searchOptions) {
                 response = await searchRecipesAdvanced({
                     ...searchOptions,
@@ -113,6 +124,7 @@ export default function RecipeList({
 
                 setApiRecipes(recipesWithDetails);
             }
+           
         } catch (err) {
             console.error("Error fetching recipes:", err);
             setError("Failed to load recipes. Please try again later.");
@@ -121,8 +133,20 @@ export default function RecipeList({
         }
     };
 
+     const handleRefreshRecipes = () => {
+        if (useRandomRecipes) {
+            globalRandomRecipesLoaded = false;
+            globalRandomRecipesCache = null;
+        }
+        fetchRecipes(true);
+    };
+
     useEffect(() => {
-        fetchRecipes();
+        if (!useRandomRecipes) {
+            fetchRecipes();
+        } else {
+            fetchRecipes();
+        }
     }, [searchOptions, useRandomRecipes, numberOfRecipes]);
 
     const displayRecipes = recipes || apiRecipes;
@@ -165,6 +189,20 @@ export default function RecipeList({
     }
 
     return (
+         <div>
+            {useRandomRecipes && (
+                <div className="d-flex justify-content-center mb-4">
+                    <button
+                        className="btn btn-outline-success"
+                        onClick={handleRefreshRecipes}
+                        disabled={loading}
+                    >
+                        <i className="bi bi-arrow-clockwise me-2"></i>
+                        Refresh Recipes
+                    </button>
+                </div>
+            )}
+
         <div className="d-flex flex-wrap gap-4 justify-content-center">
             {displayRecipes.map((recipe, index) => (
                 <div key={recipe.id || index}>
@@ -192,6 +230,7 @@ export default function RecipeList({
                     )}
                 </div>
             ))}
+        </div>
         </div>
     );
 }
