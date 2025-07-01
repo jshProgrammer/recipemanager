@@ -51,6 +51,7 @@ const Header = () => {
     const query = queryString.parse(location.search);
     if (query.login === 'true') {
       setIsPopupOpen(true);
+      setShowLogoutConfirm(false);
 
       const newSearch = new URLSearchParams(location.search);
       newSearch.delete('login');
