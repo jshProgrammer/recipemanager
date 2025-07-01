@@ -45,7 +45,7 @@ export default function OwnRecipes() {
     
     return (
         <div className="main-content">
-            <div className="d-flex align-items-center justify-content-between mb-4">
+            <div className="d-none d-sm-flex align-items-center justify-content-between mb-4">
                 <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
                 <div className="d-flex gap-4">
                 <button className="btn backgroundGreen d-flex align-items-center" onClick={(e) => {
@@ -63,6 +63,27 @@ export default function OwnRecipes() {
                     <i className="bi bi-collection me-2"></i>
                     New collection
                 </button>
+                </div>
+            </div>
+
+            <div className="d-sm-none mb-4">
+                <h2 className="green mb-3 fw-bold mt-5 text-center">Your personal recipes</h2>
+                <div className="d-flex flex-column gap-3 align-items-center">
+                    <button className="btn backgroundGreen d-flex align-items-center justify-content-center" style={{width: "300px"}} onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/own-recipes/create`)
+                    }}>
+                        <i className="bi bi-book me-2"></i>
+                        New recipe
+                    </button>
+
+                    <button className="btn backgroundGreen d-flex align-items-center justify-content-center" style={{width: "300px"}} onClick={(e) => {
+                        e.preventDefault();
+                        switchPopupVisibility();
+                    }}>
+                        <i className="bi bi-collection me-2"></i>
+                        New collection
+                    </button>
                 </div>
             </div>
 

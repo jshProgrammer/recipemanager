@@ -29,7 +29,7 @@ const AddNewCollectionPopup = ({isOpen, isOwnRecipe, onClose,  setParentMessage,
             onClose();
         }
         };
-        
+
         document.addEventListener('keydown', handleEsc);
             return () => {
             document.removeEventListener('keydown', handleEsc);
@@ -74,37 +74,25 @@ const AddNewCollectionPopup = ({isOpen, isOwnRecipe, onClose,  setParentMessage,
         }
         setIsLoading(false);
     }
-    
+
     if (!isOpen) return null;
 
     return (
-      
-     <div
-      className="position-fixed h-100 w-100 d-flex align-items-center justify-content-end"
-      style={{
-        zIndex: 9999,
-        top: 0,
-        left: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      }}
+
+     <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center justify-content-md-end p-3"
+         style={{
+             zIndex: 9999,
+             backgroundColor: 'rgba(0, 0, 0, 0.5)',
+         }}
       onClick={handleBackdropClick}>
-        
-        <div className="bg-white rounded-5 shadow-lg position-relative"
-        style={{
-          zIndex: 10000,
-          maxWidth: '400px',
-          width: '100%',
-          marginRight: "50px",
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-          borderTopLeftRadius: '2rem',
-          borderBottomLeftRadius: '2rem',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}
-        onClick={e => e.stopPropagation()}>
+
+        <div className="bg-white rounded-5 shadow-lg position-relative w-100 me-lg-5"
+             style={{
+                 maxWidth: '400px',
+                 borderRadius: '2rem',
+                 overflowY: 'auto',
+             }}
+            onClick={e => e.stopPropagation()}>
             <div className="p-4 d-flex flex-column align-items-center justify-content-center">
                 <h2 className="green">Add new collection</h2>
 
