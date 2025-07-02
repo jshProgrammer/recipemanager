@@ -6,12 +6,14 @@ import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Header from './components/subcomponents/Header.js';
+import MobileTabBar from './components/subcomponents/MobileTabBar.js';
 import RecipeList from "./components/lists/RecipeList.js";
 import IntroSection from "./components/subcomponents/IntroSection.js";
 import LoginSignupMobile from "./components/pages/LoginSignUpMobile.js"
 import Settings from './components/pages/Settings.js'
 import OwnRecipes from './components/pages/OwnRecipes.js';
 import Favorites from './components/pages/Favorites.js'
+import Profile from './components/pages/Profile.js'
 import NoPage from "./components/pages/NoPage";
 
 import RecipeSearch from "./components/RecipeSearch";
@@ -62,7 +64,9 @@ function App() {
 
             <Route path="/login" element={<LoginSignupMobile/>}/>
 
-            <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
+
+          <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
           <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false}/></ProtectedRoute>} />
 
           <Route path="/ownRecipes" element={
@@ -95,6 +99,7 @@ function App() {
           </footer>
 
         </div>
+        <MobileTabBar />
       </Router>
   );
 }

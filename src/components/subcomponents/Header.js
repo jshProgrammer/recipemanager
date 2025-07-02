@@ -186,6 +186,12 @@ const Header = () => {
               ) : (
                 <div className="d-flex align-items-center gap-3">
                   <HealthScore refreshKey={refreshKey} />
+                  <Link 
+                    to="/profile"
+                    className="btn borderGreen">
+                    <i className="bi bi-person-circle" style={{ fontSize: '1rem', marginRight: 5 }}></i>
+                    Profile
+                  </Link>
                   <button 
                     onClick={confirmLogout}
                     className="btn borderGreen">
