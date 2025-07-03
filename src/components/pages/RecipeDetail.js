@@ -7,7 +7,7 @@ import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefre
 import {useAuth} from "../../features/providers/AuthContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 import { useParams } from "react-router-dom";
-import { getRecipeInformation } from "../../features/spoonacular";
+import { getRecipeInformation, getRecipeEquipment } from "../../features/spoonacular";
 
 function RecipeDetail({ recipe: propRecipe }) {
     const { user } = useAuth();
@@ -16,6 +16,9 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [recipe, setRecipe] = useState(propRecipe);
     const [isLoading, setIsLoading] = useState(!propRecipe);
     const [error, setError] = useState(null);
+    const [equipment, setEquipment] = useState([]);
+    const [equipmentLoading, setEquipmentLoading] = useState(false);
+    const [equipmentError, setEquipmentError] = useState(null);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -85,6 +88,32 @@ function RecipeDetail({ recipe: propRecipe }) {
 
         loadRecipe();
     }, [id, propRecipe]);
+
+    // Load equipment data
+    useEffect(() => {
+        const loadEquipment = async () => {
+            if (!recipe?.id) return;
+
+            setEquipmentLoading(true);
+            setEquipmentError(null);
+
+            try {
+                const equipmentData = await getRecipeEquipment(recipe.id);
+                if (equipmentData.equipment) {
+                    setEquipment(equipmentData.equipment);
+                }
+            } catch (err) {
+                console.error("Error loading equipment:", err);
+                setEquipmentError("Failed to load equipment information");
+            } finally {
+                setEquipmentLoading(false);
+            }
+        };
+
+        loadEquipment();
+    }, [recipe?.id]);
+
+
 
     const updateHealthScore = async () => {
         if (!user || !recipe?.healthScore) return;
@@ -219,6 +248,77 @@ function RecipeDetail({ recipe: propRecipe }) {
                     <small className="text-muted">Show more specified information ▼</small>
                 </div>
             </div>
+
+            {/* Equipment Section */}
+            {(equipment.length > 0 || equipmentLoading) && (
+                <div className="row mt-4">
+                    <div className="col-12">
+                        <h4 className="text-success fw-bold">Equipment</h4>
+                        {equipmentLoading ? (
+                            <div className="d-flex justify-content-center py-3">
+                                <div className="spinner-border spinner-border-sm text-success" role="status">
+                                    <span className="visually-hidden">Loading equipment...</span>
+                                </div>
+                            </div>
+                        ) : equipmentError ? (
+                            <div className="alert alert-warning" role="alert">
+                                <i className="bi bi-exclamation-triangle me-2"></i>
+                                {equipmentError}
+                            </div>
+                        ) : (
+                            <div className="equipment-scroll-container" style={{
+                                overflowX: 'auto',
+                                whiteSpace: 'nowrap',
+                                padding: '10px 0',
+                                border: '1px solid #dee2e6',
+                                borderRadius: '0.375rem',
+                                backgroundColor: '#f8f9fa'
+                            }}>
+                                <div className="d-flex gap-2" style={{ minWidth: 'max-content' }}>
+                                    {equipment.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="equipment-item px-3 py-2 rounded border bg-light text-muted"
+                                            style={{
+                                                minWidth: '140px',
+                                                textAlign: 'center',
+                                                fontSize: '0.9rem',
+                                                fontWeight: '500',
+                                                cursor: 'default',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: '8px'
+                                            }}
+                                            title={item.name}
+                                        >
+                                            {item.image && (
+                                                <img 
+                                                    src={`https://spoonacular.com/cdn/equipment_100x100/${item.image}`}
+                                                    alt={item.name}
+                                                    style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        objectFit: 'contain'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            )}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <i className="bi bi-tools"></i>
+                                                <span>{item.name}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+            )}
 
             {recipe.summary && (
                 <div className="row mt-4">

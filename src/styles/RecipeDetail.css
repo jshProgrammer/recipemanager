@@ -22,3 +22,36 @@
 .tag-text {
     color: #504c56;
 }
+
+/* Equipment Scroll Container Styles */
+.equipment-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #16a24a #f8f9fa;
+}
+
+.equipment-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.equipment-scroll-container::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.equipment-scroll-container::-webkit-scrollbar-thumb {
+    background: #16a24a;
+    border-radius: 4px;
+}
+
+.equipment-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #138a3d;
+}
+
+.equipment-item {
+    transition: all 0.2s ease-in-out;
+}
+
+.equipment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}

@@ -39,31 +39,33 @@ export default function Settings() {
 
     const equipmentList = [
         'skimmer', 'pie form', 'glass baking pan', 'garlic press', 'meat grinder', 'tongs',
-        'tajine pot', 'wire rack', 'mincing knife', 'cherry pitter', 'wooden skewers',
+        'bread knife', 'tajine pot', 'wire rack', 'mincing knife', 'cherry pitter', 'wooden skewers',
         'kitchen scissors', 'blow torch', 'broiler pan', 'heart shaped silicone form',
-        'grill', 'immersion blender', 'oven mitt', 'pastry bag', 'palette knife',
-        'pizza cutter', 'bottle opener', 'pizza pan', 'candy thermometer', 'rolling pin',
-        'casserole dish', 'broiler', 'silicone muffin tray', 'meat tenderizer',
-        'edible cake image', 'sifter', 'muffin tray', 'chocolate mold', 'potato ricer',
-        'silicone kugelhopf pan', 'offset spatula', 'cheesecloth', 'lemon squeezer',
-        'cake form', 'mini muffin tray', 'carving fork', 'egg slicer', 'ice cube tray',
-        'corkscrew', 'ice cream machine', 'sieve', 'kugelhopf pan', 'pastry brush',
-        'popsicle sticks', 'spatula', 'cake server', 'poultry shears', 'box grater',
-        'cupcake toppers', 'funnel', 'slotted spoon', 'ceramic pie form', 'pepper grinder',
-        'mortar and pestle', 'baster', 'melon baller', 'zester', 'pastry cutter',
-        'apple cutter', 'fillet knife', 'toaster', 'heart shaped cake form', 'grill pan',
-        'cookie cutter', 'tart form', 'pizza board', 'madeleine form', 'metal skewers',
-        'microplane', 'stand mixer', 'whisk', 'deep fryer', 'canning jar', 'hand mixer',
-        'butter curler', 'food processor', 'grater', 'gravy boat', 'waffle iron',
-        'double boiler', 'can opener', 'mandoline', 'juicer', 'wok', 'ramekin',
-        'airfryer', 'instant pot', 'dough scraper', 'microwave', 'roasting pan',
-        'pressure cooker', 'dehydrator', 'silicone muffin liners', 'loaf pan',
-        'cake topper', 'dutch oven', 'baking spatula', 'popsicle molds', 'teapot',
-        'cleaver', 'rice cooker', 'bread machine', 'ice cream scoop', 'slow cooker',
-        'frosting cake topper', 'cake pop mold', 'panini press', 'pasta machine',
-        'popcorn maker', 'lollipop sticks', 'steamer basket', 'chopsticks', 'pizza stone',
-        'skewers', 'sauce pan', 'peeler', 'springform pan', 'apple corer',
-        'potato masher', 'oven'
+        'grill', 'immersion blender', 'baking sheet', 'oven mitt', 'pastry bag', 'palette knife',
+        'pizza cutter', 'bottle opener', 'bowl', 'pizza pan', 'candy thermometer', 'rolling pin',
+        'frying pan', 'casserole dish', 'plastic wrap', 'salad spinner', 'broiler', 'silicone muffin tray',
+        'meat tenderizer', 'edible cake image', 'measuring spoon', 'kitchen thermometer', 'sifter',
+        'muffin tray', 'chocolate mold', 'kitchen towels', 'potato ricer', 'silicone kugelhopf pan',
+        'offset spatula', 'cheesecloth', 'lemon squeezer', 'cake form', 'mini muffin tray',
+        'carving fork', 'egg slicer', 'ice cube tray', 'corkscrew', 'ice cream machine', 'sieve',
+        'kugelhopf pan', 'pastry brush', 'popsicle sticks', 'spatula', 'cake server', 'poultry shears',
+        'box grater', 'cupcake toppers', 'funnel', 'drinking straws', 'slotted spoon', 'ceramic pie form',
+        'pepper grinder', 'mortar and pestle', 'baster', 'melon baller', 'zester', 'pastry cutter',
+        'ziploc bags', 'aluminum foil', 'toothpicks', 'pot', 'baking pan', 'ladle', 'apple cutter',
+        'fillet knife', 'toaster', 'heart shaped cake form', 'grill pan', 'wooden spoon', 'paper towels',
+        'cookie cutter', 'tart form', 'pizza board', 'glass casserole dish', 'madeleine form',
+        'metal skewers', 'microplane', 'stand mixer', 'whisk', 'mixing bowl', 'deep fryer', 'canning jar',
+        'cheese knife', 'hand mixer', 'butter curler', 'food processor', 'wax paper', 'grater',
+        'gravy boat', 'muffin liners', 'butter knife', 'waffle iron', 'double boiler', 'can opener',
+        'mandoline', 'kitchen twine', 'juicer', 'wok', 'measuring cup', 'ramekin', 'airfryer',
+        'instant pot', 'spoon', 'dough scraper', 'microwave', 'roasting pan', 'pressure cooker',
+        'dehydrator', 'baking paper', 'silicone muffin liners', 'loaf pan', 'cake topper', 'dutch oven',
+        'baking spatula', 'popsicle molds', 'teapot', 'cocktail sticks', 'cleaver', 'rice cooker',
+        'bread machine', 'fork', 'ice cream scoop', 'slow cooker', 'knife', 'kitchen scale', 'griddle',
+        'frosting cake topper', 'cutting board', 'cake pop mold', 'oven', 'colander', 'kitchen timer',
+        'panini press', 'pasta machine', 'popcorn maker', 'lollipop sticks', 'steamer basket',
+        'chopsticks', 'chefs knife', 'blender', 'pizza stone', 'skewers', 'sauce pan', 'peeler',
+        'stove', 'pot holder', 'springform pan', 'apple corer', 'potato masher', 'serrated knife'
     ];
 
     const [settings, setSettings] = useState(null);
@@ -89,11 +91,9 @@ export default function Settings() {
             chocolateSensitivity: settings.chocolateSensitivity || false,
             });
 
-            // Initialize equipment state - if no equipment map exists, enable all checkboxes
             if (settings.equipment) {
                 setEquipmentState(settings.equipment);
             } else {
-                // If no equipment map exists, enable all equipment by default
                 const defaultEquipmentState = {};
                 equipmentList.forEach(equipment => {
                     defaultEquipmentState[equipment] = true;
@@ -101,7 +101,6 @@ export default function Settings() {
                 setEquipmentState(defaultEquipmentState);
             }
         } else if (!loading) {
-            // If no settings exist and loading is finished, enable all equipment by default
             const defaultEquipmentState = {};
             equipmentList.forEach(equipment => {
                 defaultEquipmentState[equipment] = true;
