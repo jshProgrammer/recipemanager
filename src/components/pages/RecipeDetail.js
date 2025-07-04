@@ -17,6 +17,7 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [isLoading, setIsLoading] = useState(!propRecipe);
     const [error, setError] = useState(null);
     const [showMore, setShowMore] = useState(false);
+    const [isShowMoreSteps, setIsShowMoreSteps] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -41,10 +42,7 @@ function RecipeDetail({ recipe: propRecipe }) {
                 amount: `${ing.amount} ${ing.unit}`,
                 name: ing.name
             })) || [{ amount: "N/A", name: "Ingredients not available" }],
-            nutrition: spoonacularRecipe.nutrition?.nutrients?.slice(0, 5).map(nutrient => ({
-                key: nutrient.name,
-                value: `${nutrient.amount}${nutrient.unit}`
-            })) || [],
+            nutrition: spoonacularRecipe.nutrition || { main: [], more: [] },
             steps: spoonacularRecipe.analyzedInstructions?.[0]?.steps?.map(step => ({
                 description: step.step,
                 imageURL: null
@@ -76,13 +74,31 @@ function RecipeDetail({ recipe: propRecipe }) {
                 const spoonacularRecipe = await getRecipeInformation(id);
                 const nutritionData = await getRecipeNutrition(id);
 
+                const mainNutrients = [
+                    { name: "Calories", amount: parseFloat(nutritionData.calories), unit: "kcal" },
+                    { name: "Carbs", amount: parseFloat(nutritionData.carbs), unit: "g" },
+                    { name: "Fat", amount: parseFloat(nutritionData.fat), unit: "g" },
+                    { name: "Protein", amount: parseFloat(nutritionData.protein), unit: "g" },
+                ];
+
+                const moreNutrients = [
+                    ...(nutritionData.bad || []),
+                    ...(nutritionData.good || [])
+                ].map(n => ({
+                    name: n.title,
+                    amount: n.amount,
+                    daily: n.percentOfDailyNeeds
+                }));
+
                 spoonacularRecipe.nutrition = {
-                    nutrients: [
-                        { name: "Calories", amount: parseFloat(nutritionData.calories), unit: "kcal" },
-                        { name: "Carbs", amount: parseFloat(nutritionData.carbs), unit: "g" },
-                        { name: "Fat", amount: parseFloat(nutritionData.fat), unit: "g" },
-                        { name: "Protein", amount: parseFloat(nutritionData.protein), unit: "g" }
-                    ]
+                    main: mainNutrients.map(n => ({
+                        key: n.name,
+                        value: `${n.amount}${n.unit}`
+                    })),
+                    more: moreNutrients.map(n => ({
+                        key: n.name,
+                        value: `${n.amount} (${n.daily}% daily)`
+                    }))
                 }
 
                 const transformedRecipe = transformRecipeForDetail(spoonacularRecipe);
@@ -144,6 +160,10 @@ function RecipeDetail({ recipe: propRecipe }) {
                 </div>
             </div>
         );
+    }
+
+    function showMoreSteps() {
+        setIsShowMoreSteps(!isShowMoreSteps);
     }
 
     return (
@@ -225,21 +245,26 @@ function RecipeDetail({ recipe: propRecipe }) {
                 </div>
                 <div className="col-md-6">
                     <h4 className="text-success fw-bold">Nutritional Information</h4>
-                    {recipe.nutrition && (
+                    {recipe.nutrition?.main?.length > 0 && (
                         <>
-                            {showMore && (
-                                <KeyValueTable
-                                    rows={Array.isArray(recipe.nutrition) ? recipe.nutrition : []}
-                                />
+                            <KeyValueTable
+                                rows={[
+                                    ...recipe.nutrition.main,
+                                    ...(showMore ? recipe.nutrition.more : [])
+                                ]}
+                            />
+
+                            {recipe.nutrition.more?.length > 0 && (
+                                <button
+                                    className="border-0 bg-transparent"
+                                    onClick={() => setShowMore(!showMore)}
+                                >
+                                    {showMore ? 'Hide additional information ▲' : 'Show more specified information ▼'}
+                                </button>
                             )}
-                            <button
-                                className="border-0 bg-transparent"
-                                onClick={() => setShowMore(!showMore)}
-                            >
-                                {showMore ? 'Hide information ▲' : 'Show more specified information ▼'}
-                            </button>
                         </>
                     )}
+
                 </div>
             </div>
 
@@ -260,7 +285,7 @@ function RecipeDetail({ recipe: propRecipe }) {
             {recipe.steps && recipe.steps.length > 0 && (
                 <div className="mt-5">
                     <h4 className="text-green fw-bold">Step-by-Step Guide</h4>
-                    {recipe.steps.map((step, i) => (
+                    {(isShowMoreSteps? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
                         <RecipeStep
                             key={i}
                             stepNumber={i + 1}
@@ -268,6 +293,14 @@ function RecipeDetail({ recipe: propRecipe }) {
                             imageURL={step.imageURL}
                         />
                     ))}
+                    {recipe.steps.length > 2 && (
+                        <button
+                            className="text-green-hover btn p-0"
+                            onClick={showMoreSteps}
+                        >
+                            {isShowMoreSteps ? "show less steps..." : "show more steps..."}
+                        </button>
+                    )}
                 </div>
             )}
         </div>
