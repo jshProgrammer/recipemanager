@@ -7,7 +7,7 @@ import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefre
 import {useAuth} from "../../features/providers/AuthContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 import { useParams } from "react-router-dom";
-import { getRecipeInformation } from "../../features/spoonacular";
+import {getRecipeInformation, getRecipeNutrition} from "../../features/spoonacular";
 
 function RecipeDetail({ recipe: propRecipe }) {
     const { user } = useAuth();
@@ -16,6 +16,7 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [recipe, setRecipe] = useState(propRecipe);
     const [isLoading, setIsLoading] = useState(!propRecipe);
     const [error, setError] = useState(null);
+    const [showMore, setShowMore] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -73,6 +74,17 @@ function RecipeDetail({ recipe: propRecipe }) {
 
             try {
                 const spoonacularRecipe = await getRecipeInformation(id);
+                const nutritionData = await getRecipeNutrition(id);
+
+                spoonacularRecipe.nutrition = {
+                    nutrients: [
+                        { name: "Calories", amount: parseFloat(nutritionData.calories), unit: "kcal" },
+                        { name: "Carbs", amount: parseFloat(nutritionData.carbs), unit: "g" },
+                        { name: "Fat", amount: parseFloat(nutritionData.fat), unit: "g" },
+                        { name: "Protein", amount: parseFloat(nutritionData.protein), unit: "g" }
+                    ]
+                }
+
                 const transformedRecipe = transformRecipeForDetail(spoonacularRecipe);
                 setRecipe(transformedRecipe);
             } catch (err) {
@@ -213,10 +225,21 @@ function RecipeDetail({ recipe: propRecipe }) {
                 </div>
                 <div className="col-md-6">
                     <h4 className="text-success fw-bold">Nutritional Information</h4>
-                    <KeyValueTable 
-                        rows={Array.isArray(recipe.nutrition) ? recipe.nutrition : []}
-                    />
-                    <small className="text-muted">Show more specified information ▼</small>
+                    {recipe.nutrition && (
+                        <>
+                            {showMore && (
+                                <KeyValueTable
+                                    rows={Array.isArray(recipe.nutrition) ? recipe.nutrition : []}
+                                />
+                            )}
+                            <button
+                                className="border-0 bg-transparent"
+                                onClick={() => setShowMore(!showMore)}
+                            >
+                                {showMore ? 'Hide information ▲' : 'Show more specified information ▼'}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -224,7 +247,7 @@ function RecipeDetail({ recipe: propRecipe }) {
                 <div className="row mt-4">
                     <div className="col-12">
                         <h4 className="text-success fw-bold">Description</h4>
-                        <div 
+                        <div
                             className="text-muted"
                             dangerouslySetInnerHTML={{ 
                                 __html: recipe.summary.replace(/<[^>]*>/g, '') 
