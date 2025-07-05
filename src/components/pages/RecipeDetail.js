@@ -17,7 +17,6 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [isLoading, setIsLoading] = useState(!propRecipe);
     const [error, setError] = useState(null);
     const [showMore, setShowMore] = useState(false);
-    const [isShowMoreSteps, setIsShowMoreSteps] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -162,10 +161,6 @@ function RecipeDetail({ recipe: propRecipe }) {
         );
     }
 
-    function showMoreSteps() {
-        setIsShowMoreSteps(!isShowMoreSteps);
-    }
-
     return (
         <div className="container mt-5">
             <Breadcrumbs overrideNames={{ [recipe.id]: recipe.title }}/>
@@ -285,7 +280,7 @@ function RecipeDetail({ recipe: propRecipe }) {
             {recipe.steps && recipe.steps.length > 0 && (
                 <div className="mt-5">
                     <h4 className="text-green fw-bold">Step-by-Step Guide</h4>
-                    {(isShowMoreSteps? recipe.steps : recipe.steps.slice(0, 2)).map((step, i) => (
+                    {recipe.steps.map((step, i) => (
                         <RecipeStep
                             key={i}
                             stepNumber={i + 1}
@@ -293,14 +288,7 @@ function RecipeDetail({ recipe: propRecipe }) {
                             imageURL={step.imageURL}
                         />
                     ))}
-                    {recipe.steps.length > 2 && (
-                        <button
-                            className="text-green-hover btn p-0"
-                            onClick={showMoreSteps}
-                        >
-                            {isShowMoreSteps ? "show less steps..." : "show more steps..."}
-                        </button>
-                    )}
+
                 </div>
             )}
         </div>
