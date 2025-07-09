@@ -17,6 +17,7 @@ export default function Settings() {
         chocolateSensitivity: false,
     });
 
+    const [equipmentState, setEquipmentState] = useState({});
     const [loading, setLoading] = useState(true);
     const [storeMessage, setStoreMessage] = useState(null);
     const [storeMessageType, setStoreMessageType] = useState(null);
@@ -34,6 +35,37 @@ export default function Settings() {
         { id: 'caffeineSensitivity', value: 'caffeineSensitivity', label: 'Caffeine Sensitivity'},
         { id: 'eggIntolerance', value: 'eggIntolerance', label: 'Egg Intolerance'},
         { id: 'chocolateSensitivity', value: 'chocolateSensitivity', label: 'Chocolate Sensitivity'},
+    ];
+
+    const equipmentList = [
+        'skimmer', 'pie form', 'glass baking pan', 'garlic press', 'meat grinder', 'tongs',
+        'bread knife', 'tajine pot', 'wire rack', 'mincing knife', 'cherry pitter', 'wooden skewers',
+        'kitchen scissors', 'blow torch', 'broiler pan', 'heart shaped silicone form',
+        'grill', 'immersion blender', 'baking sheet', 'oven mitt', 'pastry bag', 'palette knife',
+        'pizza cutter', 'bottle opener', 'bowl', 'pizza pan', 'candy thermometer', 'rolling pin',
+        'frying pan', 'casserole dish', 'plastic wrap', 'salad spinner', 'broiler', 'silicone muffin tray',
+        'meat tenderizer', 'edible cake image', 'measuring spoon', 'kitchen thermometer', 'sifter',
+        'muffin tray', 'chocolate mold', 'kitchen towels', 'potato ricer', 'silicone kugelhopf pan',
+        'offset spatula', 'cheesecloth', 'lemon squeezer', 'cake form', 'mini muffin tray',
+        'carving fork', 'egg slicer', 'ice cube tray', 'corkscrew', 'ice cream machine', 'sieve',
+        'kugelhopf pan', 'pastry brush', 'popsicle sticks', 'spatula', 'cake server', 'poultry shears',
+        'box grater', 'cupcake toppers', 'funnel', 'drinking straws', 'slotted spoon', 'ceramic pie form',
+        'pepper grinder', 'mortar and pestle', 'baster', 'melon baller', 'zester', 'pastry cutter',
+        'ziploc bags', 'aluminum foil', 'toothpicks', 'pot', 'baking pan', 'ladle', 'apple cutter',
+        'fillet knife', 'toaster', 'heart shaped cake form', 'grill pan', 'wooden spoon', 'paper towels',
+        'cookie cutter', 'tart form', 'pizza board', 'glass casserole dish', 'madeleine form',
+        'metal skewers', 'microplane', 'stand mixer', 'whisk', 'mixing bowl', 'deep fryer', 'canning jar',
+        'cheese knife', 'hand mixer', 'butter curler', 'food processor', 'wax paper', 'grater',
+        'gravy boat', 'muffin liners', 'butter knife', 'waffle iron', 'double boiler', 'can opener',
+        'mandoline', 'kitchen twine', 'juicer', 'wok', 'measuring cup', 'ramekin', 'airfryer',
+        'instant pot', 'spoon', 'dough scraper', 'microwave', 'roasting pan', 'pressure cooker',
+        'dehydrator', 'baking paper', 'silicone muffin liners', 'loaf pan', 'cake topper', 'dutch oven',
+        'baking spatula', 'popsicle molds', 'teapot', 'cocktail sticks', 'cleaver', 'rice cooker',
+        'bread machine', 'fork', 'ice cream scoop', 'slow cooker', 'knife', 'kitchen scale', 'griddle',
+        'frosting cake topper', 'cutting board', 'cake pop mold', 'oven', 'colander', 'kitchen timer',
+        'panini press', 'pasta machine', 'popcorn maker', 'lollipop sticks', 'steamer basket',
+        'chopsticks', 'chefs knife', 'blender', 'pizza stone', 'skewers', 'sauce pan', 'peeler',
+        'stove', 'pot holder', 'springform pan', 'apple corer', 'potato masher', 'serrated knife'
     ];
 
     const [settings, setSettings] = useState(null);
@@ -58,8 +90,24 @@ export default function Settings() {
             eggIntolerance: settings.eggIntolerance || false,
             chocolateSensitivity: settings.chocolateSensitivity || false,
             });
+
+            if (settings.equipment) {
+                setEquipmentState(settings.equipment);
+            } else {
+                const defaultEquipmentState = {};
+                equipmentList.forEach(equipment => {
+                    defaultEquipmentState[equipment] = true;
+                });
+                setEquipmentState(defaultEquipmentState);
+            }
+        } else if (!loading) {
+            const defaultEquipmentState = {};
+            equipmentList.forEach(equipment => {
+                defaultEquipmentState[equipment] = true;
+            });
+            setEquipmentState(defaultEquipmentState);
         }
-    }, [settings]);
+    }, [settings, loading]);
 
     async function storeInDB() {
         const dietaryPreference = document.querySelector('input[name="dietaryPreferences"]:checked')?.value || 'none';
@@ -75,7 +123,8 @@ export default function Settings() {
                 userID: user.uid,
                 settings: {
                 dietaryPreference,
-                ...intolerances
+                ...intolerances,
+                equipment: equipmentState
                 }
             }).then( () => {
                 setStoreMessage("Settings stored successfully");
@@ -90,6 +139,13 @@ export default function Settings() {
             setStoreMessageType("error");
         }
     }
+
+    const handleEquipmentChange = (equipment, checked) => {
+        setEquipmentState(prev => ({
+            ...prev,
+            [equipment]: checked
+        }));
+    };
 
     if(loading) {
         return (
@@ -153,9 +209,36 @@ export default function Settings() {
 
             </div>
 
+            <div className="d-flex flex-column flex-md-row align-items-start mb-4">
+                <p className="fw-bold mb-0 me-4" style={{ minWidth: 0, whiteSpace: "nowrap" }}>
+                    Available Equipment
+                </p>
+                <div style={{ flex: 1, maxHeight: '300px', overflowY: 'auto', border: '1px solid #dee2e6', borderRadius: '0.375rem', padding: '1rem' }}>
+                    <div className="row">
+                        {equipmentList.map((equipment, index) => (
+                            <div className="col-md-6 col-lg-4 mb-2" key={equipment}>
+                                <div className="form-check">
+                                    <input 
+                                        className="form-check-input" 
+                                        type="checkbox" 
+                                        id={`equipment-${index}`} 
+                                        name="equipment" 
+                                        value={equipment}
+                                        checked={equipmentState[equipment] || false}
+                                        onChange={e => handleEquipmentChange(equipment, e.target.checked)}
+                                    />
+                                    <label className="form-check-label" htmlFor={`equipment-${index}`}>
+                                        {equipment.charAt(0).toUpperCase() + equipment.slice(1)}
+                                    </label>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             <button className="btn mt-4 backgroundGreen" type="submit" onClick={storeInDB}>Save</button>
 
-           
         </div>
     )
 }
