@@ -20,14 +20,16 @@ export async function getRecipeInformation(id) {
 export async function searchRecipesAdvanced(options = {}) {
   const {
     query = '',
-    diet = '', // vegetarian, vegan, gluten-free etc.
-    intolerances = '', // dairy, egg, gluten etc.
+    diet = '', 
+    intolerances = '', 
     type = '', // main course, side dish, dessert etc.
-    cuisine = '', // italian, mexican etc.
-    maxReadyTime = '', // in minutes
+    cuisine = '', 
+    maxReadyTime = '', 
     minProtein = '',
     maxCalories = '',
-    sort = 'popularity', // popularity, healthiness, price, time, random
+    maxPricePerServing = '', 
+    includeIngredients = '', 
+    sort = 'popularity', 
     number = 10
   } = options;
 
@@ -41,7 +43,10 @@ export async function searchRecipesAdvanced(options = {}) {
   if (maxReadyTime) url += `&maxReadyTime=${maxReadyTime}`;
   if (minProtein) url += `&minProtein=${minProtein}`;
   if (maxCalories) url += `&maxCalories=${maxCalories}`;
+  if (maxPricePerServing) url += `&maxPricePerServing=${maxPricePerServing}`;
+  if (includeIngredients) url += `&includeIngredients=${encodeURIComponent(includeIngredients)}`;
 
+  console.log("API URL:", url); 
   const response = await fetch(url);
   if (!response.ok) throw new Error("Error when searching recipes");
   return response.json();
@@ -59,7 +64,7 @@ export async function findRecipesByIngredients(ingredients, number = 10) {
 export async function getRandomRecipes(options = {}) { //can be used when user isn't registered yet/ uses app for the first time
   const {
     number = 10,
-    tags = '', // vegetarian, dessert, etc.
+    tags = '', 
   } = options;
 
   let url = `https://api.spoonacular.com/recipes/random?number=${number}&apiKey=${apiKey}`;
@@ -149,7 +154,7 @@ export async function autocompleteRecipeSearch(query, number = 10) {
 
 export async function generateMealPlan(options = {}) { //could be nice to have
   const {
-    timeFrame = 'day', // day, week
+    timeFrame = 'day', 
     targetCalories = '',
     diet = '',
     exclude = ''
@@ -182,7 +187,6 @@ export async function getRecipePriceBreakdown(id) {
   return response.json();
 }
 
-//helper functions:
 export const availableDiets = [
   'gluten-free',
   'ketogenic',
@@ -256,4 +260,32 @@ export const availableCuisines = [
   'spanish',
   'thai',
   'vietnamese'
+];
+
+export const availableIngredients = [
+  'chicken',
+  'beef',
+  'pork',
+  'fish',
+  'salmon',
+  'shrimp',
+  'pasta',
+  'rice',
+  'potatoes',
+  'vegetables',
+  'broccoli',
+  'carrots',
+  'onions',
+  'garlic',
+  'tomatoes',
+  'cheese',
+  'eggs',
+  'beans',
+  'lentils',
+  'mushrooms',
+  'spinach',
+  'avocado',
+  'lemon',
+  'herbs',
+  'spices'
 ];

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch, availableDiets, availableIntolerances } from "../features/spoonacular";
-import { Form, Button, Row, Col, InputGroup } from "react-bootstrap";
+import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch } from "../features/spoonacular";
+import { Form, Button, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
+import RecipeFilters from "../components/subcomponents/RecipeFilters"; 
 import { useNavigate } from "react-router-dom";
 
 function RecipeSearch() {
@@ -13,9 +14,15 @@ function RecipeSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [lastSearchOptions, setLastSearchOptions] = useState({});
+  
   const [selectedDiet, setSelectedDiet] = useState("");
   const [selectedIntolerances, setSelectedIntolerances] = useState("");
-  const [maxPrice, setMaxPrice] = useState(""); //TODO: could be added to Fast Select?
+  const [selectedIngredients, setSelectedIngredients] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
 
@@ -58,7 +65,7 @@ function RecipeSearch() {
         ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
         ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
         ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-      ].slice(0, 4), 
+      ].slice(0, 3), 
       estimatedPrice: spoonacularRecipe.pricePerServing ? 
         Math.round(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)) : null
     };
@@ -68,58 +75,101 @@ function RecipeSearch() {
     navigate(`/recipes/${recipeId}`);
   };
 
+  const buildSearchOptions = (number = 9) => {
+    const searchOptions = {
+      query: query,
+      diet: selectedDiet || (activeTag ? activeTag.toLowerCase() : ""),
+      intolerances: selectedIntolerances,
+      includeIngredients: selectedIngredients,
+      maxReadyTime: maxReadyTime,
+      maxPricePerServing: maxPrice ? parseFloat(maxPrice) * 100 : undefined,
+      sort: 'popularity',
+      number: number
+    };
+
+    Object.keys(searchOptions).forEach(key => {
+      if (searchOptions[key] === "" || searchOptions[key] === undefined) {
+        delete searchOptions[key];
+      }
+    });
+
+    return searchOptions;
+  };
+
+  const processRecipes = async (recipes) => {
+    return await Promise.all(
+      recipes.map(async (recipe) => {
+        try {
+          const detailedRecipe = await getRecipeInformation(recipe.id);
+          return transformRecipeForCard(detailedRecipe);
+        } catch (err) {
+          console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
+          return transformRecipeForCard(recipe);
+        }
+      })
+    );
+  };
+
   const handleSearch = async () => {
     setIsLoading(true);
     setHasSearched(true);
+    setCurrentOffset(0);
     
     try {
-      const searchOptions = {
-        query: query,
-        diet: selectedDiet || (activeTag ? activeTag.toLowerCase() : ""),
-        intolerances: selectedIntolerances,
-        maxReadyTime: maxReadyTime,
-        sort: 'popularity',
-        number: 9
-      };
+      const searchOptions = buildSearchOptions(50);
+      setLastSearchOptions(searchOptions);
 
-      Object.keys(searchOptions).forEach(key => {
-        if (searchOptions[key] === "" || searchOptions[key] === undefined) {
-          delete searchOptions[key];
-        }
-      });
+      console.log("Search options:", searchOptions);
 
       const data = await searchRecipesAdvanced(searchOptions);
-      const recipesWithDetails = await Promise.all(
-        data.results.map(async (recipe) => {
-          try {
-            const detailedRecipe = await getRecipeInformation(recipe.id);
-            return transformRecipeForCard(detailedRecipe);
-          } catch (err) {
-            console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
-            return transformRecipeForCard(recipe);
-          }
-        })
-      );
       
-      setResults(recipesWithDetails);
+      if (!data.results || data.results.length === 0) {
+        setResults([]);
+        setTotalResults(0);
+        return;
+      }
+
+      const allRecipesWithDetails = await processRecipes(data.results);
+      
+      setResults(allRecipesWithDetails.slice(0, 9));
+      setTotalResults(allRecipesWithDetails.length);
+      setCurrentOffset(9);
+      
+      setLastSearchOptions({...searchOptions, allRecipes: allRecipesWithDetails});
+      
       setShowAutocomplete(false);
     } catch (err) {
       console.error("Search error:", err);
       alert("Error searching recipes: " + err.message);
       setResults([]);
+      setTotalResults(0);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleTagClick = (tag) => {
-    const newActiveTag = activeTag === tag ? "" : tag;
-    setActiveTag(newActiveTag);
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
     
-    if (newActiveTag === "") {
-      setSelectedDiet("");
+    try {
+      const allRecipes = lastSearchOptions.allRecipes || [];
+      const nextRecipes = allRecipes.slice(currentOffset, currentOffset + 6);
+      
+      if (nextRecipes.length === 0) {
+        return;
+      }
+
+      setResults(prevResults => [...prevResults, ...nextRecipes]);
+      setCurrentOffset(prevOffset => prevOffset + nextRecipes.length);
+    } catch (err) {
+      console.error("Load more error:", err);
+      alert("Error loading more recipes: " + err.message);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
+
+  const canLoadMore = currentOffset < totalResults;
 
   useEffect(() => {
     if (activeTag && (query || hasSearched)) {
@@ -195,90 +245,28 @@ function RecipeSearch() {
         </div>
       </div>
 
-      <Row>
-        <Col md={3}>
-          <p className="fw-semibold">Fast Select:</p>
-        </Col>
-        <Col md={9}>
-          <div className="mb-3 d-flex flex-wrap gap-2">
-            {["Vegetarian", "Vegan", "Gluten-Free", "Ketogenic", "Paleo", "Healthy"].map((tag) => (
-              <span 
-                key={tag} 
-                className={`badge border text-black ${activeTag === tag ? 'backgroundGreen' : 'borderGreen'}`}
-                style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
-                onClick={() => handleTagClick(tag)}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </Col>
-      </Row>
-      
-      <Row className="g-3 mb-4">
-        <Col md={4}>
-          <Form.Select 
-            value={selectedIntolerances} 
-            onChange={e => setSelectedIntolerances(e.target.value)}
-          >
-            <option value="">Select food intolerances</option>
-            {availableIntolerances.map(intolerance => (
-              <option key={intolerance} value={intolerance}>
-                {intolerance.charAt(0).toUpperCase() + intolerance.slice(1).replace('-', ' ')}
-              </option>
-            ))}
-          </Form.Select>
-        </Col>
-        <Col md={2}>
-          <Form.Select 
-            value={selectedDiet} 
-            onChange={e => {
-              setSelectedDiet(e.target.value);
-              if (e.target.value) {
-                setActiveTag("");
-              }
-            }}
-          >
-            <option value="">Select diet</option>
-            {availableDiets.map(diet => (
-              <option key={diet} value={diet}>
-                {diet.charAt(0).toUpperCase() + diet.slice(1).replace('-', ' ')}
-              </option>
-            ))}
-          </Form.Select>
-        </Col>
-        <Col md={3}>
-          <Form.Control 
-            type="number" 
-            placeholder="Maximum Preparation Time (min)" 
-            min="0"
-            value={maxReadyTime}
-            onChange={e => setMaxReadyTime(e.target.value)}
-          />
-        </Col>
-        <Col md={3}>
-          <Button 
-            className="w-100 backgroundGreen btn" 
-            onClick={handleSearch}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                Searching...
-              </>
-            ) : (
-              "Search"
-            )}
-          </Button>
-        </Col>  
-      </Row>
+      <RecipeFilters
+        selectedDiet={selectedDiet}
+        setSelectedDiet={setSelectedDiet}
+        selectedIntolerances={selectedIntolerances}
+        setSelectedIntolerances={setSelectedIntolerances}
+        selectedIngredients={selectedIngredients}
+        setSelectedIngredients={setSelectedIngredients}
+        maxPrice={maxPrice}
+        setMaxPrice={setMaxPrice}
+        maxReadyTime={maxReadyTime}
+        setMaxReadyTime={setMaxReadyTime}
+        activeTag={activeTag}
+        setActiveTag={setActiveTag}
+        onSearch={handleSearch}
+        isLoading={isLoading}
+      />
 
       {hasSearched && (
         <div className="mt-4">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4>
-              {isLoading ? "Searching..." : `Search Results ${results.length > 0 ? `(${results.length})` : ""}`}
+              {isLoading ? "Searching..." : `Search Results ${results.length > 0 ? `(${results.length}${totalResults > results.length ? ` of ${totalResults}` : ""})` : ""}`}
             </h4>
             {results.length > 0 && !isLoading && (
               <small className="text-muted">
@@ -286,6 +274,8 @@ function RecipeSearch() {
                 {activeTag && ` • ${activeTag}`}
                 {selectedDiet && ` • ${selectedDiet}`}
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
+                {selectedIngredients && ` • with ${selectedIngredients}`}
+                {maxPrice && ` • max $${maxPrice}`}
               </small>
             )}
           </div>
@@ -296,9 +286,40 @@ function RecipeSearch() {
                 <span className="visually-hidden">Loading recipes...</span>
               </div>
             </div>
+          ) : results.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No recipes found matching your criteria. Try adjusting your filters.</p>
+            </div>
           ) : (
-            <RecipeList recipes={results} 
-            onRecipeClick={handleRecipeClick} />
+            <>
+              <RecipeList recipes={results} onRecipeClick={handleRecipeClick} />
+              
+              {canLoadMore && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Button 
+                    variant="outline-success" 
+                    size="lg"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="px-4"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <div className="spinner-border spinner-border-sm me-2" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        Loading more recipes...
+                      </>
+                    ) : (
+                      <>
+                        Load More Recipes
+                        <i className="bi bi-arrow-down ms-2"></i>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
