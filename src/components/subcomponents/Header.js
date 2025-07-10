@@ -162,6 +162,9 @@ const Header = () => {
                     <li className="nav-item">
                       <Link className="nav-link" to="/settings" onClick={() => setIsMenuOpen(false)}>Settings</Link>
                     </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/shopping-list" onClick={() => setIsMenuOpen(false)}>Shopping list</Link>
+                    </li>
                   </>
               )}
             </ul>

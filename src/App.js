@@ -28,6 +28,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import useIsMobile from "./components/subcomponents/useIsMobile";
 import SearchPage from "./components/pages/SearchPage";
+import ShoppingList from "./components/pages/ShoppingList";
 
 function App() {
   const isMobile = useIsMobile();
@@ -88,9 +89,9 @@ function App() {
             element={<RecipeDetailWrapper/>}/>
 
           <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
-
           <Route path="*" element={<NoPage/>}/>
 
+            <Route path="/shopping-list" element={<ShoppingList />} />
           </Routes>
 
           <footer className="text-center mt-5 text-muted">

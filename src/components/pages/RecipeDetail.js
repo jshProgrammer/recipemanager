@@ -21,6 +21,7 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [equipmentLoading, setEquipmentLoading] = useState(false);
     const [equipmentError, setEquipmentError] = useState(null);
     const [showMore, setShowMore] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -157,6 +158,17 @@ function RecipeDetail({ recipe: propRecipe }) {
         }
     };
 
+    const addToShoppingList = (ingredients) => {
+        const names = ingredients.map(i => i.name);
+
+        const current = JSON.parse(localStorage.getItem("shoppingList")) || [];
+        const updated = Array.from(new Set([...current, ...names]));
+        localStorage.setItem("shoppingList", JSON.stringify(updated));
+
+        setToast("Ingredients added to your shopping list!");
+        setTimeout(() => setToast(null), 3000);
+    };
+
     if (isLoading) {
         return (
             <div className="container mt-5">
@@ -241,6 +253,13 @@ function RecipeDetail({ recipe: propRecipe }) {
                     <div className="d-grid gap-2 col-8">
                         <button className="btn btn-dark">
                             <i className="bi bi-heart me-2"></i> Add to favorites
+                        </button>
+
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => addToShoppingList(recipe.ingredients)}
+                        >
+                            <i className="bi bi-cart-plus me-2"></i> Add to shopping list
                         </button>
 
                         <button className="btn btn-secondary">
@@ -390,6 +409,20 @@ function RecipeDetail({ recipe: propRecipe }) {
                         />
                     ))}
 
+                </div>
+            )}
+
+            {toast && (
+                <div
+                    className="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3 show"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                    style={{ zIndex: 9999 }}
+                >
+                    <div className="d-flex">
+                        <div className="toast-body">{toast}</div>
+                    </div>
                 </div>
             )}
         </div>
