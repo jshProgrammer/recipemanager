@@ -1,3 +1,35 @@
 .green{
     color: var(--green-accent-color) !important;
 }
+
+input:focus,
+.form-control:focus {
+    border-color: var(--green-accent-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25) !important;
+}
+
+.btn-green {
+    background-color: var(--green-accent-color);
+    border-color: var(--green-accent-color);
+    color: white;
+}
+
+.btn-green:hover {
+    background-color: #006400;
+    border-color: #006400;
+}
+
+.btn-outline-danger {
+    padding: 0.2rem 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #dc3545;
+    border: none;
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    color: white;
+    background-color: #dc3545;
+    border-radius: 0.25rem;
+}
