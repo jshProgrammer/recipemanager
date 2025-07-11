@@ -4,9 +4,12 @@ import { Form, Button, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
 import RecipeFilters from "../components/subcomponents/RecipeFilters"; 
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../features/providers/AuthContext";
+import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
 
 function RecipeSearch() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
@@ -25,6 +28,25 @@ function RecipeSearch() {
   const [maxPrice, setMaxPrice] = useState("");
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
+  
+  const [userSettings, setUserSettings] = useState(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (user?.uid) {
+      readCustomSettingsFromDB({ userID: user.uid })
+        .then(settings => {
+          setUserSettings(settings);
+          setSettingsLoaded(true);
+        })
+        .catch(err => {
+          console.error("Error loading user settings:", err);
+          setSettingsLoaded(true);
+        });
+    } else {
+      setSettingsLoaded(true);
+    }
+  }, [user]);
 
   const handleQueryChange = async (value) => {
     setQuery(value);
@@ -120,8 +142,9 @@ function RecipeSearch() {
       setLastSearchOptions(searchOptions);
 
       console.log("Search options:", searchOptions);
+      console.log("User settings:", userSettings);
 
-      const data = await searchRecipesAdvanced(searchOptions);
+      const data = await searchRecipesAdvanced(searchOptions, userSettings);
       
       if (!data.results || data.results.length === 0) {
         setResults([]);
@@ -185,6 +208,16 @@ function RecipeSearch() {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  if (!settingsLoaded) {
+    return (
+      <div className="d-flex justify-content-center py-5">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -260,6 +293,7 @@ function RecipeSearch() {
         setActiveTag={setActiveTag}
         onSearch={handleSearch}
         isLoading={isLoading}
+        userSettings={userSettings}
       />
 
       {hasSearched && (
