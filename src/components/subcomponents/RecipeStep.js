@@ -23,7 +23,7 @@ const RecipeStep = ({ stepNumber, description, imageURL, editable=false, onChang
                 <div>
                     <div className="d-flex flex-row gap-3">
                         <ImagePicker image={image} onImageChange={handleImageChange} />
-                        <h3 className="card-title text-success fw-bold text-shadow">
+                        <h3 className="card-title green fw-bold text-shadow">
                                 {stepNumber}
                             </h3>
                         <textarea
@@ -59,7 +59,7 @@ const RecipeStep = ({ stepNumber, description, imageURL, editable=false, onChang
                 )}
                 <div className={image ? "col-md-8" : "col-md-12"}>
                     <div className="card-body">
-                        <h3 className="card-title text-green fw-bold text-shadow fs-1">
+                        <h3 className="card-title green fw-bold text-shadow fs-1">
                             {stepNumber}
                         </h3>
                         {editable ? (

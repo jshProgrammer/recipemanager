@@ -79,7 +79,7 @@ function App() {
           <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
           <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
 
-          <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={true} /></ProtectedRoute>}/>
+          <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={true} transformToSpoonacular={false} /></ProtectedRoute>}/>
           <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
           <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
           <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
