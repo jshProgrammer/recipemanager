@@ -208,6 +208,7 @@ const FavoritesSection = () => {
             </button>
           </div>
 
+          <div className="bgLightGreen p-4 rounded-4 mt-4" id="search-section">
           <RecipeFilters
             selectedDiet={selectedDiet}
             setSelectedDiet={setSelectedDiet}
@@ -224,6 +225,7 @@ const FavoritesSection = () => {
             onSearch={handleSearch}
             isLoading={isFiltering}
           />
+          </div>
 
           {isLoading && <p>Loading your favorites...</p>}
           {error && <p className="text-danger">{error}</p>}

@@ -193,7 +193,7 @@ export default function RecipeList({
             {useRandomRecipes && (
                 <div className="d-flex justify-content-center mb-4">
                     <button
-                        className="btn btn-outline-success"
+                        className="btn borderGreen"
                         onClick={handleRefreshRecipes}
                         disabled={loading}
                     >

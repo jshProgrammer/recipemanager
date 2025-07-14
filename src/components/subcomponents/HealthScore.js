@@ -23,14 +23,12 @@ function HealthScore({refreshKey}){
     return (
         <div style={{ position: 'relative', display: 'inline-block' }}>
             <button
-                className="btn bg-transparent rounded-circle d-flex justify-content-center align-items-center me-4"
+                className="btn borderGreen bg-transparent rounded-circle d-flex justify-content-center align-items-center me-4"
                 style={{
                     width: '50px',
                     height: '50px',
-                    borderColor: '#16a24a',
                     borderWidth: '2px',
                     borderStyle: 'solid',
-                    color: '#16a24a',
                     boxSizing: 'border-box',
                     fontWeight: 'bold'
                 }}
