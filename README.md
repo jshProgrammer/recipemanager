@@ -158,3 +158,10 @@ REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 npm start
 ```
 Visit http://localhost:3000 in your browser to view the app.
+
+# Screenshots
+<img src="screenshots/RecipeManager_LoginPage.png" width="800" alt="login popup"/>
+<img src="screenshots/RecipeManager_Search.png" width="800" alt="search and suggestions on home page"/>
+<img src="screenshots/RecipeManager_Settings.png" width="800" alt="Custom settings for logged in users"/>
+<img src="screenshots/RecipeManager_Mobile_01.png" width="400" alt="tab bar being displayed on mobile"/>
+<img src="screenshots/RecipeManager_Mobile_02.png" width="400" alt="additional profile screen being displayed on mobile"/>
