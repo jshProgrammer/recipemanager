@@ -68,7 +68,7 @@ function App() {
 
           <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
-          <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false}/></ProtectedRoute>} />
+          <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false} transformToSpoonacular={true}/></ProtectedRoute>} />
 
           <Route path="/ownRecipes" element={
             <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />

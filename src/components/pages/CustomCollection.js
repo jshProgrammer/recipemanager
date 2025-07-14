@@ -9,7 +9,7 @@ import {loadRecipesOfFavoritesCollection} from "../../features/databaseStorage/f
 import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 
-const CustomCollection = ({collectionName, isOwnRecipes}) => {
+const CustomCollection = ({collectionName, isOwnRecipes, transformToSpoonacular=false}) => {
     const { user } = useAuth();
     const { refreshFavorites, favoriteRecipes, favoriteCollections } = useFavorites();
 
@@ -121,7 +121,7 @@ const CustomCollection = ({collectionName, isOwnRecipes}) => {
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe={isOwnRecipes} />)
+                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe={isOwnRecipes} transformToSpoonacular={transformToSpoonacular} />)
                 : <p>{isOwnRecipes
                     ? "This collection is empty yet. Just create a new recipe and you are ready to go :)"
                     : "This collection is empty yet. Add some favorite recipes to get started :)"
