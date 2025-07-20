@@ -17,7 +17,9 @@ function RecipeFilters({
   activeTag,
   setActiveTag,
   onSearch,
-  isLoading
+  isLoading,
+  useEquipmentFilter,
+  setUseEquipmentFilter
 }) {
   
   const handleTagClick = (tag) => {
@@ -135,6 +137,18 @@ function RecipeFilters({
             value={maxReadyTime}
             onChange={e => setMaxReadyTime(e.target.value)}
           />
+        </Col>
+        <Col md={5}>
+          <div className="d-flex align-items-center gap-3">
+            <Form.Check
+              type="checkbox"
+              id="equipmentFilter"
+              label="Only recipes with ALL my equipment"
+              checked={useEquipmentFilter}
+              onChange={e => setUseEquipmentFilter(e.target.checked)}
+              className="me-2"
+            />
+          </div>
         </Col>
       </Row>
     </div>

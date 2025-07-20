@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch } from "../features/spoonacular";
+import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch, getRecipeEquipment } from "../features/spoonacular";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
 import RecipeFilters from "../components/subcomponents/RecipeFilters"; 
 import { useNavigate } from "react-router-dom";
+import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
+import { useAuth } from "../features/providers/AuthContext";
 
 function RecipeSearch() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
@@ -25,6 +28,10 @@ function RecipeSearch() {
   const [maxPrice, setMaxPrice] = useState("");
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
+  
+  const [useEquipmentFilter, setUseEquipmentFilter] = useState(false);
+  const [userEquipment, setUserEquipment] = useState({});
+  const [equipmentMatchThreshold, setEquipmentMatchThreshold] = useState(50);
 
   const handleQueryChange = async (value) => {
     setQuery(value);
@@ -75,6 +82,23 @@ function RecipeSearch() {
     navigate(`/recipes/${recipeId}`);
   };
 
+  useEffect(() => {
+    const loadUserEquipment = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const settings = await readCustomSettingsFromDB({ userID: user.uid });
+        if (settings?.equipment) {
+          setUserEquipment(settings.equipment);
+        }
+      } catch (err) {
+        console.error("Error loading user equipment settings:", err);
+      }
+    };
+
+    loadUserEquipment();
+  }, [user?.uid]);
+
   const buildSearchOptions = (number = 9) => {
     const searchOptions = {
       query: query,
@@ -110,6 +134,52 @@ function RecipeSearch() {
     );
   };
 
+  const filterRecipesByEquipment = async (recipes) => {
+    if (!useEquipmentFilter || Object.keys(userEquipment).length === 0) {
+      return recipes;
+    }
+
+    const filteredRecipes = [];
+    
+    for (const recipe of recipes) {
+      try {
+        const equipmentData = await getRecipeEquipment(recipe.id);
+        const recipeEquipment = equipmentData.equipment || [];
+
+        console.log(`Recipe ${recipe.id} (${recipe.title}) equipment:`, recipeEquipment);
+        console.log("User equipment:", userEquipment);
+        
+        if (recipeEquipment.length === 0) {
+          console.log(`Recipe ${recipe.id} has no equipment info - including`);
+          filteredRecipes.push(recipe);
+          continue;
+        }
+
+        const availableEquipment = recipeEquipment.filter(item => 
+          userEquipment[item.name] === true
+        );
+        
+        const matchPercentage = (availableEquipment.length / recipeEquipment.length) * 100;
+        
+        console.log(`Recipe ${recipe.id} equipment match: ${availableEquipment.length}/${recipeEquipment.length} (${matchPercentage.toFixed(1)}%)`);
+        console.log(`Available equipment:`, availableEquipment.map(item => item.name));
+        console.log(`Missing equipment:`, recipeEquipment.filter(item => !userEquipment[item.name]).map(item => item.name));
+        
+        if (matchPercentage >= equipmentMatchThreshold) {
+          console.log(`Recipe ${recipe.id} meets threshold (${equipmentMatchThreshold}%) - including`);
+          filteredRecipes.push(recipe);
+        } else {
+          console.log(`Recipe ${recipe.id} below threshold (${equipmentMatchThreshold}%) - excluding`);
+        }
+      } catch (err) {
+        console.warn(`Could not fetch equipment for recipe ${recipe.id}:`, err);
+        filteredRecipes.push(recipe);
+      }
+    }
+    
+    return filteredRecipes;
+  };
+
   const handleSearch = async () => {
     setIsLoading(true);
     setHasSearched(true);
@@ -129,7 +199,13 @@ function RecipeSearch() {
         return;
       }
 
-      const allRecipesWithDetails = await processRecipes(data.results);
+      let allRecipesWithDetails = await processRecipes(data.results);
+      
+      if (useEquipmentFilter) {
+        console.log("Applying equipment filtering...");
+        allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails);
+        console.log(`Filtered from ${data.results.length} to ${allRecipesWithDetails.length} recipes`);
+      }
       
       setResults(allRecipesWithDetails.slice(0, 9));
       setTotalResults(allRecipesWithDetails.length);
@@ -260,6 +336,10 @@ function RecipeSearch() {
         setActiveTag={setActiveTag}
         onSearch={handleSearch}
         isLoading={isLoading}
+        useEquipmentFilter={useEquipmentFilter}
+        setUseEquipmentFilter={setUseEquipmentFilter}
+        equipmentMatchThreshold={equipmentMatchThreshold}
+        setEquipmentMatchThreshold={setEquipmentMatchThreshold}
       />
 
       {hasSearched && (
@@ -276,6 +356,7 @@ function RecipeSearch() {
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
                 {maxPrice && ` • max $${maxPrice}`}
+                {useEquipmentFilter && ` • equipment filter (${equipmentMatchThreshold}% match)`}
               </small>
             )}
           </div>
