@@ -31,7 +31,6 @@ function RecipeSearch() {
   
   const [useEquipmentFilter, setUseEquipmentFilter] = useState(false);
   const [userEquipment, setUserEquipment] = useState({});
-  const [equipmentMatchThreshold, setEquipmentMatchThreshold] = useState(50);
 
   const handleQueryChange = async (value) => {
     setQuery(value);
@@ -159,17 +158,15 @@ function RecipeSearch() {
           userEquipment[item.name] === true
         );
         
-        const matchPercentage = (availableEquipment.length / recipeEquipment.length) * 100;
-        
-        console.log(`Recipe ${recipe.id} equipment match: ${availableEquipment.length}/${recipeEquipment.length} (${matchPercentage.toFixed(1)}%)`);
+        console.log(`Recipe ${recipe.id} equipment match: ${availableEquipment.length}/${recipeEquipment.length}`);
         console.log(`Available equipment:`, availableEquipment.map(item => item.name));
         console.log(`Missing equipment:`, recipeEquipment.filter(item => !userEquipment[item.name]).map(item => item.name));
         
-        if (matchPercentage >= equipmentMatchThreshold) {
-          console.log(`Recipe ${recipe.id} meets threshold (${equipmentMatchThreshold}%) - including`);
+        if (availableEquipment.length === recipeEquipment.length) {
+          console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
           filteredRecipes.push(recipe);
         } else {
-          console.log(`Recipe ${recipe.id} below threshold (${equipmentMatchThreshold}%) - excluding`);
+          console.log(`Recipe ${recipe.id} - missing equipment - excluding`);
         }
       } catch (err) {
         console.warn(`Could not fetch equipment for recipe ${recipe.id}:`, err);
@@ -338,8 +335,6 @@ function RecipeSearch() {
         isLoading={isLoading}
         useEquipmentFilter={useEquipmentFilter}
         setUseEquipmentFilter={setUseEquipmentFilter}
-        equipmentMatchThreshold={equipmentMatchThreshold}
-        setEquipmentMatchThreshold={setEquipmentMatchThreshold}
       />
 
       {hasSearched && (
@@ -356,7 +351,7 @@ function RecipeSearch() {
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
                 {maxPrice && ` • max $${maxPrice}`}
-                {useEquipmentFilter && ` • equipment filter (${equipmentMatchThreshold}% match)`}
+                {useEquipmentFilter && ` • equipment filter (strict)`}
               </small>
             )}
           </div>
