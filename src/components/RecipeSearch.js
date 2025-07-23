@@ -6,32 +6,33 @@ import RecipeFilters from "../components/subcomponents/RecipeFilters";
 import { useNavigate } from "react-router-dom";
 import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
 import { useAuth } from "../features/providers/AuthContext";
+import { useSearch } from "../features/providers/SearchContext";
 
 function RecipeSearch() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [autocompleteResults, setAutocompleteResults] = useState([]);
-  const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const {
+    query, setQuery,
+    results, setResults,
+    autocompleteResults, setAutocompleteResults,
+    showAutocomplete, setShowAutocomplete,
+    isLoading, setIsLoading,
+    hasSearched, setHasSearched,
+    currentOffset, setCurrentOffset,
+    totalResults, setTotalResults,
+    isLoadingMore, setIsLoadingMore,
+    lastSearchOptions, setLastSearchOptions,
+    selectedDiet, setSelectedDiet,
+    selectedIntolerances, setSelectedIntolerances,
+    selectedIngredients, setSelectedIngredients,
+    maxPrice, setMaxPrice,
+    maxReadyTime, setMaxReadyTime,
+    activeTag, setActiveTag,
+    useEquipmentFilter, setUseEquipmentFilter,
+    userEquipment, setUserEquipment,
+    resetSearch
+  } = useSearch();
   
-  const [currentOffset, setCurrentOffset] = useState(0);
-  const [totalResults, setTotalResults] = useState(0);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [lastSearchOptions, setLastSearchOptions] = useState({});
-  
-  const [selectedDiet, setSelectedDiet] = useState("");
-  const [selectedIntolerances, setSelectedIntolerances] = useState("");
-  const [selectedIngredients, setSelectedIngredients] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [maxReadyTime, setMaxReadyTime] = useState("");
-  const [activeTag, setActiveTag] = useState("");
-  
-  const [useEquipmentFilter, setUseEquipmentFilter] = useState(false);
-  const [userEquipment, setUserEquipment] = useState({});
-
   const handleQueryChange = async (value) => {
     setQuery(value);
     
@@ -336,6 +337,13 @@ function RecipeSearch() {
         useEquipmentFilter={useEquipmentFilter}
         setUseEquipmentFilter={setUseEquipmentFilter}
       />
+        {hasSearched && results.length > 0 && (
+          <div className="mb-3 text-end">
+            <Button variant="outline-secondary" size="sm" onClick={resetSearch}>
+              Reset Search
+            </Button>
+          </div>
+        )}
 
       {hasSearched && (
         <div className="mt-4">

@@ -2,6 +2,7 @@ import './styles/App.css';
 
 import { recipes } from './data/SampleData';
 import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
+import { SearchProvider } from './features/providers/SearchContext';
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -35,6 +36,7 @@ function App() {
   return (
         <Router>
         <ScrollToTop />
+        <SearchProvider>
         <div className="container py-4">
           <Header />
           <Routes>
@@ -97,8 +99,8 @@ function App() {
             <p className="mb-0">RecipeManager</p>
             <p className="small">Impressum • Your first steps with RecipeManager</p>
           </footer>
-
         </div>
+        </SearchProvider>
         <MobileTabBar />
       </Router>
   );
