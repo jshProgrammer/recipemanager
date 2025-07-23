@@ -123,13 +123,19 @@ export default function Settings() {
             intolerances[option.value] = checked;
         });
 
+        // Equipment: immer alle aus equipmentList speichern (true/false)
+        const equipmentToSave = {};
+        equipmentList.forEach(equipment => {
+            equipmentToSave[equipment] = equipmentState[equipment] === true;
+        });
+
         try {
             await writeCustomSettingsToDB({
                 userID: user.uid,
                 settings: {
-                dietaryPreference,
-                ...intolerances,
-                equipment: equipmentState
+                    dietaryPreference,
+                    ...intolerances,
+                    equipment: equipmentToSave
                 }
             }).then( () => {
                 setStoreMessage("Settings stored successfully");
