@@ -9,9 +9,6 @@ const CommentBox = ({ recipeId }) => {
     const [selectedRating, setSelectedRating] = useState(0);
     const { user } = useAuth();
 
-    localStorage.removeItem("comments");
-    localStorage.removeItem("ratings");
-
     useEffect(() => {
         const storedComments = JSON.parse(localStorage.getItem("comments")) || {};
         if (storedComments[recipeId]) setComments(storedComments[recipeId]);
