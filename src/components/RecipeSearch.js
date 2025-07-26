@@ -29,7 +29,6 @@ function RecipeSearch() {
     maxReadyTime, setMaxReadyTime,
     activeTag, setActiveTag,
     useEquipmentFilter, setUseEquipmentFilter,
-    userEquipment, setUserEquipment,
     resetSearch
   } = useSearch();
   
@@ -82,22 +81,6 @@ function RecipeSearch() {
     navigate(`/recipes/${recipeId}`);
   };
 
-  useEffect(() => {
-    const loadUserEquipment = async () => {
-      if (!user?.uid) return;
-
-      try {
-        const settings = await readCustomSettingsFromDB({ userID: user.uid });
-        if (settings?.equipment) {
-          setUserEquipment(settings.equipment);
-        }
-      } catch (err) {
-        console.error("Error loading user equipment settings:", err);
-      }
-    };
-
-    loadUserEquipment();
-  }, [user?.uid]);
 
   const buildSearchOptions = (number = 9) => {
     const searchOptions = {
@@ -134,7 +117,7 @@ function RecipeSearch() {
     );
   };
 
-  const filterRecipesByEquipment = async (recipes) => {
+  const filterRecipesByEquipment = async (recipes, userEquipment) => {
     if (!useEquipmentFilter || Object.keys(userEquipment).length === 0) {
       return recipes;
     }
@@ -147,7 +130,7 @@ function RecipeSearch() {
         const recipeEquipment = equipmentData.equipment || [];
 
         console.log(`Recipe ${recipe.id} (${recipe.title}) equipment:`, recipeEquipment);
-        console.log("User equipment:", userEquipment);
+        //console.log("User equipment:", userEquipment);
         
         if (recipeEquipment.length === 0) {
           console.log(`Recipe ${recipe.id} has no equipment info - including`);
@@ -155,15 +138,16 @@ function RecipeSearch() {
           continue;
         }
 
-        const availableEquipment = recipeEquipment.filter(item => 
-          userEquipment[item.name] === true
-        );
+        let hasAllEquipment = true;
+        for (const equipment of recipeEquipment) {
+          if (userEquipment[equipment.name] !== true) {
+            console.log(`Recipe ${recipe.id} - missing equipment: ${equipment.name}`);
+            hasAllEquipment = false;
+            break;
+          }
+        }
         
-        console.log(`Recipe ${recipe.id} equipment match: ${availableEquipment.length}/${recipeEquipment.length}`);
-        console.log(`Available equipment:`, availableEquipment.map(item => item.name));
-        console.log(`Missing equipment:`, recipeEquipment.filter(item => !userEquipment[item.name]).map(item => item.name));
-        
-        if (availableEquipment.length === recipeEquipment.length) {
+        if (hasAllEquipment) {
           console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
           filteredRecipes.push(recipe);
         } else {
@@ -171,7 +155,7 @@ function RecipeSearch() {
         }
       } catch (err) {
         console.warn(`Could not fetch equipment for recipe ${recipe.id}:`, err);
-        filteredRecipes.push(recipe);
+        console.log(`Recipe ${recipe.id} - equipment fetch failed - excluding recipe`);
       }
     }
     
@@ -199,13 +183,39 @@ function RecipeSearch() {
 
       let allRecipesWithDetails = await processRecipes(data.results);
       
+      console.log("=== BEFORE EQUIPMENT FILTERING ===");
+      console.log("useEquipmentFilter:", useEquipmentFilter);
+      
       if (useEquipmentFilter) {
         console.log("Applying equipment filtering...");
-        allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails);
+        
+        // Load user equipment for filtering
+        let currentUserEquipment = {};
+        if (user?.uid) {
+          console.log("Loading user equipment for filtering...");
+          try {
+            const settings = await readCustomSettingsFromDB({ userID: user.uid });
+            currentUserEquipment = settings?.equipment || {};
+            console.log("Loaded user equipment:", currentUserEquipment);
+          } catch (err) {
+            console.error("Error loading user equipment for filtering:", err);
+            currentUserEquipment = {};
+          }
+        }
+        
+        console.log("userEquipment:", currentUserEquipment);
+        console.log("Recipes before filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
+        
+        allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
         console.log(`Filtered from ${data.results.length} to ${allRecipesWithDetails.length} recipes`);
       }
       
+      console.log("=== FINAL RECIPES TO BE DISPLAYED ===");
+      console.log("Recipes after filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
+      
       setResults(allRecipesWithDetails.slice(0, 9));
+      console.log("=== SETTING RESULTS ===");
+      console.log("Final results being set:", allRecipesWithDetails.slice(0, 9).map(r => ({id: r.id, title: r.title})));
       setTotalResults(allRecipesWithDetails.length);
       setCurrentOffset(9);
       
@@ -227,13 +237,24 @@ function RecipeSearch() {
     
     try {
       const allRecipes = lastSearchOptions.allRecipes || [];
+      console.log("=== LOAD MORE ===");
+      console.log("All cached recipes:", allRecipes.map(r => ({id: r.id, title: r.title})));
+      console.log("Current offset:", currentOffset);
+      
       const nextRecipes = allRecipes.slice(currentOffset, currentOffset + 6);
+      console.log("Next recipes to add:", nextRecipes.map(r => ({id: r.id, title: r.title})));
       
       if (nextRecipes.length === 0) {
         return;
       }
 
-      setResults(prevResults => [...prevResults, ...nextRecipes]);
+      setResults(prevResults => {
+        const newResults = [...prevResults, ...nextRecipes];
+        console.log("=== UPDATING RESULTS IN LOAD MORE ===");
+        console.log("Previous results:", prevResults.map(r => ({id: r.id, title: r.title})));
+        console.log("New results:", newResults.map(r => ({id: r.id, title: r.title})));
+        return newResults;
+      });
       setCurrentOffset(prevOffset => prevOffset + nextRecipes.length);
     } catch (err) {
       console.error("Load more error:", err);

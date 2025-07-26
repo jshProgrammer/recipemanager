@@ -20,8 +20,8 @@ export const SearchProvider = ({ children }) => {
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
   const [useEquipmentFilter, setUseEquipmentFilter] = useState(false);
-  const [userEquipment, setUserEquipment] = useState({});
 
+  // Reset function for new search or clear
   const resetSearch = () => {
     setQuery("");
     setResults([]);
@@ -40,7 +40,6 @@ export const SearchProvider = ({ children }) => {
     setMaxReadyTime("");
     setActiveTag("");
     setUseEquipmentFilter(false);
-    setUserEquipment({});
   };
 
   return (
@@ -63,7 +62,6 @@ export const SearchProvider = ({ children }) => {
         maxReadyTime, setMaxReadyTime,
         activeTag, setActiveTag,
         useEquipmentFilter, setUseEquipmentFilter,
-        userEquipment, setUserEquipment,
         resetSearch
       }}
     >
