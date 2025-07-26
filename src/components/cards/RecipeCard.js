@@ -6,6 +6,7 @@ import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favo
 import {useAuth} from "../../features/providers/AuthContext";
 import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
 import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
+import RatingStars from "../subcomponents/RatingStars";
 
 function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estimatedPrice = null, collectionName = null}) {
     const { user } = useAuth();
@@ -156,37 +157,40 @@ function RecipeCard({id, imageURL, title, time, tags=[], isEditable=false, estim
                     </div>)}
                 </div>
 
-                <div className="position-absolute bottom-0 start-0 end-0 card-body"
-                style={{
-                    zIndex: 3,
-                    background: "rgba(255, 255, 255, 0.95)",
-                    backdropFilter: "blur(10px)",
-                    borderTop: "1px solid rgba(255, 255, 255, 0.2)"
+            <div className="position-absolute bottom-0 start-0 end-0 card-body"
+                 style={{
+                     zIndex: 3,
+                     background: "rgba(255, 255, 255, 0.95)",
+                     backdropFilter: "blur(10px)",
+                     borderTop: "1px solid rgba(255, 255, 255, 0.2)"
+                 }}>
+                <h5 className="card-title fw-bold position-relative"
+                    title={title}
+                    style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        lineHeight: '1.3',
+                        maxHeight: 'calc(1.3em * 2)'
                     }}>
-                    <h5 className="card-title fw-bold position-relative"
-                        title={title}
-                        style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            lineHeight: '1.3',
-                            maxHeight: 'calc(1.3em * 2)'
-                        }}>
-                        {title}
-                    </h5>
-                    <div className="d-flex align-items-center text-muted mb-2">
-                        <i className="bi bi-clock me-2 green"></i>
-                        <span>{time}</span>
-                    </div>
-                    <div className="d-flex flex-wrap gap-2">
-                        {tags.map((tag, index) => (
+                    {title}
+                </h5>
+                <div className="d-flex align-items-center text-muted mb-2">
+                    <i className="bi bi-clock me-2 green"></i>
+                    <span>{time}</span>
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
                         <span key={index} className="badge border borderGreen text-black">
                         {tag}
                         </span>
-                        ))}
-                    </div>
+                    ))}
+                </div>
+                <div className="mt-2">
+                    <RatingStars recipeId={id.toString()}/>
+                </div>
             </div>
 
             <ConfirmationDialog

@@ -8,6 +8,8 @@ import {useAuth} from "../../features/providers/AuthContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 import { useParams } from "react-router-dom";
 import { getRecipeInformation, getRecipeNutrition, getRecipeEquipment } from "../../features/spoonacular";
+import RatingStars from "../subcomponents/RatingStars";
+import CommentBox from "../subcomponents/CommentBox";
 
 
 function RecipeDetail({ recipe: propRecipe }) {
@@ -412,6 +414,16 @@ function RecipeDetail({ recipe: propRecipe }) {
                 </div>
             )}
 
+            {recipe && (
+                <>
+                    <RatingStars recipeId={recipe.id} />
+                    {user ? (
+                        <CommentBox recipeId={recipe.id} />
+                    ) : (
+                        <div className="text-muted mt-2">Please log in to post a comment.</div>
+                    )}
+                </>
+            )}
             {toast && (
                 <div
                     className="toast align-items-center text-white backgroundGreen border-0 position-fixed bottom-0 end-0 m-3 show"

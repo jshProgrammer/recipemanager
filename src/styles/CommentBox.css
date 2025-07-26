@@ -1,0 +1,11 @@
+.btn-green {
+    background-color: var(--green-accent-color) !important;
+    border-color: var(--green-accent-color) !important;
+    color: white !important;
+}
+
+.btn-green:hover {
+    background-color: #006400 !important;
+    border-color: #006400 !important;
+    color: white !important;
+}
