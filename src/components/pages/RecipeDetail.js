@@ -1,17 +1,22 @@
 import RecipeStep from "../subcomponents/RecipeStep";
 import "../../styles/RecipeDetail.css";
 import KeyValueTable from "../subcomponents/KeyValueTable";
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import { updateUserHealthScoreInDB } from "../../features/databaseStorage/userStorage";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
 import {useAuth} from "../../features/providers/AuthContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 import { useParams } from "react-router-dom";
 import { getRecipeInformation, getRecipeNutrition, getRecipeEquipment } from "../../features/spoonacular";
+import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favoriteRecipesStorage";
+import {useFavorites} from "../../features/providers/FavoriteRecipesContext";
+import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
 
 
 function RecipeDetail({ recipe: propRecipe }) {
     const { user } = useAuth();
+    const { isFavorite, addToFavorites, removeFromFavorites, favoriteIds } = useFavorites();
+
     const { id } = useParams();
     const { triggerRefresh } = useHealthScoreRefresh();
     const [recipe, setRecipe] = useState(propRecipe);
@@ -22,6 +27,11 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [equipmentError, setEquipmentError] = useState(null);
     const [showMore, setShowMore] = useState(false);
     const [toast, setToast] = useState(null);
+    const [showCollectionModal, setShowCollectionModal] = useState(false);
+    const [userCollections, setUserCollections] = useState([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [selectedCollection, setSelectedCollection] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -158,6 +168,39 @@ function RecipeDetail({ recipe: propRecipe }) {
         }
     };
 
+    const addToFavoritesClicked = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) return;
+
+        try {
+            if (isFavorite(id.toString())) {
+                await removeFromFavorites(id.toString());
+            } else {
+                const collections = await loadFavoriteCollectionsOfUser(user.uid);
+                setUserCollections(collections);
+                setShowCollectionModal(true);
+            }
+        } catch (error) {
+            console.error("Error handling favorite toggle:", error);
+        }
+    };
+
+    const confirmAddToFavorites = async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!selectedCollection) return;
+
+        try {
+            await addToFavorites(id.toString(), selectedCollection);
+            setShowCollectionModal(false);
+            setSelectedCollection(null);
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+        }
+    };
+
     const addToShoppingList = (ingredients) => {
         const names = ingredients.map(i => i.name);
 
@@ -251,8 +294,9 @@ function RecipeDetail({ recipe: propRecipe }) {
                     )}
 
                     <div className="d-grid gap-2 col-8">
-                        <button className="btn btn-dark">
-                            <i className="bi bi-heart me-2"></i> Add to favorites
+                        <button className="btn btn-dark"
+                            onClick={addToFavoritesClicked}>
+                            <i className={`bi ${isFavorite(id.toString()) ? "bi-heart-fill" : "bi-heart"} me-2`}></i> {isFavorite(id.toString()) ? "Remove from favorites" : "Add to favorites"}
                         </button>
 
                         <button
@@ -422,6 +466,40 @@ function RecipeDetail({ recipe: propRecipe }) {
                 >
                     <div className="d-flex">
                         <div className="toast-body">{toast}</div>
+                    </div>
+                </div>
+            )}
+
+            {showCollectionModal && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Select a Collection</h5>
+                            </div>
+                            <div className="modal-body">
+                                {userCollections.length === 0 ? (
+                                    <p>No collections found. Please create one first.</p>
+                                ) : (
+                                    <select className="form-select"
+                                            onChange={(e) => setSelectedCollection(JSON.parse(e.target.value))}
+                                            onClick={(e) => e.stopPropagation()} >
+                                        <option value="">Choose collection</option>
+                                        {userCollections.map((coll) => (
+                                            <option key={coll.id} value={JSON.stringify(coll)}>{coll.collectionName}</option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowCollectionModal(false)}>
+                                    Cancel
+                                </button>
+                                <button className="btn backgroundGreen" disabled={!selectedCollection} onClick={confirmAddToFavorites}>
+                                    Add to Collection
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

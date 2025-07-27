@@ -107,17 +107,8 @@ const CustomCollection = ({collectionName, isOwnRecipes, transformToSpoonacular=
                 </div>
             )}
             <Breadcrumbs />
-            <div className="d-flex align-items-center justify-content-between mb-4">
-                <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
 
-                {isOwnRecipes && (
-                <button className="btn backgroundGreen d-flex align-items-center" onClick={() => {
-                    navigate(`/collections/${encodeURIComponent(collectionName)}/create`)
-                }}>
-                    <i className="bi bi-book me-2"></i>
-                    New recipe
-                </button>)}
-            </div>
+            <h2 className="green mb-0 fw-bold" >Your personal recipes</h2>
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
