@@ -38,7 +38,7 @@
 - Import recipes from external platforms (e.g., Chefkoch)
 - Rate and comment on recipes
 - Gamification elements (e.g., health score)
-- Filter recipes based on available kitchen equipment
+- Filter recipes based on available kitchen equipment (Needs many API Tokens)
 - "What's in my fridge?" ingredient-based search
 
 ---

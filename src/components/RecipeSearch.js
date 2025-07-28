@@ -183,11 +183,12 @@ function RecipeSearch() {
 
       let allRecipesWithDetails = await processRecipes(data.results);
       
-      console.log("=== BEFORE EQUIPMENT FILTERING ===");
+      console.log("###### BEFORE EQUIPMENT FILTERING ######");
       console.log("useEquipmentFilter:", useEquipmentFilter);
       
       if (useEquipmentFilter) {
         console.log("Applying equipment filtering...");
+        console.log(`Will check equipment for ${allRecipesWithDetails.length} recipes`);
         
         // Load user equipment for filtering
         let currentUserEquipment = {};
@@ -206,15 +207,20 @@ function RecipeSearch() {
         console.log("userEquipment:", currentUserEquipment);
         console.log("Recipes before filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
         
-        allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
-        console.log(`Filtered from ${data.results.length} to ${allRecipesWithDetails.length} recipes`);
+        // Only check equipment for the first 9 recipes to avoid API limits
+        const recipesToCheck = allRecipesWithDetails.slice(0, 9);
+        const checkedRecipes = await filterRecipesByEquipment(recipesToCheck, currentUserEquipment);
+        
+        // Keep the rest of the recipes as they are (they'll be checked when "Load More" is clicked)
+        allRecipesWithDetails = [...checkedRecipes, ...allRecipesWithDetails.slice(9)];
+        console.log(`Filtered from ${data.results.length} to ${allRecipesWithDetails.length} recipes (checked first 9)`);
       }
       
-      console.log("=== FINAL RECIPES TO BE DISPLAYED ===");
+      console.log("###### FINAL RECIPES TO BE DISPLAYED ######");
       console.log("Recipes after filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
       
       setResults(allRecipesWithDetails.slice(0, 9));
-      console.log("=== SETTING RESULTS ===");
+      console.log("###### SETTING RESULTS ######");
       console.log("Final results being set:", allRecipesWithDetails.slice(0, 9).map(r => ({id: r.id, title: r.title})));
       setTotalResults(allRecipesWithDetails.length);
       setCurrentOffset(9);
@@ -237,7 +243,7 @@ function RecipeSearch() {
     
     try {
       const allRecipes = lastSearchOptions.allRecipes || [];
-      console.log("=== LOAD MORE ===");
+      console.log("###### LOAD MORE ######");
       console.log("All cached recipes:", allRecipes.map(r => ({id: r.id, title: r.title})));
       console.log("Current offset:", currentOffset);
       
@@ -250,7 +256,7 @@ function RecipeSearch() {
 
       setResults(prevResults => {
         const newResults = [...prevResults, ...nextRecipes];
-        console.log("=== UPDATING RESULTS IN LOAD MORE ===");
+        console.log("###### UPDATING RESULTS IN LOAD MORE ######");
         console.log("Previous results:", prevResults.map(r => ({id: r.id, title: r.title})));
         console.log("New results:", newResults.map(r => ({id: r.id, title: r.title})));
         return newResults;
