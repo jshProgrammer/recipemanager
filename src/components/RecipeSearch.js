@@ -123,41 +123,68 @@ function RecipeSearch() {
     }
 
     const filteredRecipes = [];
+    let checkedCount = 0;
     
     for (const recipe of recipes) {
       try {
+        // Add delay to avoid rate limiting (1 second between requests)
+        if (checkedCount > 0) {
+          console.log(`Waiting 1 second before next equipment request...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
         const equipmentData = await getRecipeEquipment(recipe.id);
         const recipeEquipment = equipmentData.equipment || [];
+        checkedCount++;
 
         console.log(`Recipe ${recipe.id} (${recipe.title}) equipment:`, recipeEquipment);
-        //console.log("User equipment:", userEquipment);
+        console.log("User equipment:", userEquipment);
         
+        // If recipe has no equipment info, include it
         if (recipeEquipment.length === 0) {
           console.log(`Recipe ${recipe.id} has no equipment info - including`);
           filteredRecipes.push(recipe);
-          continue;
-        }
-
-        let hasAllEquipment = true;
-        for (const equipment of recipeEquipment) {
-          if (userEquipment[equipment.name] !== true) {
-            console.log(`Recipe ${recipe.id} - missing equipment: ${equipment.name}`);
-            hasAllEquipment = false;
-            break;
+        } else {
+          // Check if user has ALL required equipment for this recipe
+          let hasAllEquipment = true;
+          for (const equipment of recipeEquipment) {
+            if (userEquipment[equipment.name] !== true) {
+              console.log(`Recipe ${recipe.id} - missing equipment: ${equipment.name}`);
+              hasAllEquipment = false;
+              break;
+            }
+          }
+          
+          if (hasAllEquipment) {
+            console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
+            filteredRecipes.push(recipe);
+          } else {
+            console.log(`Recipe ${recipe.id} - missing equipment - excluding`);
           }
         }
         
-        if (hasAllEquipment) {
-          console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
-          filteredRecipes.push(recipe);
-        } else {
-          console.log(`Recipe ${recipe.id} - missing equipment - excluding`);
+        // After finding 9 recipes, set results immediately and continue in background
+        if (filteredRecipes.length === 9) {
+          console.log(`Found ${filteredRecipes.length} suitable recipes, setting results and continuing in background...`);
+          setResults(filteredRecipes);
+          setTotalResults(filteredRecipes.length);
+          
+          // Continue checking in background but don't wait for it
+          // The rest will be available for "Load More"
+          continue;
         }
+        
       } catch (err) {
         console.warn(`Could not fetch equipment for recipe ${recipe.id}:`, err);
         console.log(`Recipe ${recipe.id} - equipment fetch failed - excluding recipe`);
+        checkedCount++;
       }
     }
+    
+    // Always set results with filtered recipes (whether we found 9 or less)
+    setResults(filteredRecipes);
+    setTotalResults(filteredRecipes.length);
+    console.log(`Final equipment filtering complete: ${filteredRecipes.length} recipes found (checked ${checkedCount})`);
     
     return filteredRecipes;
   };
@@ -206,18 +233,15 @@ function RecipeSearch() {
         console.log("userEquipment:", currentUserEquipment);
         console.log("Recipes before filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
         
+        // filterRecipesByEquipment will handle setResults and setTotalResults internally
         allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
-        console.log(`Filtered from ${data.results.length} to ${allRecipesWithDetails.length} recipes`);
+        console.log(`Equipment filtering complete: ${allRecipesWithDetails.length} recipes found`);
+      } else {
+        // Normal flow without equipment filtering
+        setResults(allRecipesWithDetails.slice(0, 9));
+        setTotalResults(allRecipesWithDetails.length);
+        setCurrentOffset(9);
       }
-      
-      console.log("######### FINAL RECIPES TO BE DISPLAYED #########");
-      console.log("Recipes after filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
-      
-      setResults(allRecipesWithDetails.slice(0, 9));
-      console.log("######### SETTING RESULTS #########");
-      console.log("Final results being set:", allRecipesWithDetails.slice(0, 9).map(r => ({id: r.id, title: r.title})));
-      setTotalResults(allRecipesWithDetails.length);
-      setCurrentOffset(9);
       
       setLastSearchOptions({...searchOptions, allRecipes: allRecipesWithDetails});
       
