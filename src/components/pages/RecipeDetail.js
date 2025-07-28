@@ -11,6 +11,7 @@ import { getRecipeInformation, getRecipeNutrition, getRecipeEquipment } from "..
 import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favoriteRecipesStorage";
 import {useFavorites} from "../../features/providers/FavoriteRecipesContext";
 import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
+import { generateRecipeTags } from "../../data/RecipeTags";
 
 
 function RecipeDetail({ recipe: propRecipe }) {
@@ -41,16 +42,7 @@ function RecipeDetail({ recipe: propRecipe }) {
             time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "30min",
             price: spoonacularRecipe.pricePerServing ? 
                 `$${(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)).toFixed(2)}` : "$2.49",
-            tags: [
-                ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-                ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-                ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-                ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-                ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-                ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-                ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-                "Recommended"
-            ],
+            tags: generateRecipeTags(spoonacularRecipe), 
             healthScore: spoonacularRecipe.healthScore,
             ingredients: spoonacularRecipe.extendedIngredients?.map(ing => ({
                 amount: `${ing.amount} ${ing.unit}`,

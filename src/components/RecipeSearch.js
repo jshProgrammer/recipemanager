@@ -6,6 +6,7 @@ import RecipeFilters from "../components/subcomponents/RecipeFilters";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/providers/AuthContext";
 import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
+import { generateRecipeTags } from "../data/RecipeTags";
 
 function RecipeSearch() {
   const navigate = useNavigate();
@@ -78,16 +79,7 @@ function RecipeSearch() {
       title: spoonacularRecipe.title,
       imageURL: spoonacularRecipe.image,
       time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "N/A",
-      tags: [
-        ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-        ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-        ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-        ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-        ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-        ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-        ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-        ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-      ].slice(0, 3), 
+      tags: generateRecipeTags(spoonacularRecipe).slice(0, 3), 
       estimatedPrice: spoonacularRecipe.pricePerServing ? 
         Math.round(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)) : null
     };

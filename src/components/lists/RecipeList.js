@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import RecipeCard from "../cards/RecipeCard";
 import { Link } from "react-router-dom";
 import { getRandomRecipes, searchRecipesAdvanced } from "../../features/spoonacular";
+import { generateRecipeTags } from "../../data/RecipeTags";
 
 let globalRandomRecipesCache = null;
 let globalRandomRecipesLoaded = false;
@@ -26,16 +27,7 @@ export default function RecipeList({
             title: spoonacularRecipe.title,
             imageURL: spoonacularRecipe.image,
             time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "N/A",
-            tags: [
-                ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-                ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-                ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-                ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-                ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-                ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-                ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-                ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-            ].slice(0, 3),
+            tags: generateRecipeTags(spoonacularRecipe).slice(0, 3),
             estimatedPrice: spoonacularRecipe.pricePerServing ?
                 Math.round(spoonacularRecipe.pricePerServing / 100 * spoonacularRecipe.servings) : null
         };
@@ -77,16 +69,7 @@ export default function RecipeList({
                                 title: recipe.title,
                                 imageURL: recipe.image,
                                 time: recipe.readyInMinutes ? `${recipe.readyInMinutes}min` : "N/A",
-                                tags: [
-                                    ...(recipe.vegetarian ? ["Vegetarian"] : []),
-                                    ...(recipe.vegan ? ["Vegan"] : []),
-                                    ...(recipe.glutenFree ? ["Gluten-Free"] : []),
-                                    ...(recipe.dairyFree ? ["Dairy-Free"] : []),
-                                    ...(recipe.veryHealthy ? ["Healthy"] : []),
-                                    ...(recipe.cheap ? ["Budget-Friendly"] : []),
-                                    ...(recipe.veryPopular ? ["Popular"] : []),
-                                    ...(recipe.readyInMinutes <= 30 ? ["Fast"] : [])
-                                ].slice(0, 4)
+                                tags: generateRecipeTags(recipe).slice(0, 4)
                             };
                         } catch (err) {
                             console.warn(`Could not fetch details for recipe ${recipe.id}:`, err);
@@ -113,13 +96,7 @@ export default function RecipeList({
                     title: recipe.title,
                     imageURL: recipe.image,
                     time: recipe.readyInMinutes ? `${recipe.readyInMinutes}min` : "N/A",
-                    tags: [
-                        ...(recipe.vegetarian ? ["Vegetarian"] : []),
-                        ...(recipe.vegan ? ["Vegan"] : []),
-                        ...(recipe.glutenFree ? ["Gluten-Free"] : []),
-                        ...(recipe.readyInMinutes <= 30 ? ["Fast"] : []),
-                        "Popular"
-                    ].slice(0, 4)
+                    tags: generateRecipeTags(recipe).slice(0, 4)
                 }));
 
                 setApiRecipes(recipesWithDetails);
