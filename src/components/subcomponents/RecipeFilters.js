@@ -143,7 +143,7 @@ function RecipeFilters({
             <Form.Check
               type="checkbox"
               id="equipmentFilter"
-              label="Only recipes with ALL my equipment"
+              label="Recipe Filter (takes long) (uses many API-Tokens)"
               checked={useEquipmentFilter}
               onChange={e => setUseEquipmentFilter(e.target.checked)}
               className="me-2"
