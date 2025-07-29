@@ -166,7 +166,7 @@ function RecipeSearch() {
         // After finding 9 recipes, set results immediately and continue in background
         if (filteredRecipes.length === 9) {
           console.log(`Found ${filteredRecipes.length} suitable recipes, setting results and continuing in background...`);
-          setResults(filteredRecipes);
+          setResults(filteredRecipes.slice(0, 9));
           setTotalResults(filteredRecipes.length);
           setCurrentOffset(9);
           setHasSearched(true);
@@ -239,6 +239,9 @@ function RecipeSearch() {
         // filterRecipesByEquipment will handle setResults and setTotalResults internally
         allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
         console.log(`Equipment filtering complete: ${allRecipesWithDetails.length} recipes found`);
+        setTotalResults(allRecipesWithDetails.length);
+        setResults(allRecipesWithDetails.slice(0, 9));
+        setTotalResults(allRecipesWithDetails.length);
         setCurrentOffset(9); // Set offset for Load More functionality
       } else {
         // Normal flow without equipment filtering
