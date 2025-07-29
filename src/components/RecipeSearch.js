@@ -78,9 +78,9 @@ function RecipeSearch() {
   };
 
   const handleRecipeClick = (recipeId) => {
-    navigate(`/recipes/${recipeId}`);
+    // Navigate to recipe detail with replace to avoid double back issue
+    navigate(`/recipes/${recipeId}`, { replace: true });
   };
-
 
   const buildSearchOptions = (number = 9) => {
     const searchOptions = {
