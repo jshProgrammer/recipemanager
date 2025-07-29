@@ -32,9 +32,7 @@ export default function Settings() {
         { id: 'lactoseIntolerance', value: 'lactoseIntolerance', label: 'Lactose Intolerance'},
         { id: 'glutenIntolerance', value: 'glutenIntolerance', label: 'Gluten Intolerance'},
         { id: 'nutAllergy', value: 'nutAllergy', label: 'Nut allergy'},
-        { id: 'caffeineSensitivity', value: 'caffeineSensitivity', label: 'Caffeine Sensitivity'},
         { id: 'eggIntolerance', value: 'eggIntolerance', label: 'Egg Intolerance'},
-        { id: 'chocolateSensitivity', value: 'chocolateSensitivity', label: 'Chocolate Sensitivity'},
     ];
 
     const equipmentList = [
@@ -86,9 +84,7 @@ export default function Settings() {
             lactoseIntolerance: settings.lactoseIntolerance || false,
             glutenIntolerance: settings.glutenIntolerance || false,
             nutAllergy: settings.nutAllergy || false,
-            caffeineSensitivity: settings.caffeineSensitivity || false,
             eggIntolerance: settings.eggIntolerance || false,
-            chocolateSensitivity: settings.chocolateSensitivity || false,
             });
 
             if (settings.equipment) {

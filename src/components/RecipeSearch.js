@@ -5,31 +5,44 @@ import RecipeList from "../components/lists/RecipeList";
 import RecipeFilters from "../components/subcomponents/RecipeFilters"; 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/providers/AuthContext";
+import { useSearch } from "../features/providers/SearchContext"; 
 import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
 import { generateRecipeTags } from "../data/RecipeTags";
 
 function RecipeSearch() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  
+  const {
+    query,
+    setQuery,
+    results,
+    setResults,
+    hasSearched,
+    setHasSearched,
+    isLoading,
+    setIsLoading,
+    currentOffset,
+    setCurrentOffset,
+    totalResults,
+    setTotalResults,
+    lastSearchOptions,
+    setLastSearchOptions,
+    selectedDiet,
+    setSelectedDiet,
+    selectedIntolerances,
+    setSelectedIntolerances,
+    selectedIngredients,
+    setSelectedIngredients,
+    maxReadyTime,
+    setMaxReadyTime,
+    activeTag,
+    setActiveTag
+  } = useSearch();
+  
   const [autocompleteResults, setAutocompleteResults] = useState([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  
-  const [currentOffset, setCurrentOffset] = useState(0);
-  const [totalResults, setTotalResults] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [lastSearchOptions, setLastSearchOptions] = useState({});
-  
-  const [selectedDiet, setSelectedDiet] = useState("");
-  const [selectedIntolerances, setSelectedIntolerances] = useState("");
-  const [selectedIngredients, setSelectedIngredients] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [maxReadyTime, setMaxReadyTime] = useState("");
-  const [activeTag, setActiveTag] = useState("");
-  
   const [userSettings, setUserSettings] = useState(null);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
@@ -96,7 +109,6 @@ function RecipeSearch() {
       intolerances: selectedIntolerances,
       includeIngredients: selectedIngredients,
       maxReadyTime: maxReadyTime,
-      maxPricePerServing: maxPrice ? parseFloat(maxPrice) * 100 : undefined,
       sort: 'popularity',
       number: number
     };
@@ -277,8 +289,6 @@ function RecipeSearch() {
         setSelectedIntolerances={setSelectedIntolerances}
         selectedIngredients={selectedIngredients}
         setSelectedIngredients={setSelectedIngredients}
-        maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
         maxReadyTime={maxReadyTime}
         setMaxReadyTime={setMaxReadyTime}
         activeTag={activeTag}
@@ -301,7 +311,6 @@ function RecipeSearch() {
                 {selectedDiet && ` • ${selectedDiet}`}
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
-                {maxPrice && ` • max $${maxPrice}`}
               </small>
             )}
           </div>

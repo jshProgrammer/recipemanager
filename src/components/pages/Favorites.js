@@ -12,7 +12,6 @@ const FavoritesSection = () => {
   const [selectedDiet, setSelectedDiet] = useState('');
   const [selectedIntolerances, setSelectedIntolerances] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
   const [maxReadyTime, setMaxReadyTime] = useState('');
   const [activeTag, setActiveTag] = useState('');
   
@@ -36,7 +35,6 @@ const FavoritesSection = () => {
       selectedDiet,
       selectedIntolerances,
       selectedIngredients,
-      maxPrice,
       maxReadyTime,
       activeTag,
       totalRecipes: favoriteRecipes.length
@@ -158,17 +156,7 @@ const FavoritesSection = () => {
       });
       console.log("After intolerances filter:", filtered.length);
     }
-    
-    if (maxPrice) {
-      console.log("Filtering by price:", maxPrice);
-      const priceLimit = parseFloat(maxPrice);
-      filtered = filtered.filter(recipe => {
-        const recipePrice = recipe.pricePerServing || recipe.price || 0;
-        const normalizedPrice = recipePrice > 100 ? recipePrice / 100 : recipePrice;
-        return normalizedPrice <= priceLimit;
-      });
-      console.log("After price filter:", filtered.length);
-    }
+  
     
     if (maxReadyTime) {
       console.log("Filtering by ready time:", maxReadyTime);
@@ -189,7 +177,6 @@ const FavoritesSection = () => {
     setSelectedDiet('');
     setSelectedIntolerances('');
     setSelectedIngredients('');
-    setMaxPrice('');
     setMaxReadyTime('');
     setActiveTag('');
     setFilteredRecipes(favoriteRecipes);
@@ -216,8 +203,6 @@ const FavoritesSection = () => {
             setSelectedIntolerances={setSelectedIntolerances}
             selectedIngredients={selectedIngredients}
             setSelectedIngredients={setSelectedIngredients}
-            maxPrice={maxPrice}
-            setMaxPrice={setMaxPrice}
             maxReadyTime={maxReadyTime}
             setMaxReadyTime={setMaxReadyTime}
             activeTag={activeTag}

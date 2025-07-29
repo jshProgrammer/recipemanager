@@ -2,6 +2,7 @@ import './styles/App.css';
 
 import { recipes } from './data/SampleData';
 import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
+import { SearchProvider } from './features/providers/SearchContext.js';
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -34,74 +35,78 @@ function App() {
   const isMobile = useIsMobile();
 
   return (
+    <AuthProvider>
+      <SearchProvider> 
         <Router>
-        <ScrollToTop />
-        <div className="container py-4">
-          <Header />
-          <Routes>
-              <Route path="/" element={
-                <div>
+          <ScrollToTop />
+          <div className="container py-4">
+            <Header />
+            <Routes>
+                <Route path="/" element={
+                  <div>
 
-                  <IntroSection/>
+                    <IntroSection/>
 
-                  <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
-                  <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
+                    <h2 className="green fw-bold mt-5" id="suggestions">Great suggestions</h2>
+                    <RecipeList useRandomRecipes={true} numberOfRecipes={4} />
 
 
-                  {!isMobile &&
-                      <div className="bgLightGreen p-4 rounded-4 mt-4" id="search-section">
-                        <RecipeSearch/>
-                      </div>
-                  }
+                    {!isMobile &&
+                        <div className="bgLightGreen p-4 rounded-4 mt-4" id="search-section">
+                          <RecipeSearch/>
+                        </div>
+                    }
 
+                  </div>
+                }/>
+
+              <Route path="/search" element={
+                <div className="container mt-5">
+                  <SearchPage/>
                 </div>
               }/>
 
-            <Route path="/search" element={
-              <div className="container mt-5">
-                <SearchPage/>
-              </div>
-            }/>
-
-            <Route path="/login" element={<LoginSignupMobile/>}/>
+              <Route path="/login" element={<LoginSignupMobile/>}/>
 
 
-          <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
-          <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
-          <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false} transformToSpoonacular={true}/></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites/></ProtectedRoute>} />
+            <Route path="/favorites/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={false} transformToSpoonacular={true}/></ProtectedRoute>} />
 
-          <Route path="/ownRecipes" element={
-            <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />
-          <Route path="/ownRecipes/:recipeID" element={
-            <ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+            <Route path="/ownRecipes" element={
+              <ProtectedRoute><OwnRecipes/></ProtectedRoute>} />
+            <Route path="/ownRecipes/:recipeID" element={
+              <ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
 
-          {/*separate routes for recipes inside collection and the ones assigned to None */}
-          <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
-          <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
+            {/*separate routes for recipes inside collection and the ones assigned to None */}
+            <Route path="/own-recipes/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+            <Route path="/own-recipes/edit/:recipeID" element={<CreateEditOwnRecipeWrapper />}/>
 
-          <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={true} transformToSpoonacular={false} /></ProtectedRoute>}/>
-          <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
-          <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
-          <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName" element={<ProtectedRoute><CustomCollectionWrapper isOwnRecipes={true} transformToSpoonacular={false} /></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/:recipeID" element={<ProtectedRoute><OwnRecipeDetailWrapper/></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/create" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
+            <Route path="/collections/:collectionName/edit/:recipeID" element={<ProtectedRoute><CreateEditOwnRecipeWrapper /></ProtectedRoute>}/>
 
 
-          <Route path="/recipes/:id"
-            element={<RecipeDetailWrapper/>}/>
+            <Route path="/recipes/:id"
+              element={<RecipeDetailWrapper/>}/>
 
-          <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
-          <Route path="*" element={<NoPage/>}/>
+            <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
+            <Route path="*" element={<NoPage/>}/>
 
-            <Route path="/shopping-list" element={<ShoppingList />} />
-          </Routes>
+              <Route path="/shopping-list" element={<ShoppingList />} />
+            </Routes>
 
-          <footer className="text-center mt-5 text-muted">
-            <p className="mb-0">RecipeManager</p>
-            <p className="small">Impressum • Your first steps with RecipeManager</p>
-          </footer>
+            <footer className="text-center mt-5 text-muted">
+              <p className="mb-0">RecipeManager</p>
+              <p className="small">Impressum • Your first steps with RecipeManager</p>
+            </footer>
 
-        </div>
-        <MobileTabBar />
-      </Router>
+          </div>
+          <MobileTabBar />
+        </Router>
+      </SearchProvider>
+    </AuthProvider>
   );
 }
 

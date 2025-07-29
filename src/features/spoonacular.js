@@ -1,6 +1,5 @@
 const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
 
-//TODO: do we need this? (or only searchRecepiesAdvanced())
 export async function searchRecipes(query) {
   const response = await fetch(
     `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(query)}&number=10&apiKey=${apiKey}`
@@ -48,8 +47,7 @@ export async function searchRecipesAdvanced(options = {}, userSettings = null) {
     cuisine = '', 
     maxReadyTime = '', 
     minProtein = '',
-    maxCalories = '',
-    maxPricePerServing = '', 
+    maxCalories = '', 
     includeIngredients = '', 
     sort = 'popularity', 
     number = 10
@@ -70,7 +68,6 @@ export async function searchRecipesAdvanced(options = {}, userSettings = null) {
   if (maxReadyTime) url += `&maxReadyTime=${maxReadyTime}`;
   if (minProtein) url += `&minProtein=${minProtein}`;
   if (maxCalories) url += `&maxCalories=${maxCalories}`;
-  if (maxPricePerServing) url += `&maxPricePerServing=${maxPricePerServing}`;
   if (includeIngredients) url += `&includeIngredients=${encodeURIComponent(includeIngredients)}`;
 
   console.log("API URL:", url); 
@@ -190,7 +187,7 @@ export async function autocompleteRecipeSearch(query, number = 10) {
   return response.json();
 }
 
-export async function generateMealPlan(options = {}) { //could be nice to have
+export async function generateMealPlan(options = {}) { 
   const {
     timeFrame = 'day', 
     targetCalories = '',
@@ -209,7 +206,7 @@ export async function generateMealPlan(options = {}) { //could be nice to have
   return response.json();
 }
 
-export async function getRecipeSummary(id) { //maybe could be added to recipe cards
+export async function getRecipeSummary(id) { 
   const response = await fetch(
     `https://api.spoonacular.com/recipes/${id}/summary?apiKey=${apiKey}`
   );
