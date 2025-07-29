@@ -78,7 +78,6 @@ function RecipeSearch() {
   };
 
   const handleRecipeClick = (recipeId) => {
-    // Navigate to recipe detail with replace to avoid double back issue
     navigate(`/recipes/${recipeId}`, { replace: true });
   };
 
@@ -158,6 +157,7 @@ function RecipeSearch() {
           if (hasAllEquipment) {
             console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
             filteredRecipes.push(recipe);
+            setTotalResults(filteredRecipes.length);
           } else {
             console.log(`Recipe ${recipe.id} - missing equipment - excluding`);
           }
@@ -168,6 +168,9 @@ function RecipeSearch() {
           console.log(`Found ${filteredRecipes.length} suitable recipes, setting results and continuing in background...`);
           setResults(filteredRecipes);
           setTotalResults(filteredRecipes.length);
+          setCurrentOffset(9);
+          setHasSearched(true);
+          setIsLoading(false);
           
           // Continue checking in background but don't wait for it
           // The rest will be available for "Load More"
@@ -182,7 +185,7 @@ function RecipeSearch() {
     }
     
     // Always set results with filtered recipes (whether we found 9 or less)
-    setResults(filteredRecipes);
+    //setResults(filteredRecipes);
     setTotalResults(filteredRecipes.length);
     console.log(`Final equipment filtering complete: ${filteredRecipes.length} recipes found (checked ${checkedCount})`);
     
@@ -236,6 +239,7 @@ function RecipeSearch() {
         // filterRecipesByEquipment will handle setResults and setTotalResults internally
         allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
         console.log(`Equipment filtering complete: ${allRecipesWithDetails.length} recipes found`);
+        setCurrentOffset(9); // Set offset for Load More functionality
       } else {
         // Normal flow without equipment filtering
         setResults(allRecipesWithDetails.slice(0, 9));
