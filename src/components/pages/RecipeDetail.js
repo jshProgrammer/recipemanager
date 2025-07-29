@@ -12,6 +12,7 @@ import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favo
 import {useFavorites} from "../../features/providers/FavoriteRecipesContext";
 import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
 import { generateRecipeTags } from "../../data/RecipeTags";
+import ShareModal from "../subcomponents/ShareModal";
 
 
 function RecipeDetail({ recipe: propRecipe }) {
@@ -33,6 +34,7 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [selectedCollection, setSelectedCollection] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+const [showShareModal, setShowShareModal] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -204,6 +206,14 @@ function RecipeDetail({ recipe: propRecipe }) {
         setTimeout(() => setToast(null), 3000);
     };
 
+    const handleShare = () => {
+	setShowShareModal(true);
+    };
+
+    const closeShareModal = () => {
+	setShowShareModal(false);
+    };
+
     if (isLoading) {
         return (
             <div className="container mt-5">
@@ -241,6 +251,13 @@ function RecipeDetail({ recipe: propRecipe }) {
     return (
         <div className="container mt-5">
             <Breadcrumbs overrideNames={{ [recipe.id]: recipe.title }}/>
+
+	    <ShareModal
+	        isOpen={showShareModal}
+	        onClose={closeShareModal}
+	        recipe={recipe}
+	        url={window.location.href}
+	    />
 
             <div className="row">
                 <div className="col-md-6">
