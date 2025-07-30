@@ -1,17 +1,24 @@
 import RecipeStep from "../subcomponents/RecipeStep";
 import "../../styles/RecipeDetail.css";
 import KeyValueTable from "../subcomponents/KeyValueTable";
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import { updateUserHealthScoreInDB } from "../../features/databaseStorage/userStorage";
 import { useHealthScoreRefresh } from "../../features/providers/HealthScoreRefreshContext";
 import {useAuth} from "../../features/providers/AuthContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 import { useParams } from "react-router-dom";
 import { getRecipeInformation, getRecipeNutrition, getRecipeEquipment } from "../../features/spoonacular";
+import {loadFavoriteCollectionsOfUser} from "../../features/databaseStorage/favoriteRecipesStorage";
+import {useFavorites} from "../../features/providers/FavoriteRecipesContext";
+import ConfirmationDialog from "../subcomponents/ConfirmationDialog";
+import { generateRecipeTags } from "../../data/RecipeTags";
+import ShareModal from "../subcomponents/ShareModal";
 
 
 function RecipeDetail({ recipe: propRecipe }) {
     const { user } = useAuth();
+    const { isFavorite, addToFavorites, removeFromFavorites, favoriteIds } = useFavorites();
+
     const { id } = useParams();
     const { triggerRefresh } = useHealthScoreRefresh();
     const [recipe, setRecipe] = useState(propRecipe);
@@ -21,6 +28,13 @@ function RecipeDetail({ recipe: propRecipe }) {
     const [equipmentLoading, setEquipmentLoading] = useState(false);
     const [equipmentError, setEquipmentError] = useState(null);
     const [showMore, setShowMore] = useState(false);
+    const [toast, setToast] = useState(null);
+    const [showCollectionModal, setShowCollectionModal] = useState(false);
+    const [userCollections, setUserCollections] = useState([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [selectedCollection, setSelectedCollection] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+const [showShareModal, setShowShareModal] = useState(false);
 
     const transformRecipeForDetail = (spoonacularRecipe) => {
         return {
@@ -30,16 +44,7 @@ function RecipeDetail({ recipe: propRecipe }) {
             time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "30min",
             price: spoonacularRecipe.pricePerServing ? 
                 `$${(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)).toFixed(2)}` : "$2.49",
-            tags: [
-                ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-                ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-                ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-                ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-                ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-                ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-                ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-                "Recommended"
-            ],
+            tags: generateRecipeTags(spoonacularRecipe), 
             healthScore: spoonacularRecipe.healthScore,
             ingredients: spoonacularRecipe.extendedIngredients?.map(ing => ({
                 amount: `${ing.amount} ${ing.unit}`,
@@ -157,11 +162,63 @@ function RecipeDetail({ recipe: propRecipe }) {
         }
     };
 
+    const addToFavoritesClicked = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) return;
+
+        try {
+            if (isFavorite(id.toString())) {
+                await removeFromFavorites(id.toString());
+            } else {
+                const collections = await loadFavoriteCollectionsOfUser(user.uid);
+                setUserCollections(collections);
+                setShowCollectionModal(true);
+            }
+        } catch (error) {
+            console.error("Error handling favorite toggle:", error);
+        }
+    };
+
+    const confirmAddToFavorites = async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!selectedCollection) return;
+
+        try {
+            await addToFavorites(id.toString(), selectedCollection);
+            setShowCollectionModal(false);
+            setSelectedCollection(null);
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+        }
+    };
+
+    const addToShoppingList = (ingredients) => {
+        const names = ingredients.map(i => i.name);
+
+        const current = JSON.parse(localStorage.getItem("shoppingList")) || [];
+        const updated = Array.from(new Set([...current, ...names]));
+        localStorage.setItem("shoppingList", JSON.stringify(updated));
+
+        setToast("Ingredients added to your shopping list!");
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    const handleShare = () => {
+	setShowShareModal(true);
+    };
+
+    const closeShareModal = () => {
+	setShowShareModal(false);
+    };
+
     if (isLoading) {
         return (
             <div className="container mt-5">
                 <div className="d-flex justify-content-center py-5">
-                    <div className="spinner-border text-success" role="status">
+                    <div className="spinner-border green" role="status">
                         <span className="visually-hidden">Loading recipe...</span>
                     </div>
                 </div>
@@ -195,16 +252,23 @@ function RecipeDetail({ recipe: propRecipe }) {
         <div className="container mt-5">
             <Breadcrumbs overrideNames={{ [recipe.id]: recipe.title }}/>
 
+	    <ShareModal
+	        isOpen={showShareModal}
+	        onClose={closeShareModal}
+	        recipe={recipe}
+	        url={window.location.href}
+	    />
+
             <div className="row">
                 <div className="col-md-6">
                     <img src={recipe.imageURL} alt={recipe.title} className="img-fluid rounded"/>
                 </div>
                 <div className="col-md-6">
-                    <h2 className="text-green fw-bold">{recipe.title}</h2>
+                    <h2 className="green fw-bold">{recipe.title}</h2>
 
                     <div className="mb-3">
                         {(recipe.tags || ["Simple", "Recommended", "Dessert"]).map((tag, i) => (
-                            <span key={i} className="badge tag-text tag-border me-2">{tag}</span>
+                            <span key={i} className="borderGreen badge tag-text tag-border me-2">{tag}</span>
                         ))}
                     </div>
 
@@ -219,31 +283,39 @@ function RecipeDetail({ recipe: propRecipe }) {
                     </p>
 
                     {recipe.healthScore && (
-                        <div className="mb-3">
-                            <div className="d-flex align-items-center">
-                                <span className="me-2">Health Score:</span>
-                                <div className="progress flex-grow-1 me-2" style={{ height: '20px' }}>
-                                    <div 
-                                        className="progress-bar bg-success" 
-                                        role="progressbar" 
+                        <div className="mb-3 col-8">
+                            <h6 className="green fw-bold mb-2">Health Score</h6>
+                            <div className="d-flex align-items-center p-3">
+                                <div className="progress flex-grow-1 me-3" style={{ height: '24px' }}>
+                                    <div
+                                        className="progress-bar backgroundGreen"
+                                        role="progressbar"
                                         style={{ width: `${recipe.healthScore}%` }}
-                                        aria-valuenow={recipe.healthScore} 
-                                        aria-valuemin="0" 
+                                        aria-valuenow={recipe.healthScore}
+                                        aria-valuemin="0"
                                         aria-valuemax="100"
                                     >
                                     </div>
                                 </div>
-                                <span className="fw-bold text-success">{recipe.healthScore}/100</span>
+                                <span className="fw-bold green">{recipe.healthScore}/100</span>
                             </div>
                         </div>
                     )}
 
                     <div className="d-grid gap-2 col-8">
-                        <button className="btn btn-dark">
-                            <i className="bi bi-heart me-2"></i> Add to favorites
+                        <button className="btn btn-dark"
+                            onClick={addToFavoritesClicked}>
+                            <i className={`bi ${isFavorite(id.toString()) ? "bi-heart-fill" : "bi-heart"} me-2`}></i> {isFavorite(id.toString()) ? "Remove from favorites" : "Add to favorites"}
                         </button>
 
-                        <button className="btn btn-secondary">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => addToShoppingList(recipe.ingredients)}
+                        >
+                            <i className="bi bi-cart-plus me-2"></i> Add to shopping list
+                        </button>
+
+                        <button className="btn btn-secondary" onClick={handleShare}>
                             <i className="bi bi-box-arrow-up me-2"></i> Share with friends
                         </button>
 
@@ -258,7 +330,7 @@ function RecipeDetail({ recipe: propRecipe }) {
 
             <div className="row mt-5">
                 <div className="col-md-6">
-                    <h4 className="text-success fw-bold">Ingredients</h4>
+                    <h4 className="green fw-bold">Ingredients</h4>
                     <KeyValueTable 
                         headerLeft="Amount"
                         headerRight="Ingredients"
@@ -269,7 +341,7 @@ function RecipeDetail({ recipe: propRecipe }) {
                     />
                 </div>
                 <div className="col-md-6">
-                    <h4 className="text-success fw-bold">Nutritional Information</h4>
+                    <h4 className="green fw-bold">Nutritional Information</h4>
                     {recipe.nutrition?.main?.length > 0 && (
                         <>
                             <KeyValueTable
@@ -297,10 +369,10 @@ function RecipeDetail({ recipe: propRecipe }) {
             {(equipment.length > 0 || equipmentLoading) && (
                 <div className="row mt-4">
                     <div className="col-12">
-                        <h4 className="text-success fw-bold">Equipment</h4>
+                        <h4 className="green fw-bold">Equipment</h4>
                         {equipmentLoading ? (
                             <div className="d-flex justify-content-center py-3">
-                                <div className="spinner-border spinner-border-sm text-success" role="status">
+                                <div className="spinner-border spinner-border-sm green" role="status">
                                     <span className="visually-hidden">Loading equipment...</span>
                                 </div>
                             </div>
@@ -367,7 +439,7 @@ function RecipeDetail({ recipe: propRecipe }) {
             {recipe.summary && (
                 <div className="row mt-4">
                     <div className="col-12">
-                        <h4 className="text-success fw-bold">Description</h4>
+                        <h4 className="green fw-bold">Description</h4>
                         <div
                             className="text-muted"
                             dangerouslySetInnerHTML={{ 
@@ -380,7 +452,7 @@ function RecipeDetail({ recipe: propRecipe }) {
 
             {recipe.steps && recipe.steps.length > 0 && (
                 <div className="mt-5">
-                    <h4 className="text-green fw-bold">Step-by-Step Guide</h4>
+                    <h4 className="green fw-bold">Step-by-Step Guide</h4>
                     {recipe.steps.map((step, i) => (
                         <RecipeStep
                             key={i}
@@ -390,6 +462,54 @@ function RecipeDetail({ recipe: propRecipe }) {
                         />
                     ))}
 
+                </div>
+            )}
+
+            {toast && (
+                <div
+                    className="toast align-items-center text-white backgroundGreen border-0 position-fixed bottom-0 end-0 m-3 show"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                    style={{ zIndex: 9999 }}
+                >
+                    <div className="d-flex">
+                        <div className="toast-body">{toast}</div>
+                    </div>
+                </div>
+            )}
+
+            {showCollectionModal && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Select a Collection</h5>
+                            </div>
+                            <div className="modal-body">
+                                {userCollections.length === 0 ? (
+                                    <p>No collections found. Please create one first.</p>
+                                ) : (
+                                    <select className="form-select"
+                                            onChange={(e) => setSelectedCollection(JSON.parse(e.target.value))}
+                                            onClick={(e) => e.stopPropagation()} >
+                                        <option value="">Choose collection</option>
+                                        {userCollections.map((coll) => (
+                                            <option key={coll.id} value={JSON.stringify(coll)}>{coll.collectionName}</option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowCollectionModal(false)}>
+                                    Cancel
+                                </button>
+                                <button className="btn backgroundGreen" disabled={!selectedCollection} onClick={confirmAddToFavorites}>
+                                    Add to Collection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

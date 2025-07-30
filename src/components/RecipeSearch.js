@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
 import { useAuth } from "../features/providers/AuthContext";
 import { useSearch } from "../features/providers/SearchContext";
+import { generateRecipeTags } from "../data/RecipeTags";
 
 function RecipeSearch() {
   const navigate = useNavigate();
@@ -25,12 +26,30 @@ function RecipeSearch() {
     selectedDiet, setSelectedDiet,
     selectedIntolerances, setSelectedIntolerances,
     selectedIngredients, setSelectedIngredients,
-    maxPrice, setMaxPrice,
     maxReadyTime, setMaxReadyTime,
     activeTag, setActiveTag,
     useEquipmentFilter, setUseEquipmentFilter,
     resetSearch
   } = useSearch();
+
+  const [userSettings, setUserSettings] = useState(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (user?.uid) {
+      readCustomSettingsFromDB({ userID: user.uid })
+        .then(settings => {
+          setUserSettings(settings);
+          setSettingsLoaded(true);
+        })
+        .catch(err => {
+          console.error("Error loading user settings:", err);
+          setSettingsLoaded(true);
+        });
+    } else {
+      setSettingsLoaded(true);
+    }
+  }, [user]);
   
   const handleQueryChange = async (value) => {
     setQuery(value);
@@ -62,16 +81,7 @@ function RecipeSearch() {
       title: spoonacularRecipe.title,
       imageURL: spoonacularRecipe.image,
       time: spoonacularRecipe.readyInMinutes ? `${spoonacularRecipe.readyInMinutes}min` : "N/A",
-      tags: [
-        ...(spoonacularRecipe.vegetarian ? ["Vegetarian"] : []),
-        ...(spoonacularRecipe.vegan ? ["Vegan"] : []),
-        ...(spoonacularRecipe.glutenFree ? ["Gluten-Free"] : []),
-        ...(spoonacularRecipe.dairyFree ? ["Dairy-Free"] : []),
-        ...(spoonacularRecipe.veryHealthy ? ["Healthy"] : []),
-        ...(spoonacularRecipe.cheap ? ["Budget-Friendly"] : []),
-        ...(spoonacularRecipe.veryPopular ? ["Popular"] : []),
-        ...(spoonacularRecipe.readyInMinutes <= 30 ? ["Fast"] : [])
-      ].slice(0, 3), 
+      tags: generateRecipeTags(spoonacularRecipe).slice(0, 3), 
       estimatedPrice: spoonacularRecipe.pricePerServing ? 
         Math.round(spoonacularRecipe.pricePerServing / 100 * (spoonacularRecipe.servings || 1)) : null
     };
@@ -88,7 +98,6 @@ function RecipeSearch() {
       intolerances: selectedIntolerances,
       includeIngredients: selectedIngredients,
       maxReadyTime: maxReadyTime,
-      maxPricePerServing: maxPrice ? parseFloat(maxPrice) * 100 : undefined,
       sort: 'popularity',
       number: number
     };
@@ -202,8 +211,9 @@ function RecipeSearch() {
       setLastSearchOptions(searchOptions);
 
       console.log("Search options:", searchOptions);
+      console.log("User settings:", userSettings);
 
-      const data = await searchRecipesAdvanced(searchOptions);
+      const data = await searchRecipesAdvanced(searchOptions, userSettings);
       
       if (!data.results || data.results.length === 0) {
         setResults([]);
@@ -312,6 +322,16 @@ function RecipeSearch() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  if (!settingsLoaded) {
+    return (
+      <div className="d-flex justify-content-center py-5">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-4">
@@ -378,8 +398,6 @@ function RecipeSearch() {
         setSelectedIntolerances={setSelectedIntolerances}
         selectedIngredients={selectedIngredients}
         setSelectedIngredients={setSelectedIngredients}
-        maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
         maxReadyTime={maxReadyTime}
         setMaxReadyTime={setMaxReadyTime}
         activeTag={activeTag}
@@ -410,7 +428,6 @@ function RecipeSearch() {
                 {selectedDiet && ` • ${selectedDiet}`}
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
-                {maxPrice && ` • max $${maxPrice}`}
                 {useEquipmentFilter && ` • equipment filter (strict)`}
               </small>
             )}

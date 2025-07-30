@@ -9,7 +9,7 @@ import {loadRecipesOfFavoritesCollection} from "../../features/databaseStorage/f
 import { useFavorites } from "../../features/providers/FavoriteRecipesContext";
 import Breadcrumbs from "../subcomponents/Breadcrumbs";
 
-const CustomCollection = ({collectionName, isOwnRecipes}) => {
+const CustomCollection = ({collectionName, isOwnRecipes, transformToSpoonacular=false}) => {
     const { user } = useAuth();
     const { refreshFavorites, favoriteRecipes, favoriteCollections } = useFavorites();
 
@@ -107,21 +107,12 @@ const CustomCollection = ({collectionName, isOwnRecipes}) => {
                 </div>
             )}
             <Breadcrumbs />
-            <div className="d-flex align-items-center justify-content-between mb-4">
-                <h2 className="green mb-0 fw-bold mt-5" >Your personal recipes</h2>
 
-                {isOwnRecipes && (
-                <button className="btn backgroundGreen d-flex align-items-center" onClick={() => {
-                    navigate(`/collections/${encodeURIComponent(collectionName)}/create`)
-                }}>
-                    <i className="bi bi-book me-2"></i>
-                    New recipe
-                </button>)}
-            </div>
+            <h2 className="green mb-0 fw-bold" >Your personal recipes</h2>
 
             <h2 className="green">{collectionName}</h2>
             {recipes && recipes.length > 0 ? (
-                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe={isOwnRecipes} />)
+                <RecipeList recipes={recipes} collectionName={collectionName} isOwnRecipe={isOwnRecipes} transformToSpoonacular={transformToSpoonacular} />)
                 : <p>{isOwnRecipes
                     ? "This collection is empty yet. Just create a new recipe and you are ready to go :)"
                     : "This collection is empty yet. Add some favorite recipes to get started :)"

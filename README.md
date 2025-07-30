@@ -89,21 +89,15 @@ Follow these steps to set up and run the RecipeManager project locally:
 
 ---
 
-## 1. Clone the Repository
+## with Docker
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/jshProgrammer/recipemanager.git
 cd RecipeManager
 ````
 
-## 2. Install Dependencies
-Make sure you have Node.js and npm installed. Then run:
-
-```bash
-npm install
-```
-
-## 3. Configure Firebase and Cloudinary
+### 2. Configure Firebase and Cloudinary
 Create a .env file in the root directory and add your Firebase configuration:
 
 ```env
@@ -117,8 +111,57 @@ REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
 REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 ```
 
-## 4. Start the Server
+### 3. Build image
+
+```bash
+docker build -t recipemanager .
+```
+
+### 4. Start the container
+```bash
+docker run -p 3000:80 recipemanager
+```
+Visit http://localhost:3000 in your browser to view the app.
+
+## without Docker
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/jshProgrammer/recipemanager.git
+cd RecipeManager
+````
+
+### 2. Install Dependencies
+Make sure you have Node.js and npm installed. Then run:
+
+```bash
+npm install
+```
+
+### 3. Configure Firebase and Cloudinary
+Create a .env file in the root directory and add your Firebase configuration:
+
+```env
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
+REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+```
+
+### 4. Start the Server
 ```bash
 npm start
 ```
 Visit http://localhost:3000 in your browser to view the app.
+
+# Screenshots
+<img src="screenshots/RecipeManager_LoginPage.png" width="800" alt="login popup"/>
+<img src="screenshots/RecipeManager_Search.png" width="800" alt="search and suggestions on home page"/>
+<img src="screenshots/RecipeManager_Settings.png" width="800" alt="Custom settings for logged in users"/>
+<img src="screenshots/RecipeManager_Mobile_01.png" width="400" alt="tab bar being displayed on mobile"/>
+<img src="screenshots/RecipeManager_Mobile_02.png" width="400" alt="additional profile screen being displayed on mobile"/>

@@ -2,6 +2,14 @@ import React, { createContext, useContext, useState } from 'react';
 
 const SearchContext = createContext();
 
+export const useSearch = () => {
+  const context = useContext(SearchContext);
+  if (!context) {
+    throw new Error('useSearch must be used within a SearchProvider');
+  }
+  return context;
+};
+
 export const SearchProvider = ({ children }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -16,7 +24,6 @@ export const SearchProvider = ({ children }) => {
   const [selectedDiet, setSelectedDiet] = useState("");
   const [selectedIntolerances, setSelectedIntolerances] = useState("");
   const [selectedIngredients, setSelectedIngredients] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
   const [maxReadyTime, setMaxReadyTime] = useState("");
   const [activeTag, setActiveTag] = useState("");
   const [useEquipmentFilter, setUseEquipmentFilter] = useState(false);
@@ -36,7 +43,6 @@ export const SearchProvider = ({ children }) => {
     setSelectedDiet("");
     setSelectedIntolerances("");
     setSelectedIngredients("");
-    setMaxPrice("");
     setMaxReadyTime("");
     setActiveTag("");
     setUseEquipmentFilter(false);
@@ -58,7 +64,6 @@ export const SearchProvider = ({ children }) => {
         selectedDiet, setSelectedDiet,
         selectedIntolerances, setSelectedIntolerances,
         selectedIngredients, setSelectedIngredients,
-        maxPrice, setMaxPrice,
         maxReadyTime, setMaxReadyTime,
         activeTag, setActiveTag,
         useEquipmentFilter, setUseEquipmentFilter,
@@ -69,5 +74,3 @@ export const SearchProvider = ({ children }) => {
     </SearchContext.Provider>
   );
 };
-
-export const useSearch = () => useContext(SearchContext); 

@@ -9,9 +9,9 @@ import LoadingIndicator from './subcomponents/LoadingIndicator.js';
 import { detailedRecipes } from '../data/DetailedSampleData';
 import {useAuth} from "../features/providers/AuthContext";
 
-export function CustomCollectionWrapper({isOwnRecipes}) {
+export function CustomCollectionWrapper({isOwnRecipes, transformToSpoonacular=false}) {
   const { collectionName } = useParams();
-  return <CustomCollection collectionName={collectionName} isOwnRecipes={isOwnRecipes} />;
+  return <CustomCollection collectionName={collectionName} isOwnRecipes={isOwnRecipes} transformToSpoonacular={transformToSpoonacular} />;
 }
 
 export function CreateEditOwnRecipeWrapper() {

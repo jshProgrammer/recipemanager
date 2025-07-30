@@ -1,7 +1,6 @@
 import React from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { availableDiets, availableIntolerances, availableIngredients } from "../../features/spoonacular";
-//TODO: maxprice isn't working yet (in Favorites and Home)
 
 function RecipeFilters({
   selectedDiet,
@@ -10,8 +9,6 @@ function RecipeFilters({
   setSelectedIntolerances,
   selectedIngredients,
   setSelectedIngredients,
-  maxPrice,
-  setMaxPrice,
   maxReadyTime,
   setMaxReadyTime,
   activeTag,
@@ -61,7 +58,7 @@ function RecipeFilters({
       </Row>
 
       <Row className="g-3 mb-4">
-        <Col md={4}>
+        <Col md={5}>
           <Form.Select 
             value={selectedIngredients} 
             onChange={e => setSelectedIngredients(e.target.value)}
@@ -74,7 +71,7 @@ function RecipeFilters({
             ))}
           </Form.Select>
         </Col>
-        <Col md={3}>
+        <Col md={5}>
           <Form.Select 
             value={selectedIntolerances} 
             onChange={e => setSelectedIntolerances(e.target.value)}
@@ -87,19 +84,7 @@ function RecipeFilters({
             ))}
           </Form.Select>
         </Col>
-        <Col md={3}>
-          <Form.Select 
-            value={selectedDiet} 
-            onChange={e => handleDietChange(e.target.value)}
-          >
-            <option value="">Select diet</option>
-            {availableDiets.map(diet => (
-              <option key={diet} value={diet}>
-                {diet.charAt(0).toUpperCase() + diet.slice(1).replace('-', ' ')}
-              </option>
-            ))}
-          </Form.Select>
-        </Col>
+
         <Col md={2}>
           <Button 
             className="w-100 backgroundGreen btn" 
@@ -119,17 +104,20 @@ function RecipeFilters({
       </Row>
 
       <Row className="g-3 mb-4">
-        <Col md={4}>
-          <Form.Control 
-            type="number" 
-            placeholder="Maximum Price $" 
-            min="0"
-            step="0.01"
-            value={maxPrice}
-            onChange={e => setMaxPrice(e.target.value)}
-          />
+        <Col md={5}>
+          <Form.Select 
+            value={selectedDiet} 
+            onChange={e => handleDietChange(e.target.value)}
+          >
+            <option value="">Select diet</option>
+            {availableDiets.map(diet => (
+              <option key={diet} value={diet}>
+                {diet.charAt(0).toUpperCase() + diet.slice(1).replace('-', ' ')}
+              </option>
+            ))}
+          </Form.Select>
         </Col>
-        <Col md={3}>
+        <Col md={5}>
           <Form.Control 
             type="number" 
             placeholder="Maximum Preparation Time (min)" 

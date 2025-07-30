@@ -43,9 +43,6 @@ return (
             <option>Select desired ingredients</option>
         </Form.Select>
         </Col>
-        <Col md={2}>
-        <Form.Control type="number" placeholder="Maximum Price $" min="0" />
-        </Col>
         <Col md={3}>
         <Form.Control type="number" placeholder="Maximum Preparation Time (min)" min="0" />
         </Col>
