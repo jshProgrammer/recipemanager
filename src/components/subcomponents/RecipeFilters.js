@@ -43,7 +43,7 @@ function RecipeFilters({
         </Col>
         <Col md={9}>
           <div className="mb-3 d-flex flex-wrap gap-2">
-            {["Vegetarian", "Vegan", "Gluten-Free", "Ketogenic", "Paleo", "Healthy"].map((tag) => (
+            {["Vegetarian", "Desert", "Fast", "Easy", "Healthy", "Simple"].map((tag) => (
               <span 
                 key={tag} 
                 className={`badge border text-black ${activeTag === tag ? 'backgroundGreen' : 'borderGreen'}`}

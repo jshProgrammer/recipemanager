@@ -426,6 +426,7 @@ function RecipeSearch() {
                 {query && `for "${query}"`}
                 {activeTag && ` • ${activeTag}`}
                 {selectedDiet && ` • ${selectedDiet}`}
+                {selectedIntolerances && ` • ${selectedIntolerances}`}
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
                 {useEquipmentFilter && ` • equipment filter (strict)`}
