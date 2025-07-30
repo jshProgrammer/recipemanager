@@ -315,7 +315,7 @@ const [showShareModal, setShowShareModal] = useState(false);
                             <i className="bi bi-cart-plus me-2"></i> Add to shopping list
                         </button>
 
-                        <button className="btn btn-secondary">
+                        <button className="btn btn-secondary" onClick={handleShare}>
                             <i className="bi bi-box-arrow-up me-2"></i> Share with friends
                         </button>
 

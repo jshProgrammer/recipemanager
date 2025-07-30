@@ -135,11 +135,20 @@ export async function getRecipeIngredients(id) {
 }
 
 export async function getRecipeEquipment(id) {
-  const response = await fetch(
-    `https://api.spoonacular.com/recipes/${id}/equipmentWidget.json?apiKey=${apiKey}`
-  );
-  if (!response.ok) throw new Error("Error when loading equipment information");
-  return response.json();
+  const url = `https://api.spoonacular.com/recipes/${id}/equipmentWidget.json?apiKey=${apiKey}`;
+  console.log(`Fetching equipment for recipe ${id}:`, url);
+  
+  const response = await fetch(url);
+  console.log(`Equipment response for recipe ${id}:`, response.status, response.statusText);
+  
+  if (!response.ok) {
+    console.error(`Equipment API error for recipe ${id}:`, response.status, response.statusText);
+    throw new Error("Error when loading equipment information");
+  }
+  
+  const data = await response.json();
+  console.log(`Equipment data for recipe ${id}:`, data);
+  return data;
 }
 
 export async function getRecipeInstructions(id) {

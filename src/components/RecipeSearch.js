@@ -1,48 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch } from "../features/spoonacular";
+import { searchRecipesAdvanced, getRecipeInformation, autocompleteRecipeSearch, getRecipeEquipment } from "../features/spoonacular";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import RecipeList from "../components/lists/RecipeList";
 import RecipeFilters from "../components/subcomponents/RecipeFilters"; 
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../features/providers/AuthContext";
-import { useSearch } from "../features/providers/SearchContext"; 
 import { readCustomSettingsFromDB } from "../features/databaseStorage/userStorage";
+import { useAuth } from "../features/providers/AuthContext";
+import { useSearch } from "../features/providers/SearchContext";
 import { generateRecipeTags } from "../data/RecipeTags";
 
 function RecipeSearch() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
   const {
-    query,
-    setQuery,
-    results,
-    setResults,
-    hasSearched,
-    setHasSearched,
-    isLoading,
-    setIsLoading,
-    currentOffset,
-    setCurrentOffset,
-    totalResults,
-    setTotalResults,
-    lastSearchOptions,
-    setLastSearchOptions,
-    selectedDiet,
-    setSelectedDiet,
-    selectedIntolerances,
-    setSelectedIntolerances,
-    selectedIngredients,
-    setSelectedIngredients,
-    maxReadyTime,
-    setMaxReadyTime,
-    activeTag,
-    setActiveTag
+    query, setQuery,
+    results, setResults,
+    autocompleteResults, setAutocompleteResults,
+    showAutocomplete, setShowAutocomplete,
+    isLoading, setIsLoading,
+    hasSearched, setHasSearched,
+    currentOffset, setCurrentOffset,
+    totalResults, setTotalResults,
+    isLoadingMore, setIsLoadingMore,
+    lastSearchOptions, setLastSearchOptions,
+    selectedDiet, setSelectedDiet,
+    selectedIntolerances, setSelectedIntolerances,
+    selectedIngredients, setSelectedIngredients,
+    maxReadyTime, setMaxReadyTime,
+    activeTag, setActiveTag,
+    useEquipmentFilter, setUseEquipmentFilter,
+    resetSearch
   } = useSearch();
-  
-  const [autocompleteResults, setAutocompleteResults] = useState([]);
-  const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const [userSettings, setUserSettings] = useState(null);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
@@ -61,7 +50,7 @@ function RecipeSearch() {
       setSettingsLoaded(true);
     }
   }, [user]);
-
+  
   const handleQueryChange = async (value) => {
     setQuery(value);
     
@@ -99,7 +88,7 @@ function RecipeSearch() {
   };
 
   const handleRecipeClick = (recipeId) => {
-    navigate(`/recipes/${recipeId}`);
+    navigate(`/recipes/${recipeId}`, { replace: true });
   };
 
   const buildSearchOptions = (number = 9) => {
@@ -136,6 +125,82 @@ function RecipeSearch() {
     );
   };
 
+  const filterRecipesByEquipment = async (recipes, userEquipment) => {
+    if (!useEquipmentFilter || Object.keys(userEquipment).length === 0) {
+      return recipes;
+    }
+
+    const filteredRecipes = [];
+    let checkedCount = 0;
+    
+    for (const recipe of recipes) {
+      try {
+        // Add delay to avoid rate limiting (1 second between requests)
+        if (checkedCount > 0) {
+          console.log(`Waiting 1 second before next equipment request...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        const equipmentData = await getRecipeEquipment(recipe.id);
+        const recipeEquipment = equipmentData.equipment || [];
+        checkedCount++;
+
+        console.log(`Recipe ${recipe.id} (${recipe.title}) equipment:`, recipeEquipment);
+        console.log("User equipment:", userEquipment);
+        
+        // If recipe has no equipment info, include it
+        if (recipeEquipment.length === 0) {
+          console.log(`Recipe ${recipe.id} has no equipment info - including`);
+          filteredRecipes.push(recipe);
+        } else {
+          // Check if user has ALL required equipment for this recipe
+          let hasAllEquipment = true;
+          for (const equipment of recipeEquipment) {
+            if (userEquipment[equipment.name] !== true) {
+              console.log(`Recipe ${recipe.id} - missing equipment: ${equipment.name}`);
+              hasAllEquipment = false;
+              break;
+            }
+          }
+          
+          if (hasAllEquipment) {
+            console.log(`Recipe ${recipe.id} - ALL equipment available - including`);
+            filteredRecipes.push(recipe);
+            setTotalResults(filteredRecipes.length);
+          } else {
+            console.log(`Recipe ${recipe.id} - missing equipment - excluding`);
+          }
+        }
+        
+        // After finding 9 recipes, set results immediately and continue in background
+        if (filteredRecipes.length === 9) {
+          console.log(`Found ${filteredRecipes.length} suitable recipes, setting results and continuing in background...`);
+          setResults(filteredRecipes.slice(0, 9));
+          setTotalResults(filteredRecipes.length);
+          setCurrentOffset(9);
+          setHasSearched(true);
+          setIsLoading(false);
+          
+          // Continue checking in background but don't wait for it
+          // The rest will be available for "Load More"
+          continue;
+        }
+        
+      } catch (err) {
+        console.warn(`Could not fetch equipment for recipe ${recipe.id}:`, err);
+        console.log(`Recipe ${recipe.id} - equipment fetch failed - excluding recipe`);
+        checkedCount++;
+      }
+    }
+    
+    // Always set results with filtered recipes (whether we found 9 or less)
+    //setResults(filteredRecipes);
+    setTotalResults(filteredRecipes.length);
+    console.log(`Final equipment filtering complete: ${filteredRecipes.length} recipes found (checked ${checkedCount})`);
+    
+    return filteredRecipes;
+  };
+
   const handleSearch = async () => {
     setIsLoading(true);
     setHasSearched(true);
@@ -156,11 +221,44 @@ function RecipeSearch() {
         return;
       }
 
-      const allRecipesWithDetails = await processRecipes(data.results);
+      let allRecipesWithDetails = await processRecipes(data.results);
       
-      setResults(allRecipesWithDetails.slice(0, 9));
-      setTotalResults(allRecipesWithDetails.length);
-      setCurrentOffset(9);
+      console.log("######### BEFORE EQUIPMENT FILTERING #########");
+      console.log("useEquipmentFilter:", useEquipmentFilter);
+      
+      if (useEquipmentFilter) {
+        console.log("Applying equipment filtering...");
+        
+        // Load user equipment for filtering
+        let currentUserEquipment = {};
+        if (user?.uid) {
+          console.log("Loading user equipment for filtering...");
+          try {
+            const settings = await readCustomSettingsFromDB({ userID: user.uid });
+            currentUserEquipment = settings?.equipment || {};
+            console.log("Loaded user equipment:", currentUserEquipment);
+          } catch (err) {
+            console.error("Error loading user equipment for filtering:", err);
+            currentUserEquipment = {};
+          }
+        }
+        
+        console.log("userEquipment:", currentUserEquipment);
+        console.log("Recipes before filtering:", allRecipesWithDetails.map(r => ({id: r.id, title: r.title})));
+        
+        // filterRecipesByEquipment will handle setResults and setTotalResults internally
+        allRecipesWithDetails = await filterRecipesByEquipment(allRecipesWithDetails, currentUserEquipment);
+        console.log(`Equipment filtering complete: ${allRecipesWithDetails.length} recipes found`);
+        setTotalResults(allRecipesWithDetails.length);
+        setResults(allRecipesWithDetails.slice(0, 9));
+        setTotalResults(allRecipesWithDetails.length);
+        setCurrentOffset(9); // Set offset for Load More functionality
+      } else {
+        // Normal flow without equipment filtering
+        setResults(allRecipesWithDetails.slice(0, 9));
+        setTotalResults(allRecipesWithDetails.length);
+        setCurrentOffset(9);
+      }
       
       setLastSearchOptions({...searchOptions, allRecipes: allRecipesWithDetails});
       
@@ -180,13 +278,24 @@ function RecipeSearch() {
     
     try {
       const allRecipes = lastSearchOptions.allRecipes || [];
+      console.log("######### LOAD MORE #########");
+      console.log("All cached recipes:", allRecipes.map(r => ({id: r.id, title: r.title})));
+      console.log("Current offset:", currentOffset);
+      
       const nextRecipes = allRecipes.slice(currentOffset, currentOffset + 6);
+      console.log("Next recipes to add:", nextRecipes.map(r => ({id: r.id, title: r.title})));
       
       if (nextRecipes.length === 0) {
         return;
       }
 
-      setResults(prevResults => [...prevResults, ...nextRecipes]);
+      setResults(prevResults => {
+        const newResults = [...prevResults, ...nextRecipes];
+        console.log("######### UPDATING RESULTS IN LOAD MORE #########");
+        console.log("Previous results:", prevResults.map(r => ({id: r.id, title: r.title})));
+        console.log("New results:", newResults.map(r => ({id: r.id, title: r.title})));
+        return newResults;
+      });
       setCurrentOffset(prevOffset => prevOffset + nextRecipes.length);
     } catch (err) {
       console.error("Load more error:", err);
@@ -295,8 +404,16 @@ function RecipeSearch() {
         setActiveTag={setActiveTag}
         onSearch={handleSearch}
         isLoading={isLoading}
-        userSettings={userSettings}
+        useEquipmentFilter={useEquipmentFilter}
+        setUseEquipmentFilter={setUseEquipmentFilter}
       />
+        {hasSearched && results.length > 0 && (
+          <div className="mb-3 text-end">
+            <Button variant="outline-secondary" size="sm" onClick={resetSearch}>
+              Reset Search
+            </Button>
+          </div>
+        )}
 
       {hasSearched && (
         <div className="mt-4">
@@ -311,6 +428,7 @@ function RecipeSearch() {
                 {selectedDiet && ` • ${selectedDiet}`}
                 {maxReadyTime && ` • max ${maxReadyTime}min`}
                 {selectedIngredients && ` • with ${selectedIngredients}`}
+                {useEquipmentFilter && ` • equipment filter (strict)`}
               </small>
             )}
           </div>

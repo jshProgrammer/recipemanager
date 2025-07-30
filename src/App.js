@@ -2,7 +2,7 @@ import './styles/App.css';
 
 import { recipes } from './data/SampleData';
 import { AuthProvider, useAuth } from './features/providers/AuthContext.js';
-import { SearchProvider } from './features/providers/SearchContext.js';
+import { SearchProvider } from './features/providers/SearchContext';
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -92,16 +92,17 @@ function App() {
               element={<RecipeDetailWrapper/>}/>
 
             <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
+
+            <Route path="/shopping-list" element={<ProtectedRoute><ShoppingList /></ProtectedRoute>} />
+
             <Route path="*" element={<NoPage/>}/>
 
-              <Route path="/shopping-list" element={<ShoppingList />} />
             </Routes>
 
             <footer className="text-center mt-5 text-muted">
               <p className="mb-0">RecipeManager</p>
               <p className="small">Impressum • Your first steps with RecipeManager</p>
             </footer>
-
           </div>
           <MobileTabBar />
         </Router>
